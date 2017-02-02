@@ -1,7 +1,7 @@
 package org.hajecsdb.graphs.storage.entities;
 
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.storage.ByteHelper;
+import org.hajecsdb.graphs.storage.serializers.PropertiesBinaryMapper;
 import org.hajecsdb.graphs.storage.ByteUtils;
 
 import java.nio.ByteBuffer;
@@ -16,7 +16,7 @@ public class BinaryProperties {
     List<PropertyHeader> propertyHeaderList = new ArrayList<>();
     byte[] bytes;
 
-    private ByteHelper byteHelper = new ByteHelper();
+    private PropertiesBinaryMapper propertiesBinaryMapper = new PropertiesBinaryMapper();
 
     public BinaryProperties() {
         numberOfProperties = 0;
@@ -29,8 +29,8 @@ public class BinaryProperties {
         PropertyHeader propertyHeader = new PropertyHeader(lastIndex, binaryProperty);
         numberOfProperties++;
         propertyHeaderList.add(propertyHeader);
+        lastIndex += propertyHeader.getLength();
         invalidateBytes(propertyHeaderList);
-        lastIndex += binaryProperty.getLength();
     }
 
     private void invalidateBytes(List<PropertyHeader> propertyHeaderList) {
@@ -45,13 +45,14 @@ public class BinaryProperties {
     }
 
 
-    // pamietaj o przesunieciu wszystkiego przy zapisie
-    public void shiftIndexes(long shift) {
-        for (PropertyHeader propertyHeader : propertyHeaderList) {
-            propertyHeader.beginBinaryPropertySection += shift;
-            propertyHeader.endBinaryPropertySection += shift;
-        }
-    }
+//    // pamietaj o przesunieciu wszystkiego przy zapisie
+//    public void shiftIndexes(long shift) {
+//        for (PropertyHeader propertyHeader : propertyHeaderList) {
+//            propertyHeader.beginBinaryPropertySection += shift;
+//            propertyHeader.endBinaryPropertySection += shift;
+//        }
+//        invalidateBytes(propertyHeaderList);
+//    }
 
     public List<BinaryProperty> getBinaryProperties() {
         List<BinaryProperty> binaryProperties = new ArrayList<>(numberOfProperties);
@@ -60,41 +61,29 @@ public class BinaryProperties {
 
         long begin = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, Integer.BYTES, Integer.BYTES + Long.BYTES));
         long end = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, Integer.BYTES + Long.BYTES, Integer.BYTES + Long.BYTES + Long.BYTES));
-        System.out.println("begin: " + begin + "\tend: " + end);
-        Property property = byteHelper.convertBinaryFigureIntoProperty(
+//        long len = end - begin;
+//        System.out.println("begin: " + begin + "\tend: " + end + "\tlen: " + len);
+        Property property = propertiesBinaryMapper.toProperty(
                 Arrays.copyOfRange(bytes, (int) begin, (int) end));
+//        System.out.println(property);
         BinaryProperty binaryProperty =
-                byteHelper.convertPropertiesIntoBinaryFigure(property);
+                propertiesBinaryMapper.toBinaryFigure(property);
         binaryProperties.add(binaryProperty);
 
 
-        // ******
-
-        if (numberOfProperties > 1) {
+        for (int i = 1; i < numberOfProperties; i++) {
             begin = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, (int) end, (int) end+ Long.BYTES));
-            end = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, Integer.BYTES + Long.BYTES, Integer.BYTES + Long.BYTES + Long.BYTES));
-            System.out.println("begin: " + begin + "\tend: " + end);
-            property = byteHelper.convertBinaryFigureIntoProperty(
+            end = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, (int) end+ Long.BYTES, (int) end+ Long.BYTES + Long.BYTES));
+//            len = end - begin;
+//            System.out.println("begin: " + begin + "\tend: " + end + "\tlen: " + len);
+//            System.out.println("key: " + printKey((int) begin, (int) end));
+
+            property = propertiesBinaryMapper.toProperty(
                     Arrays.copyOfRange(bytes, (int) begin, (int) end));
             binaryProperty =
-                    byteHelper.convertPropertiesIntoBinaryFigure(property);
+                    propertiesBinaryMapper.toBinaryFigure(property);
             binaryProperties.add(binaryProperty);
-
         }
-
-//        for (int i = 1; i < numberOfProperties; i++) {
-//            begin = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, (int) end+Long.BYTES, (int) end + Long.BYTES + Long.BYTES));
-//            end = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, (int) end+Long.BYTES + Long.BYTES, (int) end + Long.BYTES + Long.BYTES + Long.BYTES));
-//            System.out.println("begin: " + begin + "\tend: " + end);
-//
-//            property = byteHelper.convertBinaryFigureIntoProperty(
-//                    Arrays.copyOfRange(bytes, (int) begin, (int) end));
-//            binaryProperty =
-//                    byteHelper.convertPropertiesIntoBinaryFigure(property);
-//            binaryProperties.add(binaryProperty);
-//        }
-
-
         return binaryProperties;
     }
 
@@ -106,12 +95,17 @@ public class BinaryProperties {
         return bytes;
     }
 
+    public int getLength() {
+        return bytes.length;
+    }
+
     class PropertyHeader {
         private long beginBinaryPropertySection;
         private long endBinaryPropertySection;
         private BinaryProperty binaryProperty;
 
         public PropertyHeader(long lastIndex, BinaryProperty binaryProperty) {
+            // lastIndex + begin + end
             this.beginBinaryPropertySection = lastIndex + Long.BYTES + Long.BYTES;
             this.endBinaryPropertySection = beginBinaryPropertySection + binaryProperty.getLength();
             this.binaryProperty = binaryProperty;

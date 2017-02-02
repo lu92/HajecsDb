@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BinaryNode {
-    private long nodeId;
+    private transient long nodeId;
 
     private byte[] binaryNodeId;
     private byte[] binaryPropertyCount;
