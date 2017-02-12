@@ -1,4 +1,4 @@
-package HajecsDb;
+package HajecsDb.graphBehaviour;
 
 import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.impl.GraphImpl;

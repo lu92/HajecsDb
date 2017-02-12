@@ -23,10 +23,10 @@ public class RelationshipImpl implements Relationship {
         this.relationshipType = relationshipType;
         properties = new Properties();
         properties.add(ID, id, LONG);
-        properties.add(new Property("startNode", startNode.getId(), LONG));
-        properties.add(new Property("endNode", endNode.getId(), LONG));
-        properties.add(new Property("RelationshipType", relationshipType.getName(), STRING));
-        properties.add(new Property("direction", direction, STRING));
+        properties.add(new Property("startNode", LONG, startNode.getId()));
+        properties.add(new Property("endNode", LONG, endNode.getId()));
+        properties.add(new Property("RelationshipType", STRING, relationshipType.getName()));
+        properties.add(new Property("direction", STRING, direction));
     }
 
     @Override

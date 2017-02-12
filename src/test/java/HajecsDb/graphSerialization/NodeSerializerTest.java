@@ -1,7 +1,5 @@
-package HajecsDb;
+package HajecsDb.graphSerialization;
 
-import org.fest.assertions.Assertions;
-import org.fest.util.Files;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.impl.NodeImpl;

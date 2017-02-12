@@ -6,6 +6,9 @@ import org.hajecsdb.graphs.core.Properties;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hajecsdb.graphs.core.PropertyType.LONG;
+import static org.hajecsdb.graphs.core.PropertyType.STRING;
+
 
 public class NodeImpl implements Node {
 
@@ -14,7 +17,7 @@ public class NodeImpl implements Node {
     private Properties properties = new Properties();
 
     public NodeImpl(long id) {
-        this.properties.add(new Property(ID, id, PropertyType.LONG));
+        this.properties.add(new Property(ID, LONG, id));
     }
 
     @Override
@@ -67,7 +70,7 @@ public class NodeImpl implements Node {
 
     @Override
     public void setLabel(Label label) {
-        properties.add(new Property(LABEL, label.getName(), PropertyType.STRING));
+        properties.add(new Property(LABEL, STRING, label.getName()));
     }
 
     @Override

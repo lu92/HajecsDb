@@ -1,8 +1,6 @@
-package HajecsDb;
+package HajecsDb.graphSerialization;
 
-import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.storage.entities.BinaryProperties;
 import org.hajecsdb.graphs.storage.entities.BinaryProperty;
 import org.hajecsdb.graphs.storage.entities.PropertyHeader;
 import org.hajecsdb.graphs.storage.entities.PropertyHeaderMapper;
@@ -18,7 +16,6 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
-import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PropertyHeaderMapperTest {
