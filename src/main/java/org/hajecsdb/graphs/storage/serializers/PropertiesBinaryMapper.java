@@ -13,37 +13,35 @@ import java.util.Arrays;
 
 public class PropertiesBinaryMapper {
     public static final int KEY_SIZE = 30;
-    public static final int TYPE_SIZE = 8;
 
     public BinaryProperty toBinaryFigure(Property property) {
         byte[] key = ByteBuffer.allocate(KEY_SIZE).put(property.getKey().getBytes()).array();
+        byte type = (byte) property.getType().getBinaryCode();;
         byte[] value;
-        byte[] type = ByteBuffer.allocate(TYPE_SIZE).putInt(property.getType().getBinaryCode()).array();
-
         switch (property.getType()) {
             case NONE:
                 return null;
 
             case INT:
                 value = ByteBuffer.allocate(Integer.BYTES).putInt((int) property.getValue()).array();
-                return new BinaryProperty(key, value, type);
+                return new BinaryProperty(key, type, value);
 
             case LONG:
                 value = ByteBuffer.allocate(Long.BYTES).putLong((long) property.getValue()).array();
-                return new BinaryProperty(key, value, type);
+                return new BinaryProperty(key, type, value);
 
             case FLOAT:
                 value = ByteBuffer.allocate(Float.BYTES).putFloat((float) property.getValue()).array();
-                return new BinaryProperty(key, value, type);
+                return new BinaryProperty(key, type, value);
 
             case DOUBLE:
                 value = ByteBuffer.allocate(Double.BYTES).putDouble((double) property.getValue()).array();
-                return new BinaryProperty(key, value, type);
+                return new BinaryProperty(key, type, value);
 
             case STRING:
                 String stringValue = (String) property.getValue();
                 value = ByteBuffer.allocate(stringValue.getBytes().length).put((stringValue).getBytes()).array();
-                return new BinaryProperty(key, value, type);
+                return new BinaryProperty(key, type, value);
 
             case DATE:
                 throw new UnsupportedOperationException();
@@ -71,23 +69,23 @@ public class PropertiesBinaryMapper {
 
     public Property toProperty(byte[] bytes) {
         String key = ByteUtils.bytesToString(Arrays.copyOfRange(bytes, 0, KEY_SIZE));
-        PropertyType type = PropertyType.valueOf(ByteBuffer.wrap(Arrays.copyOfRange(bytes, bytes.length - TYPE_SIZE, bytes.length)).getInt());
-        byte[] value = Arrays.copyOfRange(bytes, KEY_SIZE, bytes.length - TYPE_SIZE);
+        PropertyType type = PropertyType.valueOf((int)Arrays.copyOfRange(bytes, KEY_SIZE, KEY_SIZE+1)[0]);
+        byte[] value = Arrays.copyOfRange(bytes, KEY_SIZE+1, bytes.length);
         switch (type) {
             case INT:
-                return new Property(key, ByteUtils.bytesToInt(value), type);
+                return new Property(key, type, ByteUtils.bytesToInt(value));
 
             case LONG:
-                return new Property(key, ByteUtils.bytesToLong(value), type);
+                return new Property(key, type, ByteUtils.bytesToLong(value));
 
             case FLOAT:
-                return new Property(key, ByteUtils.bytesToFloat(value), type);
+                return new Property(key, type, ByteUtils.bytesToFloat(value));
 
             case DOUBLE:
-                return new Property(key, ByteUtils.bytesToDouble(value), type);
+                return new Property(key, type, ByteUtils.bytesToDouble(value));
 
             case STRING:
-                return new Property(key, ByteUtils.bytesToString(value), type);
+                return new Property(key, type, ByteUtils.bytesToString(value));
 
             case DATE:
                 throw new UnsupportedOperationException();

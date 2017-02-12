@@ -11,21 +11,20 @@ import java.util.Arrays;
 
 public class BinaryProperty {
     public static final int KEY_SIZE = 30;
-    public static final int TYPE_SIZE = 8;
     private byte[] key;
-    private byte[] type;
+    private byte type;
     private byte[] bytes;
     private PropertyType propertyType;
 
-    public BinaryProperty(byte[] key, byte[] value, byte[] type) {
+    public BinaryProperty(byte[] key, byte type, byte[] value) {
         this.key = key;
         this.type = type;
-        this.bytes = mergePropertyIntoByteArray(key, value, type);
-        this.propertyType = PropertyType.valueOf(ByteBuffer.wrap(type).getInt());
+        this.bytes = mergePropertyIntoByteArray(key, type, value);
+        this.propertyType = PropertyType.valueOf((int) type);
     }
 
-    private byte[] mergePropertyIntoByteArray(byte [] key, byte [] value, byte [] type) {
-        return ArrayUtils.addAll(ArrayUtils.addAll(key, value), type);
+    private byte[] mergePropertyIntoByteArray(byte [] key, byte type, byte [] value) {
+        return ArrayUtils.addAll(ArrayUtils.addAll(key, type), value);
     }
 
     @Override
@@ -48,10 +47,10 @@ public class BinaryProperty {
     }
 
     public byte[] getBinaryValue() {
-        return Arrays.copyOfRange(bytes, KEY_SIZE, bytes.length-TYPE_SIZE);
+        return Arrays.copyOfRange(bytes, KEY_SIZE+1, bytes.length);
     }
 
-    public byte[] getBinaryType() {
+    public byte getBinaryType() {
         return type;
     }
 
@@ -95,6 +94,6 @@ public class BinaryProperty {
 
     @Override
     public String toString() {
-        return "BinaryProperty{" + getKey() + ", " + getValue() + ", " + getType() + "}";
+        return "BinaryProperty{" + getKey() + ", "  + getType() + ", " + getValue() + "}";
     }
 }

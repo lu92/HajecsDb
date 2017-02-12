@@ -2,13 +2,13 @@ package org.hajecsdb.graphs.core;
 
 public class Property {
     private String key;
-    private Object value;
     private PropertyType type;
+    private Object value;
 
-    public Property(String key, Object value, PropertyType type) {
+    public Property(String key, PropertyType type, Object value) {
         this.key = key;
-        this.value = value;
         this.type = type;
+        this.value = value;
     }
 
     public String getKey() {
@@ -38,8 +38,8 @@ public class Property {
     @Override
     public int hashCode() {
         int result = key.hashCode();
-        result = 31 * result + value.hashCode();
         result = 31 * result + type.hashCode();
+        result = 31 * result + value.hashCode();
         return result;
     }
 
@@ -47,8 +47,8 @@ public class Property {
     public String toString() {
         return "Property{" +
                 "key='" + key + '\'' +
-                ", value=" + value +
                 ", type=" + type +
+                ", value=" + value +
                 '}';
     }
 }

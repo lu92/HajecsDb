@@ -16,7 +16,7 @@ public class Properties {
     }
 
     public Properties add(String key, Object value, PropertyType type) {
-        return add(new Property(key, value, type));
+        return add(new Property(key, type, value));
     }
 
     public Properties add(Property property) {

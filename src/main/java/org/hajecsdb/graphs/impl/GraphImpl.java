@@ -26,10 +26,10 @@ public class GraphImpl implements Graph {
     public GraphImpl(String pathDir, String graphName) {
         if (StringUtils.isEmpty(pathDir) || StringUtils.isEmpty(graphName))
             throw new NullPointerException("pathDir and graphName can't be empty or null");
-        properties.add(new Property("pathDir", pathDir, STRING));
-        properties.add(new Property("graphName", graphName, STRING));
-        properties.add(new Property("creationDateTime", LocalDateTime.now(), DATE_TIME));
-        properties.add(new Property("lastGeneratedId", idGenerator.getLastId(), LONG));
+        properties.add(new Property("pathDir", STRING, pathDir));
+        properties.add(new Property("graphName", STRING, graphName));
+        properties.add(new Property("creationDateTime", DATE_TIME, LocalDateTime.now()));
+        properties.add(new Property("lastGeneratedId",LONG, idGenerator.getLastId()));
     }
 
     @Override

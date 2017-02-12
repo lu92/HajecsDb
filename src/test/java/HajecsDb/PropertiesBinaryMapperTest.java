@@ -12,11 +12,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hajecsdb.graphs.core.PropertyType.INT;
-import static org.hajecsdb.graphs.core.PropertyType.LONG;
-import static org.hajecsdb.graphs.core.PropertyType.STRING;
+import static org.hajecsdb.graphs.core.PropertyType.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PropertiesBinaryMapperTest {
@@ -25,72 +24,72 @@ public class PropertiesBinaryMapperTest {
 
     @Test
     public void intValueTest() {
-        Property property = new Property("id", 128, PropertyType.INT);
+        Property property = new Property("id", INT, 128);
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
         assertThat(binaryProperty.getKey()).isEqualTo("id");
-        assertThat(binaryProperty.getValue()).isEqualTo(new Integer(128));
         assertThat(binaryProperty.getType()).isEqualTo(PropertyType.INT);
+        assertThat(binaryProperty.getValue()).isEqualTo(new Integer(128));
 
         Property mappedProperty = propertiesBinaryMapper.toProperty(binaryProperty.getBytes());
         assertThat(mappedProperty.getKey()).isEqualTo("id");
-        assertThat(mappedProperty.getValue()).isEqualTo(new Integer(128));
         assertThat(mappedProperty.getType()).isEqualTo(PropertyType.INT);
+        assertThat(mappedProperty.getValue()).isEqualTo(new Integer(128));
     }
 
     @Test
     public void longValueTest() {
-        Property property = new Property("id", 128l, PropertyType.LONG);
+        Property property = new Property("id", LONG, 128l);
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
         assertThat(binaryProperty.getKey()).isEqualTo("id");
-        assertThat(binaryProperty.getValue()).isEqualTo(new Long(128));
         assertThat(binaryProperty.getType()).isEqualTo(PropertyType.LONG);
+        assertThat(binaryProperty.getValue()).isEqualTo(new Long(128));
 
         Property mappedProperty = propertiesBinaryMapper.toProperty(binaryProperty.getBytes());
         assertThat(mappedProperty.getKey()).isEqualTo("id");
-        assertThat(mappedProperty.getValue()).isEqualTo(new Long(128));
         assertThat(mappedProperty.getType()).isEqualTo(PropertyType.LONG);
+        assertThat(mappedProperty.getValue()).isEqualTo(new Long(128));
     }
 
     @Test
     public void floatValueTest() {
-        Property property = new Property("id", 128.0f, PropertyType.FLOAT);
+        Property property = new Property("id", FLOAT, 128.0f);
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
         assertThat(binaryProperty.getKey()).isEqualTo("id");
+        assertThat(binaryProperty.getType()).isEqualTo(FLOAT);
         assertThat(binaryProperty.getValue()).isEqualTo(new Float(128.0f));
-        assertThat(binaryProperty.getType()).isEqualTo(PropertyType.FLOAT);
 
         Property mappedProperty = propertiesBinaryMapper.toProperty(binaryProperty.getBytes());
         assertThat(mappedProperty.getKey()).isEqualTo("id");
+        assertThat(mappedProperty.getType()).isEqualTo(FLOAT);
         assertThat(mappedProperty.getValue()).isEqualTo(new Float(128.0f));
-        assertThat(mappedProperty.getType()).isEqualTo(PropertyType.FLOAT);
     }
 
     @Test
     public void doubleValueTest() {
-        Property property = new Property("id", 128.00, PropertyType.DOUBLE);
+        Property property = new Property("id", DOUBLE, 128.00);
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
         assertThat(binaryProperty.getKey()).isEqualTo("id");
-        assertThat(binaryProperty.getValue()).isEqualTo(new Double(128.00));
         assertThat(binaryProperty.getType()).isEqualTo(PropertyType.DOUBLE);
+        assertThat(binaryProperty.getValue()).isEqualTo(new Double(128.00));
 
         Property mappedProperty = propertiesBinaryMapper.toProperty(binaryProperty.getBytes());
         assertThat(mappedProperty.getKey()).isEqualTo("id");
-        assertThat(mappedProperty.getValue()).isEqualTo(new Double(128));
         assertThat(mappedProperty.getType()).isEqualTo(PropertyType.DOUBLE);
+        assertThat(mappedProperty.getValue()).isEqualTo(new Double(128));
     }
 
     @Test
     public void stringValueTest() {
-        Property property = new Property("id", "One hundred twenty eight", PropertyType.STRING);
+        Property property = new Property("id", STRING, "One hundred twenty eight");
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
         assertThat(binaryProperty.getKey()).isEqualTo("id");
-        assertThat(binaryProperty.getValue()).isEqualTo("One hundred twenty eight");
         assertThat(binaryProperty.getType()).isEqualTo(PropertyType.STRING);
+        assertThat(binaryProperty.getValue()).isEqualTo("One hundred twenty eight");
 
         Property mappedProperty = propertiesBinaryMapper.toProperty(binaryProperty.getBytes());
         assertThat(mappedProperty.getKey()).isEqualTo("id");
-        assertThat(mappedProperty.getValue()).isEqualTo("One hundred twenty eight");
         assertThat(mappedProperty.getType()).isEqualTo(PropertyType.STRING);
+        assertThat(mappedProperty.getValue()).isEqualTo("One hundred twenty eight");
     }
 
     @Test
@@ -113,46 +112,89 @@ public class PropertiesBinaryMapperTest {
 
     @Test
     public void convertPropertiesWithOnePropertyTest() {
-        Property property = new Property("id", 1l, LONG);
+        // given
+        Property property = new Property("id", LONG, 1l);
         Properties properties = new Properties().add(property);
         BinaryProperty expectedBinaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
 
+        // when
         BinaryProperties binaryProperties = propertiesBinaryMapper.toBinaryFigure(properties);
-        assertThat(binaryProperties.getNumberOfProperties()).isEqualTo(1);
-        assertThat(binaryProperties.getBinaryProperties()).hasSize(1);
-        assertThat(binaryProperties.getBinaryProperties()).containsExactly(expectedBinaryProperty);
 
-//        propertiesBinaryMapper.convertBinaryFigureIntoProperties(binaryProperties);
+        // then
+        assertThat(binaryProperties.getNumberOfProperties()).isEqualTo(1);
+        List<BinaryProperty> mappedBinaryProperties = binaryProperties.getBinaryProperties();
+        assertThat(mappedBinaryProperties).hasSize(1);
+        assertThat(mappedBinaryProperties).containsExactly(expectedBinaryProperty);
+        assertThat(mappedBinaryProperties.get(0).getKey()).isEqualTo("id");
+        assertThat(mappedBinaryProperties.get(0).getType()).isEqualTo(LONG);
+        assertThat(mappedBinaryProperties.get(0).getValue()).isEqualTo(1l);
+
+        // validate numberOfProperties
         int numberOfProperties = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), 0, Integer.BYTES)).getInt();
         assertThat(numberOfProperties).isEqualTo(1);
 
-        long beginIndex = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES, Integer.BYTES+Long.BYTES)).getLong();
-        assertThat(beginIndex).isEqualTo(Integer.BYTES);
+        // validate beginIndex
+        long beginIndex = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES, Integer.BYTES + Long.BYTES)).getLong();
+        assertThat(beginIndex).isEqualTo(0l);
+
+        // validate lastIndex
+        long lastIndex = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES + Long.BYTES, Integer.BYTES + Long.BYTES + Long.BYTES)).getLong();
+        assertThat(lastIndex).isEqualTo(Integer.BYTES + 4 * Long.BYTES + expectedBinaryProperty.getLength());
+
+        // validate beginBinaryPropertySection
+        long beginBinaryPropertySection = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES + 2 * Long.BYTES, Integer.BYTES + 3 * Long.BYTES)).getLong();
+        assertThat(beginBinaryPropertySection).isEqualTo(Integer.BYTES + 4 * Long.BYTES);
+
+        // validate endBinaryPropertySection
+        long endBinaryPropertySection = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES + 3 * Long.BYTES, Integer.BYTES + 4 * Long.BYTES)).getLong();
+        assertThat(endBinaryPropertySection).isEqualTo(Integer.BYTES + 4 * Long.BYTES + expectedBinaryProperty.getLength());
+
+
+        // validate savedProperty
+        byte[] propertySection = Arrays.copyOfRange(binaryProperties.getBytes(), (int) beginBinaryPropertySection, (int) endBinaryPropertySection);
+        Property retrievedProperty = propertiesBinaryMapper.toProperty(propertySection);
+        assertThat(retrievedProperty.getKey()).isEqualTo("id");
+        assertThat(retrievedProperty.getType()).isEqualTo(LONG);
+        assertThat(retrievedProperty.getValue()).isEqualTo(1l);
     }
 
     @Test
     public void convertPropertiesWithThreePropertiesTest() {
         // given
-        Property firstNameProperty = new Property("firstName", "James", STRING);
-        Property lastNameProperty = new Property("lastName", "Bond", STRING);
-        Property ageProperty = new Property("age", 40, INT);
+        Property firstNameProperty = new Property("firstName", STRING, "James");
+        Property lastNameProperty = new Property("lastName", STRING, "Bond");
+        Property ageProperty = new Property("age", INT, 40);
 
         Properties properties = new Properties()
                 .add(firstNameProperty)
                 .add(lastNameProperty)
                 .add(ageProperty);
 
-        BinaryProperty ExpectedBinaryFirstNameProperty = propertiesBinaryMapper.toBinaryFigure(firstNameProperty);
-        BinaryProperty ExpectedBinaryLastNameProperty = propertiesBinaryMapper.toBinaryFigure(lastNameProperty);
-        BinaryProperty ExpectedBinaryAgeProperty = propertiesBinaryMapper.toBinaryFigure(ageProperty);
+        BinaryProperty expectedBinaryFirstNameProperty = propertiesBinaryMapper.toBinaryFigure(firstNameProperty);
+        BinaryProperty expectedBinaryLastNameProperty = propertiesBinaryMapper.toBinaryFigure(lastNameProperty);
+        BinaryProperty expectedBinaryAgeProperty = propertiesBinaryMapper.toBinaryFigure(ageProperty);
 
         // when
         BinaryProperties binaryProperties = propertiesBinaryMapper.toBinaryFigure(properties);
 
         // then
         assertThat(binaryProperties.getNumberOfProperties()).isEqualTo(3);
-        assertThat(binaryProperties.getBinaryProperties()).hasSize(3);
-        assertThat(binaryProperties.getBinaryProperties())
-                .contains(ExpectedBinaryFirstNameProperty, ExpectedBinaryLastNameProperty, ExpectedBinaryAgeProperty);
+        List<BinaryProperty> binaryPropertyList = binaryProperties.getBinaryProperties();
+        assertThat(binaryPropertyList).hasSize(3);
+        assertThat(binaryPropertyList)
+                .contains(expectedBinaryFirstNameProperty, expectedBinaryLastNameProperty, expectedBinaryAgeProperty);
+
+        // validate numberOfProperties
+        int numberOfProperties = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), 0, Integer.BYTES)).getInt();
+        assertThat(numberOfProperties).isEqualTo(3);
+
+        // validate beginIndex
+        long beginIndex = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES, Integer.BYTES + Long.BYTES)).getLong();
+        assertThat(beginIndex).isEqualTo(0l);
+
+        // validate lastIndex
+        long lastIndex = ByteBuffer.wrap(Arrays.copyOfRange(binaryProperties.getBytes(), Integer.BYTES + Long.BYTES, Integer.BYTES + Long.BYTES + Long.BYTES)).getLong();
+        assertThat(lastIndex).isEqualTo(Integer.BYTES + 8*Long.BYTES +
+                expectedBinaryFirstNameProperty.getLength() + expectedBinaryLastNameProperty.getLength() + expectedBinaryAgeProperty.getLength());
     }
 }
