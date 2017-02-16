@@ -21,6 +21,11 @@ public enum PropertyType {
         return binaryCode;
     }
 
+    public static PropertyType valueOf(byte binaryCode) {
+        int code = (int) binaryCode;
+        return valueOf(code);
+    }
+
     public static PropertyType valueOf(int binaryCode) {
         for (PropertyType property : values()) {
             if (property.binaryCode == binaryCode)

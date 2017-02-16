@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.storage.serializers;
+package org.hajecsdb.graphs.storage.mappers;
 
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Property;
@@ -42,6 +42,47 @@ public class PropertiesBinaryMapper {
                 String stringValue = (String) property.getValue();
                 value = ByteBuffer.allocate(stringValue.getBytes().length).put((stringValue).getBytes()).array();
                 return new BinaryProperty(key, type, value);
+
+            case DATE:
+                throw new UnsupportedOperationException();
+
+            case TIME:
+                throw new UnsupportedOperationException();
+
+            case DATE_TIME:
+                throw new UnsupportedOperationException();
+
+            default:
+                return null;
+        }
+    }
+
+    public Property fromBinaryFigure(byte [] bytes) {
+        String key = ByteUtils.bytesToString(ByteBuffer.wrap(Arrays.copyOfRange(bytes, 0, KEY_SIZE)).array());
+        PropertyType propertyType = PropertyType.valueOf(Arrays.copyOfRange(bytes, KEY_SIZE, KEY_SIZE + 1)[0]);
+        switch (propertyType) {
+            case NONE:
+                return null;
+
+            case INT:
+                int intValue = ByteUtils.bytesToInt(ByteBuffer.wrap(Arrays.copyOfRange(bytes, KEY_SIZE + 1, bytes.length)).array());
+                return new Property(key, propertyType, intValue);
+
+            case LONG:
+                long longValue = ByteUtils.bytesToLong(ByteBuffer.wrap(Arrays.copyOfRange(bytes, KEY_SIZE + 1, bytes.length)).array());
+                return new Property(key, propertyType, longValue);
+
+            case FLOAT:
+                float floatValue = ByteUtils.bytesToFloat(ByteBuffer.wrap(Arrays.copyOfRange(bytes, KEY_SIZE + 1, bytes.length)).array());
+                return new Property(key, propertyType, floatValue);
+
+            case DOUBLE:
+                double doubleValue = ByteUtils.bytesToDouble(ByteBuffer.wrap(Arrays.copyOfRange(bytes, KEY_SIZE + 1, bytes.length)).array());
+                return new Property(key, propertyType, doubleValue);
+
+            case STRING:
+                String stringValue = ByteUtils.bytesToString(ByteBuffer.wrap(Arrays.copyOfRange(bytes, KEY_SIZE + 1, bytes.length)).array());
+                return new Property(key, propertyType, stringValue);
 
             case DATE:
                 throw new UnsupportedOperationException();

@@ -3,7 +3,7 @@ package HajecsDb.graphSerialization;
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
-import org.hajecsdb.graphs.storage.serializers.PropertiesBinaryMapper;
+import org.hajecsdb.graphs.storage.mappers.PropertiesBinaryMapper;
 import org.hajecsdb.graphs.storage.entities.BinaryProperties;
 import org.hajecsdb.graphs.storage.entities.BinaryProperty;
 import org.junit.Test;
@@ -37,6 +37,21 @@ public class PropertiesBinaryMapperTest {
     }
 
     @Test
+    public void fromBinaryFigureToIntValueTest() {
+        // given
+        Property expectedProperty = new Property("id", INT, 128);
+        BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(expectedProperty);
+
+        // when
+        Property property = propertiesBinaryMapper.fromBinaryFigure(binaryProperty.getBytes());
+
+        // then
+        assertThat(property.getKey()).isEqualTo("id");
+        assertThat(property.getType()).isEqualTo(PropertyType.INT);
+        assertThat(property.getValue()).isEqualTo(new Integer(128));
+    }
+
+    @Test
     public void longValueTest() {
         Property property = new Property("id", LONG, 128l);
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
@@ -48,6 +63,21 @@ public class PropertiesBinaryMapperTest {
         assertThat(mappedProperty.getKey()).isEqualTo("id");
         assertThat(mappedProperty.getType()).isEqualTo(PropertyType.LONG);
         assertThat(mappedProperty.getValue()).isEqualTo(new Long(128));
+    }
+
+    @Test
+    public void fromBinaryFigureToLongValueTest() {
+        // given
+        Property expectedProperty = new Property("id", LONG, 128l);
+        BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(expectedProperty);
+
+        // when
+        Property property = propertiesBinaryMapper.fromBinaryFigure(binaryProperty.getBytes());
+
+        //then
+        assertThat(property.getKey()).isEqualTo("id");
+        assertThat(property.getType()).isEqualTo(PropertyType.LONG);
+        assertThat(property.getValue()).isEqualTo(new Long(128));
     }
 
     @Test
@@ -65,6 +95,21 @@ public class PropertiesBinaryMapperTest {
     }
 
     @Test
+    public void fromBinaryFigureToFloatValueTest() {
+        // given
+        Property expectedProperty = new Property("id", FLOAT, 128.0f);
+        BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(expectedProperty);
+
+        // when
+        Property property = propertiesBinaryMapper.fromBinaryFigure(binaryProperty.getBytes());
+
+        //then
+        assertThat(property.getKey()).isEqualTo("id");
+        assertThat(property.getType()).isEqualTo(FLOAT);
+        assertThat(property.getValue()).isEqualTo(new Float(128.0f));
+    }
+
+    @Test
     public void doubleValueTest() {
         Property property = new Property("id", DOUBLE, 128.00);
         BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(property);
@@ -76,6 +121,21 @@ public class PropertiesBinaryMapperTest {
         assertThat(mappedProperty.getKey()).isEqualTo("id");
         assertThat(mappedProperty.getType()).isEqualTo(PropertyType.DOUBLE);
         assertThat(mappedProperty.getValue()).isEqualTo(new Double(128));
+    }
+
+    @Test
+    public void fromBinaryFigureToDoubleValueTest() {
+        // given
+        Property expectedProperty = new Property("id", DOUBLE, 128.00);
+        BinaryProperty binaryProperty = propertiesBinaryMapper.toBinaryFigure(expectedProperty);
+
+        // when
+        Property property = propertiesBinaryMapper.fromBinaryFigure(binaryProperty.getBytes());
+
+        //then
+        assertThat(property.getKey()).isEqualTo("id");
+        assertThat(property.getType()).isEqualTo(PropertyType.DOUBLE);
+        assertThat(property.getValue()).isEqualTo(new Double(128));
     }
 
     @Test
