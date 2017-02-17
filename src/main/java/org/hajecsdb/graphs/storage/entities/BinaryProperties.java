@@ -1,8 +1,9 @@
 package org.hajecsdb.graphs.storage.entities;
 
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.storage.serializers.PropertiesBinaryMapper;
+import org.hajecsdb.graphs.storage.mappers.PropertiesBinaryMapper;
 import org.hajecsdb.graphs.storage.ByteUtils;
+import org.hajecsdb.graphs.storage.mappers.PropertyHeaderMapper;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 public class BinaryProperties {
     int numberOfProperties;
     long beginIndex;
-    long lastIndex; // is set on last index
+    long lastIndex;
     List<PropertyHeader> propertyHeaderList = new ArrayList<>();
     byte[] bytes;
 

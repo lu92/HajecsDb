@@ -11,7 +11,7 @@ public class PropertyHeader {
         this.beginBinaryPropertySection = beginIndex;
         this.endBinaryPropertySection = lastIndex;
         this.binaryProperty = binaryProperty;
-        System.out.println("new header: " + "(" + beginBinaryPropertySection + ", " + endBinaryPropertySection + ")");
+//        System.out.println("new header: " + "(" + beginBinaryPropertySection + ", " + endBinaryPropertySection + ")");
     }
 
     public int getLength() {

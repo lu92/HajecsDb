@@ -7,6 +7,7 @@ import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.storage.EntityType;
 import org.hajecsdb.graphs.storage.entities.BinaryEntity;
 import org.hajecsdb.graphs.storage.entities.BinaryProperty;
+import org.hajecsdb.graphs.storage.mappers.PropertiesBinaryMapper;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

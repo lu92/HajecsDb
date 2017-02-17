@@ -142,12 +142,32 @@ public class PropertiesBinaryMapper {
         }
     }
 
-    public Properties toProperties(BinaryProperties binaryProperties) {
-        throw new UnsupportedOperationException();
+    public Properties toProperties(byte [] bytes) {
+        BinaryProperties binaryProperties = fromBinaryFigureToBinaryProperties(bytes);
+        return toProperties(binaryProperties);
     }
 
-    public Properties toProperties(byte [] binaryProperties) {
-        throw new UnsupportedOperationException();
+    public Properties toProperties(BinaryProperties binaryProperties) {
+        Properties properties = new Properties();
+        for (BinaryProperty binaryProperty : binaryProperties.getBinaryProperties()) {
+            properties.add(fromBinaryFigure(binaryProperty.getBytes()));
+        }
+        return properties;
+    }
+
+    public BinaryProperties fromBinaryFigureToBinaryProperties(byte [] bytes) {
+        int numberOfProperties = ByteUtils.bytesToInt(ByteBuffer.wrap(Arrays.copyOfRange(bytes, 0, Integer.BYTES)).array());
+        System.out.println("readed number of properties: " + numberOfProperties);
+        BinaryProperties binaryProperties = new BinaryProperties();
+        int localShift = Integer.BYTES + Long.BYTES + Long.BYTES;
+        for (int i=0; i<numberOfProperties; i++) {
+            long beginHeader = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, localShift, localShift + Long.BYTES));
+            long endHeader = ByteUtils.bytesToLong(Arrays.copyOfRange(bytes, localShift + Long.BYTES, localShift + Long.BYTES + Long.BYTES));
+            Property property = this.toProperty(Arrays.copyOfRange(bytes, (int) beginHeader, (int) endHeader));
+            binaryProperties.addProperty(this.toBinaryFigure(property));
+            localShift += (2*Long.BYTES + endHeader - beginHeader);
+        }
+        return binaryProperties;
     }
 
     public BinaryProperties convertBinaryFigureIntoProperties(Properties properties) {

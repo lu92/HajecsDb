@@ -1,5 +1,8 @@
-package org.hajecsdb.graphs.storage.entities;
+package org.hajecsdb.graphs.storage.mappers;
 
+
+import org.hajecsdb.graphs.storage.entities.BinaryProperty;
+import org.hajecsdb.graphs.storage.entities.PropertyHeader;
 
 import java.util.ArrayList;
 import java.util.List;
