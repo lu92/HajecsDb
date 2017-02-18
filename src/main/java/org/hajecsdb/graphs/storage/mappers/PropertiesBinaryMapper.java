@@ -6,7 +6,6 @@ import org.hajecsdb.graphs.core.PropertyType;
 import org.hajecsdb.graphs.storage.ByteUtils;
 import org.hajecsdb.graphs.storage.entities.BinaryProperties;
 import org.hajecsdb.graphs.storage.entities.BinaryProperty;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -157,7 +156,6 @@ public class PropertiesBinaryMapper {
 
     public BinaryProperties fromBinaryFigureToBinaryProperties(byte [] bytes) {
         int numberOfProperties = ByteUtils.bytesToInt(ByteBuffer.wrap(Arrays.copyOfRange(bytes, 0, Integer.BYTES)).array());
-        System.out.println("readed number of properties: " + numberOfProperties);
         BinaryProperties binaryProperties = new BinaryProperties();
         int localShift = Integer.BYTES + Long.BYTES + Long.BYTES;
         for (int i=0; i<numberOfProperties; i++) {

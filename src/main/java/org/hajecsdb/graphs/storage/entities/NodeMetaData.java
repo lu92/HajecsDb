@@ -1,27 +1,20 @@
 package org.hajecsdb.graphs.storage.entities;
 
-import org.hajecsdb.graphs.storage.ByteUtils;
-
 import java.nio.ByteBuffer;
 
 public class NodeMetaData {
 
-    public static final int SECTION_SIZE = 3*Long.BYTES;
+    public static final int SECTION_SIZE = Long.BYTES + 1 + 2*Long.BYTES;
     long nodeId;
+    boolean deleted;            // 0 = deleted, otherwise not deleted
     long beginDataSection;      // begin index in nodes.bin
     long endDataSection;        // end index in nodes.bin
 
-//    private byte[] binaryNodeId;
-//    private byte[] binaryBeginDataSection;
-//    private byte[] binaryEndDataSection;
-
     public NodeMetaData(long nodeId, long beginDataSection, long endDataSection) {
         this.nodeId = nodeId;
+        this.deleted = false;
         this.beginDataSection = beginDataSection;
         this.endDataSection = endDataSection;
-//        this.binaryNodeId = ByteUtils.longToBytes(nodeId);
-//        this.binaryBeginDataSection = ByteUtils.longToBytes(beginDataSection);
-//        this.binaryEndDataSection = ByteUtils.longToBytes(endDataSection);
     }
 
     public long getNodeId() {
@@ -39,6 +32,7 @@ public class NodeMetaData {
     public byte[] getBytes() {
         return ByteBuffer.allocate(SECTION_SIZE)
                 .putLong(nodeId)
+                .put((byte)(deleted == true ? 0 : 1))
                 .putLong(beginDataSection)
                 .putLong(endDataSection).array();
     }
@@ -47,6 +41,7 @@ public class NodeMetaData {
     public String toString() {
         return "NodeMetaData{" +
                 "nodeId=" + nodeId +
+                ", deleted=" + deleted +
                 ", beginDataSection=" + beginDataSection +
                 ", endDataSection=" + endDataSection +
                 '}';

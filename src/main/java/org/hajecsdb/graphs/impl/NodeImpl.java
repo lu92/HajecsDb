@@ -41,7 +41,7 @@ public class NodeImpl implements Node {
     }
 
     @Override
-    public Iterable<Relationship> getRelationships(Direction direction, RelationshipType ... types) {
+    public Iterable<Relationship> getRelationships(Direction direction, RelationshipType... types) {
         List<String> typeList = Arrays.asList(types).stream().map(RelationshipType::getName).collect(Collectors.toList());
         return relationships.stream()
                 .filter(relationship -> relationship.getDirection() == direction
@@ -121,7 +121,12 @@ public class NodeImpl implements Node {
 
     @Override
     public void setProperty(String key, Object value) {
-
+        Optional<Property> property = properties.getProperty(key);
+        if (property.isPresent()) {
+            PropertyType type = property.get().getType();
+            properties.delete(key);
+            properties.add(key, value, type);
+        }
     }
 
     @Override

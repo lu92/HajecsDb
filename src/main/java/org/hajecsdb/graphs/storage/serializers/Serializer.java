@@ -11,6 +11,7 @@ public interface Serializer<Type extends Entity, BinaryType> {
     BinaryType save(Type type) throws IOException;
     Optional<Type> read(long id) throws IOException;
     List<Type> readAll() throws IOException;
-    Type update(Type type) throws IOException;
+    BinaryType update(Type type) throws IOException, NodeNotFoundException;
     void delete(long id) throws IOException, NodeNotFoundException;
+    long count() throws IOException;
 }

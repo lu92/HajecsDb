@@ -51,19 +51,15 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
         metaDataAccessFile.seek(0);
         metaDataAccessFile.writeLong(numberOfNodes);
 
-        System.out.println("last index of nodes.bin: " + nodesAccessFile.length());
-        System.out.println("node size: " + binaryNode.getBytes().length);
-
         // save binary node
         nodesAccessFile.seek(nodesAccessFile.length());
         long beforeSaveNodeContentSize = nodesAccessFile.length();
         nodesAccessFile.write(binaryNode.getBytes());
-        long afterSaveNodeContentSize  = nodesAccessFile.length();
+        long afterSaveNodeContentSize = nodesAccessFile.length();
 
 
         // create metadata
         NodeMetaData nodeMetaData = new NodeMetaData(node.getId(), beforeSaveNodeContentSize, afterSaveNodeContentSize);
-        System.out.println(nodeMetaData);
 
         // save metadata
         metaDataAccessFile.seek(metaDataAccessFile.length());
@@ -96,21 +92,29 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
         }
 
         // get metaData
-        for (int i=0; i<numberOfNodes; i++) {
+        for (int i = 0; i < numberOfNodes;) {
             long nodeId = metaDataAccessFile.readLong();
+            boolean deleted = metaDataAccessFile.readByte() == 0;
             long beginDataSection = metaDataAccessFile.readLong();
             long endDataSection = metaDataAccessFile.readLong();
-            if (nodeId == id) {
-                int nodeSectionLength = (int) (endDataSection - beginDataSection);
-                byte [] byteArray = new byte[nodeSectionLength];
-                nodesAccessFile.seek(beginDataSection);
-                nodesAccessFile.readFully(byteArray, 0, nodeSectionLength);
-                Properties properties = propertiesBinaryMapper.toProperties(Arrays.copyOfRange(byteArray, Long.BYTES, byteArray.length));
-                Node node = new NodeImpl(nodeId);
-                node.setProperties(properties);
-                return Optional.of(node);
+            if (!deleted) {
+                if (nodeId == id) {
+                    int nodeSectionLength = (int) (endDataSection - beginDataSection);
+                    byte[] byteArray = new byte[nodeSectionLength];
+                    nodesAccessFile.seek(beginDataSection);
+                    nodesAccessFile.readFully(byteArray, 0, nodeSectionLength);
+                    Properties properties = propertiesBinaryMapper.toProperties(Arrays.copyOfRange(byteArray, Long.BYTES, byteArray.length));
+                    Node node = new NodeImpl(nodeId);
+                    node.setProperties(properties);
+                    return Optional.of(node);
+                }
+                i++;    // increment only when node exist!
             }
         }
+
+        // close files
+        nodesAccessFile.close();
+        metaDataAccessFile.close();
 
         return Optional.empty();
     }
@@ -132,20 +136,24 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
 
         // get metaData
         NodeMetaDataList nodeMetaDataList = new NodeMetaDataList(numberOfNodes);
-        for (int i=0; i<numberOfNodes; i++) {
+        for (int i = 0; i < numberOfNodes;) {
             long nodeId = metaDataAccessFile.readLong();
+            boolean deleted = metaDataAccessFile.readByte() == 0;
             long beginDataSection = metaDataAccessFile.readLong();
             long endDataSection = metaDataAccessFile.readLong();
-            NodeMetaData nodeMetaData = new NodeMetaData(nodeId, beginDataSection, endDataSection);
-            nodeMetaDataList.add(nodeMetaData);
+            if (!deleted) {
+                NodeMetaData nodeMetaData = new NodeMetaData(nodeId, beginDataSection, endDataSection);
+                nodeMetaDataList.add(nodeMetaData);
+                i++;    // increment only when node exist!
+            }
         }
 
-        List<Node> nodeList = new ArrayList<>((int)numberOfNodes);
+        List<Node> nodeList = new ArrayList<>((int) numberOfNodes);
 
         // get Nodes
         for (NodeMetaData metaData : nodeMetaDataList.getNodeMetaDataList()) {
             int nodeSectionLength = (int) (metaData.getEndDataSection() - metaData.getBeginDataSection());
-            byte [] byteArray = new byte[nodeSectionLength];
+            byte[] byteArray = new byte[nodeSectionLength];
             nodesAccessFile.seek(metaData.getBeginDataSection());
             nodesAccessFile.readFully(byteArray, 0, nodeSectionLength);
             long nodeId = ByteUtils.bytesToLong(Arrays.copyOfRange(byteArray, 0, Long.BYTES));
@@ -163,11 +171,77 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
     }
 
     @Override
-    public Node update(Node node) throws IOException {
-        return null;
+    public BinaryNode update(Node node) throws IOException, NodeNotFoundException {
+        delete(node.getId());
+        return save(node);
     }
 
     @Override
     public void delete(long id) throws IOException, NodeNotFoundException {
+        if (id <= 0) {
+            throw new NodeNotFoundException(id);
+        }
+
+        RandomAccessFile nodesAccessFile = new RandomAccessFile(nodesFilename, "rw");
+        RandomAccessFile metaDataAccessFile = new RandomAccessFile(nodeMetadataFilename, "rw");
+
+        if (metaDataAccessFile.length() == 0) {
+            // insert 0 number of nodes if file is empty
+            metaDataAccessFile.write(ByteUtils.longToBytes(0l));
+            metaDataAccessFile.seek(0);
+        }
+
+        // read number of nodes
+        metaDataAccessFile.seek(0);
+        long numberOfNodes = metaDataAccessFile.readLong();
+
+        if (numberOfNodes == 0) {
+            throw new NodeNotFoundException(id);
+        }
+
+        // get metaData
+        for (int i = 0; i < numberOfNodes; i++) {
+            long nodeId = metaDataAccessFile.readLong();
+            boolean deleted = metaDataAccessFile.readByte() == 0;
+            metaDataAccessFile.readLong();
+            metaDataAccessFile.readLong();
+
+            if (!deleted && nodeId == id) {
+
+                // delete node in metadata
+                long position = metaDataAccessFile.getFilePointer() - 2 * Long.BYTES - 1;
+                metaDataAccessFile.seek(position);
+                metaDataAccessFile.writeByte(0); // mark node as deleted
+
+                // decrease number of nodes
+                metaDataAccessFile.seek(0);
+                metaDataAccessFile.writeLong(--numberOfNodes);
+
+                return;
+            }
+        }
+
+        // close files
+        nodesAccessFile.close();
+        metaDataAccessFile.close();
+
+        throw new NodeNotFoundException(id);
+    }
+
+    @Override
+    public long count() throws IOException {
+        RandomAccessFile metaDataAccessFile = new RandomAccessFile(nodeMetadataFilename, "rw");
+
+        if (metaDataAccessFile.length() == 0) {
+            // insert 0 number of nodes if file is empty
+            metaDataAccessFile.write(ByteUtils.longToBytes(0l));
+            metaDataAccessFile.seek(0);
+        }
+
+        // read number of nodes
+        metaDataAccessFile.seek(0);
+        long numberOfNodes = metaDataAccessFile.readLong();
+        metaDataAccessFile.close();
+        return numberOfNodes;
     }
 }
