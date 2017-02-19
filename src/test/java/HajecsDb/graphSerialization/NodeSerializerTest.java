@@ -1,9 +1,9 @@
 package HajecsDb.graphSerialization;
 
 import org.hajecsdb.graphs.core.Node;
+import org.hajecsdb.graphs.core.NotFoundException;
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.impl.NodeImpl;
-import org.hajecsdb.graphs.storage.serializers.NodeNotFoundException;
 import org.hajecsdb.graphs.storage.serializers.NodeSerializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -192,7 +192,7 @@ public class NodeSerializerTest {
         try {
             // when
             nodeSerializer.delete(1l);
-        } catch (NodeNotFoundException e) {
+        } catch (NotFoundException e) {
             // then
             assertThat(e.getMessage()).isEqualTo("Not found node with nodeId: " + 1);
         }
@@ -203,7 +203,7 @@ public class NodeSerializerTest {
         try {
             // when
             nodeSerializer.delete(-1l);
-        } catch (NodeNotFoundException e) {
+        } catch (NotFoundException e) {
             // then
             assertThat(e.getMessage()).isEqualTo("Not found node with nodeId: " + -1);
             assertThat(nodeSerializer.count()).isEqualTo(0);
@@ -211,7 +211,7 @@ public class NodeSerializerTest {
     }
 
     @Test
-    public void saveAndDeleteNodeTest() throws IOException, NodeNotFoundException {
+    public void saveAndDeleteNodeTest() throws IOException, NotFoundException {
         // given
         Node node = new NodeImpl(1l);
         Properties expectedProperties = new Properties()
@@ -231,7 +231,7 @@ public class NodeSerializerTest {
     }
 
     @Test
-    public void saveThreeNodesAndDeleteLastNodeTest() throws IOException, NodeNotFoundException {
+    public void saveThreeNodesAndDeleteLastNodeTest() throws IOException, NotFoundException {
         // given
         Node node1 = new NodeImpl(1l);
         Properties expectedProperties1 = new Properties()
@@ -331,7 +331,7 @@ public class NodeSerializerTest {
     }
 
     @Test
-    public void saveAndUpdateNodeTest() throws IOException, NodeNotFoundException {
+    public void saveAndUpdateNodeTest() throws IOException, NotFoundException {
         // given
         Node node = new NodeImpl(1l);
         Properties expectedProperties = new Properties()
@@ -353,7 +353,7 @@ public class NodeSerializerTest {
     }
 
     @Test
-    public void updateNodeWhenDbIsEmpty() throws IOException, NodeNotFoundException {
+    public void updateNodeWhenDbIsEmpty() throws IOException, NotFoundException {
         // given
         Node node = new NodeImpl(1l);
         Properties expectedProperties = new Properties()
@@ -366,7 +366,7 @@ public class NodeSerializerTest {
             // when
             node.setProperty("age", 50);
             nodeSerializer.update(node);
-        } catch (NodeNotFoundException e) {
+        } catch (NotFoundException e) {
             // then
             assertThat(e.getMessage()).isEqualTo("Not found node with nodeId: " + 1);
             assertThat(nodeSerializer.count()).isEqualTo(0);

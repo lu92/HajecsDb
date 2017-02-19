@@ -2,7 +2,6 @@ package org.hajecsdb.graphs.impl;
 
 import org.hajecsdb.graphs.core.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
@@ -15,6 +14,11 @@ public class RelationshipImpl implements Relationship {
     private Direction direction;
     private Properties properties;
 
+    public RelationshipImpl(long id) {
+        properties = new Properties();
+        this.properties.add(new Property(ID, LONG, id));
+    }
+
 
     public RelationshipImpl(long id, Node startNode, Node endNode, Direction direction, RelationshipType relationshipType) {
         this.startNode = startNode;
@@ -26,7 +30,7 @@ public class RelationshipImpl implements Relationship {
         properties.add(new Property("startNode", LONG, startNode.getId()));
         properties.add(new Property("endNode", LONG, endNode.getId()));
         properties.add(new Property("RelationshipType", STRING, relationshipType.getName()));
-        properties.add(new Property("direction", STRING, direction));
+        properties.add(new Property("direction", STRING, direction.toString()));
     }
 
     @Override
@@ -52,6 +56,21 @@ public class RelationshipImpl implements Relationship {
     @Override
     public Relationship reverse() {
         return new RelationshipImpl(getId(), endNode, startNode, getDirection().reverse(), relationshipType);
+    }
+
+    @Override
+    public void setProperties(Properties properties) {
+        this.properties.addAll(properties);
+    }
+
+    @Override
+    public Properties deleteProperties(String... keys) {
+        Properties deletedProperties = new Properties();
+        for (String key : keys) {
+            Property deletedProperty = properties.delete(key);
+            deletedProperties.add(deletedProperty);
+        }
+        return deletedProperties;
     }
 
     @Override
@@ -97,7 +116,7 @@ public class RelationshipImpl implements Relationship {
 
     @Override
     public Optional<Property> getProperty(String key) {
-        return null;
+        return properties.getProperty(key);
     }
 
     @Override

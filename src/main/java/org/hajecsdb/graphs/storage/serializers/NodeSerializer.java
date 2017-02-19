@@ -171,15 +171,15 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
     }
 
     @Override
-    public BinaryNode update(Node node) throws IOException, NodeNotFoundException {
+    public BinaryNode update(Node node) throws IOException, NotFoundException {
         delete(node.getId());
         return save(node);
     }
 
     @Override
-    public void delete(long id) throws IOException, NodeNotFoundException {
+    public void delete(long id) throws IOException, NotFoundException {
         if (id <= 0) {
-            throw new NodeNotFoundException(id);
+            throw new NotFoundException("Not found node with nodeId: " + id);
         }
 
         RandomAccessFile nodesAccessFile = new RandomAccessFile(nodesFilename, "rw");
@@ -196,7 +196,7 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
         long numberOfNodes = metaDataAccessFile.readLong();
 
         if (numberOfNodes == 0) {
-            throw new NodeNotFoundException(id);
+            throw new NotFoundException("Not found node with nodeId: " + id);
         }
 
         // get metaData
@@ -225,7 +225,7 @@ public class NodeSerializer implements Serializer<Node, BinaryNode> {
         nodesAccessFile.close();
         metaDataAccessFile.close();
 
-        throw new NodeNotFoundException(id);
+        throw new NotFoundException("Not found node with nodeId: " + id);
     }
 
     @Override

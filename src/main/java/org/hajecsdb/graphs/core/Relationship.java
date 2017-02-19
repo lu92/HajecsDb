@@ -7,4 +7,6 @@ public interface Relationship extends Entity{
     RelationshipType getType();
     Direction getDirection();
     Relationship reverse();
+    void setProperties(Properties properties);
+    Properties deleteProperties(String ... keys);
 }
