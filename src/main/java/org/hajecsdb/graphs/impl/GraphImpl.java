@@ -28,7 +28,7 @@ public class GraphImpl implements Graph {
             throw new NullPointerException("pathDir and graphName can't be empty or null");
         properties.add(new Property("pathDir", STRING, pathDir));
         properties.add(new Property("graphName", STRING, graphName));
-        properties.add(new Property("creationDateTime", DATE_TIME, LocalDateTime.now()));
+        properties.add(new Property("creationDateTime", STRING, LocalDateTime.now().toString()));
         properties.add(new Property("lastGeneratedId",LONG, idGenerator.getLastId()));
     }
 
@@ -49,7 +49,12 @@ public class GraphImpl implements Graph {
 
     @Override
     public Properties getProperties() {
-        return properties;
+        Properties currentProperties = new Properties();
+        currentProperties.addAll(properties);
+        currentProperties.add(new Property("numberOfNodes", LONG, (long) getAllNodes().size()));
+        currentProperties.add(new Property("numberOfRelationships", LONG, (long) getAllRelationships().size()));
+        return currentProperties;
+
     }
 
     @Override
