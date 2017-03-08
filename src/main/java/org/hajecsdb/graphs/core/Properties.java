@@ -4,6 +4,7 @@ package org.hajecsdb.graphs.core;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,6 +59,12 @@ public class Properties {
 
     public void addAll(Properties properties) {
         for (Property property : properties.getAllProperties()) {
+            this.properties.add(property);
+        }
+    }
+
+    public void addAll(List<Property> properties) {
+        for (Property property : properties) {
             this.properties.add(property);
         }
     }
