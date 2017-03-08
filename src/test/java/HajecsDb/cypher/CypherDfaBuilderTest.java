@@ -25,7 +25,7 @@ public class CypherDfaBuilderTest {
         // given
         String command = "CREATE (n: Person)";
         CypherDfaBuilder cypherDfaBuilder = new CypherDfaBuilder();
-        cypherDfaBuilder.buildCreateNodeClause();
+        cypherDfaBuilder.buildClauses();
         DFA cypherDfa = cypherDfaBuilder.getDfa();
 
         // when
@@ -54,7 +54,7 @@ public class CypherDfaBuilderTest {
         // given
         String command = "CREATE (n: Person {name: 'Henry', age: 25, salary: 3000.0})";
         CypherDfaBuilder cypherDfaBuilder = new CypherDfaBuilder();
-        cypherDfaBuilder.buildCreateNodeClause();
+        cypherDfaBuilder.buildClauses();
         DFA cypherDfa = cypherDfaBuilder.getDfa();
 
         // when

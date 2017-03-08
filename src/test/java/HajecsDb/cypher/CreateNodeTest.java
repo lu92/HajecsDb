@@ -5,6 +5,7 @@ import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.cypher.CypherExecutor;
+import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.impl.GraphImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +28,12 @@ public class CreateNodeTest {
         cypherExecutor = new CypherExecutor(graph);
 
         // when
-        cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(command);
 
         // then
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.getCommand()).isEqualTo(command);
+        assertThat(result.getResults()).isEmpty();
         assertThat(graph.getAllNodes().size()).isEqualTo(1);
         Node fetchedNode = graph.getNodeById(1l).get();
         assertThat(fetchedNode.getLabel()).isEqualTo(new Label("Person"));
@@ -45,9 +49,12 @@ public class CreateNodeTest {
         cypherExecutor = new CypherExecutor(graph);
 
         // when
-        cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(command);
 
         // then
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.getCommand()).isEqualTo(command);
+        assertThat(result.getResults()).isEmpty();
         assertThat(graph.getAllNodes().size()).isEqualTo(1);
         Node fetchedNode = graph.getNodeById(1l).get();
         assertThat(fetchedNode.getLabel()).isEqualTo(new Label("Person"));
@@ -75,9 +82,12 @@ public class CreateNodeTest {
         cypherExecutor = new CypherExecutor(graph);
 
         // when
-        cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(command);
 
         // then
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.getCommand()).isEqualTo(command);
+        assertThat(result.getResults()).isEmpty();
         assertThat(graph.getAllNodes().size()).isEqualTo(1);
         Node fetchedNode = graph.getNodeById(1l).get();
         assertThat(fetchedNode.getLabel()).isEqualTo(new Label("Person"));
@@ -96,9 +106,12 @@ public class CreateNodeTest {
         cypherExecutor = new CypherExecutor(graph);
 
         // when
-        cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(command);
 
         // then
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.getCommand()).isEqualTo(command);
+        assertThat(result.getResults()).isEmpty();
         assertThat(graph.getAllNodes().size()).isEqualTo(1);
         Node fetchedNode = graph.getNodeById(1l).get();
         assertThat(fetchedNode.getLabel()).isEqualTo(new Label("Person"));
@@ -118,9 +131,12 @@ public class CreateNodeTest {
         cypherExecutor = new CypherExecutor(graph);
 
         // when
-        cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(command);
 
         // then
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.getCommand()).isEqualTo(command);
+        assertThat(result.getResults()).isEmpty();
         assertThat(graph.getAllNodes().size()).isEqualTo(1);
         Node fetchedNode = graph.getNodeById(1l).get();
         assertThat(fetchedNode.getLabel()).isEqualTo(new Label("Person"));
