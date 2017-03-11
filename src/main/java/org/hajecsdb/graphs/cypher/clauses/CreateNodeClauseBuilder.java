@@ -22,7 +22,8 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
         List<State> stateList = new LinkedList<>();
         List<Transition> transitionList = new LinkedList<>();
 
-        State verifyCreateClause = new State("command starts with 'CREATE ' prefix");
+//        State verifyCreateClause = new State("command starts with 'CREATE ' prefix");
+        State verifyCreateClause = dfa.getBeginState();
         State extractNodePart = new State("extract node part!");
         State endState = new State("get processed Data!");
 

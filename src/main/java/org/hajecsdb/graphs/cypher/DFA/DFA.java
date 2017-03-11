@@ -12,11 +12,19 @@ public class DFA {
     private State beginState;
     private CommandProcessing commandProcessing;
 
+    public DFA() {
+        this.beginState = new State("[Begin state]");
+    }
+
     public List<Query> parse(String command) {
         CommandProcessing commandProcessing = new CommandProcessing(command);
         beginState.invoke(commandProcessing);
         this.commandProcessing = commandProcessing;
         return commandProcessing.getQueries();
+    }
+
+    public State getBeginState() {
+        return beginState;
     }
 
     public void setBeginState(State beginState) {
