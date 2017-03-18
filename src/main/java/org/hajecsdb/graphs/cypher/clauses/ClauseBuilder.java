@@ -1,14 +1,20 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
+import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
 import org.hajecsdb.graphs.cypher.DFA.DFA;
+import org.hajecsdb.graphs.cypher.DFA.State;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class ClauseBuilder {
-    abstract void buildClause(DFA dfa);
+    protected Graph graph;
+    abstract State buildClause(DFA dfa, State state);
     protected ParameterExtractor parameterExtractor = new ParameterExtractor();
 
+    public ClauseBuilder(Graph graph) {
+        this.graph = graph;
+    }
 
     class ParameterExtractor {
 

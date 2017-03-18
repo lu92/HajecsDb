@@ -1,6 +1,8 @@
 package org.hajecsdb.graphs.cypher.DFA;
 
+import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.Query;
+import org.hajecsdb.graphs.cypher.Result;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,11 +18,14 @@ public class DFA {
         this.beginState = new State("[Begin state]");
     }
 
-    public List<Query> parse(String command) {
+    public Result parse(Graph graph, String command) {
+        Result result = new Result();
+        result.setCommand(command);
         CommandProcessing commandProcessing = new CommandProcessing(command);
-        beginState.invoke(commandProcessing);
+        result = beginState.invoke(graph, result, commandProcessing);
         this.commandProcessing = commandProcessing;
-        return commandProcessing.getQueries();
+//        return commandProcessing.getQueries();
+        return result;
     }
 
     public State getBeginState() {

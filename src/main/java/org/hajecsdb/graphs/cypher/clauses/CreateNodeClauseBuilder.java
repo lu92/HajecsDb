@@ -1,10 +1,13 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
 
+import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
+import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.cypher.DFA.*;
 import org.hajecsdb.graphs.cypher.Query;
+import org.hajecsdb.graphs.cypher.Result;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -17,13 +20,16 @@ import static org.hajecsdb.graphs.cypher.CommandType.CREATE_NODE;
 
 public class CreateNodeClauseBuilder extends ClauseBuilder {
 
+    public CreateNodeClauseBuilder(Graph graph) {
+        super(graph);
+    }
+
     @Override
-    public void buildClause(DFA dfa) {
+    public State buildClause(DFA dfa, State state) {
         List<State> stateList = new LinkedList<>();
         List<Transition> transitionList = new LinkedList<>();
 
-//        State verifyCreateClause = new State("command starts with 'CREATE ' prefix");
-        State verifyCreateClause = dfa.getBeginState();
+        State verifyCreateClause = state;
         State extractNodePart = new State("extract node part!");
         State endState = new State("get processed Data!");
 
@@ -32,16 +38,17 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
         DfaAction extractNodePartAction = new DfaAction() {
 
             @Override
-            public void perform(State currentState, CommandProcessing commandProcessing) {
+            public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
                 commandProcessing.recordProcessedPart("CREATE ", currentState);
                 String commandToProcessed = commandProcessing.getProcessingCommand().substring(7);
                 commandProcessing.updateCommand(commandToProcessed);
+                return result;
             }
         };
 
         DfaAction extractNodeParamsAction = new DfaAction() {
             @Override
-            public void perform(State currentState, CommandProcessing commandProcessing) {
+            public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
                 commandProcessing.recordProcessedPart(commandProcessing.getProcessingCommand(), currentState);
 //                String regex = "\\(([\\w]*): ([\\w]*)\\)";
                 String regex = "\\(([\\w]*): ([\\w]+)( )?(\\{[\\w: ',.]*\\})?\\)";
@@ -75,10 +82,23 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                     }
 
                     Query query = new Query(commandProcessing.getProcessingCommand(), CREATE_NODE, variableName, label, parameters);
+                    createNode(query, graph, result);
                     commandProcessing.getQueries().add(query);
                 }
 
                 commandProcessing.updateCommand("");
+                return result;
+            }
+
+            void createNode(Query query, Graph graph,  Result result) {
+                if (query.getParameters().isEmpty()) {
+                    graph.createNode(query.getLabel());
+                } else {
+                    Properties properties = new Properties();
+                    properties.addAll(query.getParameters());
+                    graph.createNode(query.getLabel(), properties);
+                }
+                result.setCompleted(true);
             }
 
         };
@@ -93,8 +113,9 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
         stateList.addAll(Arrays.asList(verifyCreateClause, extractNodePart, endState));
         transitionList.addAll(Arrays.asList(createClauseTransition, extractParametersTransition));
 
-        dfa.setBeginState(verifyCreateClause);
-        dfa.addStates(stateList);
-        dfa.addTransitions(transitionList);
+//        dfa.setBeginState(verifyCreateClause);
+//        dfa.addStates(stateList);
+//        dfa.addTransitions(transitionList);
+        return endState;
     }
 }

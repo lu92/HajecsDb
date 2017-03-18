@@ -1,5 +1,8 @@
 package org.hajecsdb.graphs.cypher.DFA;
 
+import org.hajecsdb.graphs.core.Graph;
+import org.hajecsdb.graphs.cypher.Result;
+
 import java.util.function.Predicate;
 
 public class Transition {
@@ -21,12 +24,8 @@ public class Transition {
         return matched.test(command);
     }
 
-    public void performAction(CommandProcessing commandProcessing) {
-        action.perform(beginState, commandProcessing);
-    }
-
-    public State getBeginState() {
-        return beginState;
+    public Result performAction(Graph graph, Result result, CommandProcessing commandProcessing) {
+        return action.perform(graph, result, beginState, commandProcessing);
     }
 
     public State getNextState() {

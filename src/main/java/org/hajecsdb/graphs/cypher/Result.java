@@ -27,4 +27,11 @@ public class Result {
     public Map<Integer, ResultRow> getResults() {
         return results;
     }
+
+    public Result copy() {
+        Result copy = new Result();
+        copy.setCommand(command);
+        copy.setCompleted(completed);
+        return copy;
+    }
 }

@@ -1,5 +1,8 @@
 package org.hajecsdb.graphs.cypher.DFA;
 
+import org.hajecsdb.graphs.core.Graph;
+import org.hajecsdb.graphs.cypher.Result;
+
 public interface DfaAction {
-    void perform(State currentState, CommandProcessing commandProcessing);
+    Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing);
 }
