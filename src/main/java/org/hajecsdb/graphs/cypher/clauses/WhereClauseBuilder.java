@@ -97,6 +97,14 @@ public class WhereClauseBuilder extends ClauseBuilder{
 
                 result.getResults().clear();
                 result.getResults().putAll(finalResult.getResults());
+                String newCommand;
+                if (commandProcessing.getProcessingCommand().contains("DELETE")) {
+                    int deletePosition = commandProcessing.getProcessingCommand().indexOf("DELETE");
+                    newCommand = commandProcessing.getProcessingCommand().substring(deletePosition);
+                } else {
+                    newCommand = "";
+                }
+                commandProcessing.updateCommand(newCommand);
                 return finalResult;
             }
 
@@ -123,7 +131,6 @@ public class WhereClauseBuilder extends ClauseBuilder{
             public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
                 System.out.println("Condition Action!");
                 System.out.println(commandProcessing.getProcessingCommand());
-//                String regex = "([\\w]+).([\\w]+) ([=>]+) ([\\w']+)";
                 String regex = "([\\w]+).([\\w]+) ([=><]+) ([\\w']+) ?(AND|OR)? ?([\\w]+)?.?([\\w]+)? ?([=><]+)? ?([\\w']+)?";
 
                 Map<Integer, ResultRow> matchedNodes = new HashMap<>();
@@ -184,13 +191,21 @@ public class WhereClauseBuilder extends ClauseBuilder{
                                 index++;
                             }
                         }
+
+                        String newCommand;
+                        if (commandProcessing.getProcessingCommand().contains("DELETE")) {
+                            int deletePosition = commandProcessing.getProcessingCommand().indexOf("DELETE");
+                            newCommand = commandProcessing.getProcessingCommand().substring(deletePosition);
+                        } else {
+                            newCommand = "";
+                        }
+                        commandProcessing.updateCommand(newCommand);
                     }
                 }
 
                 result.getResults().clear();
                 result.getResults().putAll(matchedNodes);
-
-                return null;
+                return result;
             }
 
             private Optional<Property> transformToProperty(String property, String value) {
