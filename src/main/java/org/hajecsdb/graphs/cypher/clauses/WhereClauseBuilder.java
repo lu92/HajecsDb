@@ -201,6 +201,10 @@ public class WhereClauseBuilder extends ClauseBuilder{
                             int deletePosition = commandProcessing.getProcessingCommand().indexOf("SET");
                             newCommand = commandProcessing.getProcessingCommand().substring(deletePosition);
                         }
+                        else if (commandProcessing.getProcessingCommand().contains("REMOVE")) {
+                            int deletePosition = commandProcessing.getProcessingCommand().indexOf("REMOVE");
+                            newCommand = commandProcessing.getProcessingCommand().substring(deletePosition);
+                        }
                         else {
                             newCommand = "";
                         }
