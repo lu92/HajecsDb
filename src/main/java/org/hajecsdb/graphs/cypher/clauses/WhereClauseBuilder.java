@@ -131,7 +131,7 @@ public class WhereClauseBuilder extends ClauseBuilder{
             public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
                 System.out.println("Condition Action!");
                 System.out.println(commandProcessing.getProcessingCommand());
-                String regex = "([\\w]+).([\\w]+) ([=><]+) ([\\w']+) ?(AND|OR)? ?([\\w]+)?.?([\\w]+)? ?([=><]+)? ?([\\w']+)?";
+                String regex = "([\\w]+).([\\w]+) ([=><]+) ([\\w']+) ?(AND|OR)? ?([\\w]+)?.?([\\w]+)? ?([=><]+)? ?([\\w']+)?.*";
 
                 Map<Integer, ResultRow> matchedNodes = new HashMap<>();
 
@@ -196,7 +196,12 @@ public class WhereClauseBuilder extends ClauseBuilder{
                         if (commandProcessing.getProcessingCommand().contains("DELETE")) {
                             int deletePosition = commandProcessing.getProcessingCommand().indexOf("DELETE");
                             newCommand = commandProcessing.getProcessingCommand().substring(deletePosition);
-                        } else {
+                        }
+                        else if (commandProcessing.getProcessingCommand().contains("SET")) {
+                            int deletePosition = commandProcessing.getProcessingCommand().indexOf("SET");
+                            newCommand = commandProcessing.getProcessingCommand().substring(deletePosition);
+                        }
+                        else {
                             newCommand = "";
                         }
                         commandProcessing.updateCommand(newCommand);
@@ -337,7 +342,7 @@ public class WhereClauseBuilder extends ClauseBuilder{
         };
 
 //        Predicate<String> conditionFunctionPredicate = x -> x.matches("([\\w]+).([\\w]+) ([=>]+) ([\\w']+)");
-        Predicate<String> conditionFunctionPredicate = x -> x.matches("([\\w]+).([\\w]+) ([=><]+) ([\\w']+) ?(AND|OR)? ?([\\w]+)?.?([\\w]+)? ?([=><]+)? ?([\\w']+)?");
+        Predicate<String> conditionFunctionPredicate = x -> x.matches("([\\w]+).([\\w]+) ([=><]+) ([\\w']+) ?(AND|OR)? ?([\\w]+)?.?([\\w]+)? ?([=><]+)? ?([\\w']+)?.*");
 //        Predicate<String> conditionFunctionPredicate = x -> x.matches("([\\w]+).([\\w]+) ([=><]+) ([\\w']+)( (AND|OR) ([\\w]+).([\\w]+) ([=><]+) ([\\w']+))?");
         Transition conditionFunctionTransition = new Transition(extractConditionsPart, endState, conditionFunctionPredicate, conditionAction);
 

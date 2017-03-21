@@ -110,7 +110,7 @@ public class NodeImpl implements Node {
 
     @Override
     public boolean hasProperty(String key) {
-        return false;
+        return getAllProperties().hasProperty(key);
     }
 
     @Override

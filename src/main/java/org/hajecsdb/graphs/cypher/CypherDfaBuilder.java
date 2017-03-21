@@ -11,6 +11,7 @@ public class CypherDfaBuilder {
     private MatchNodeClauseBuilder matchNodeClauseBuilder;
     private WhereClauseBuilder whereClauseBuilder;
     private DeleteNodeClaudeBuilder deleteNodeClaudeBuilder;
+    private SetClauseBuilder setClauseBuilder;
 
     public CypherDfaBuilder(Graph graph) {
         dfa = new DFA();
@@ -18,6 +19,7 @@ public class CypherDfaBuilder {
         matchNodeClauseBuilder = new MatchNodeClauseBuilder(graph);
         whereClauseBuilder = new WhereClauseBuilder(graph);
         deleteNodeClaudeBuilder = new DeleteNodeClaudeBuilder(graph);
+        setClauseBuilder = new SetClauseBuilder(graph);
     }
 
     public void buildClauses() {
@@ -25,6 +27,8 @@ public class CypherDfaBuilder {
         State nodeClauseEndState = createNodeClauseBuilder.buildClause(dfa, beginState);
         State matchClauseEndState = matchNodeClauseBuilder.buildClause(dfa, beginState);
         State whereClauseEndState = whereClauseBuilder.buildClause(dfa, matchClauseEndState);
+        setClauseBuilder.buildClause(dfa, matchClauseEndState);
+        setClauseBuilder.buildClause(dfa, whereClauseEndState);
         deleteNodeClaudeBuilder.buildClause(dfa, matchClauseEndState);
         deleteNodeClaudeBuilder.buildClause(dfa, whereClauseEndState);
     }
