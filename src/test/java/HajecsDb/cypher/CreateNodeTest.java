@@ -67,14 +67,6 @@ public class CreateNodeTest {
     }
 
     @Test
-    public void createNodeWithLongParameterTest() {
-    }
-
-    @Test
-    public void createNodeWithFloatParameterTest() {
-    }
-
-    @Test
     public void createNodeWithStringParameterTest() {
         // given
         String command = "CREATE (n: Person {name: 'Peter'})";

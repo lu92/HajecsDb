@@ -3,45 +3,70 @@ package org.hajecsdb.graphs.cypher.clauses;
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
-import org.hajecsdb.graphs.cypher.DFA.DFA;
-import org.hajecsdb.graphs.cypher.DFA.State;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.hajecsdb.graphs.cypher.DFA.*;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ParameterExtractor;
+
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import static org.hajecsdb.graphs.core.PropertyType.LONG;
+import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
 public abstract class ClauseBuilder {
     protected Graph graph;
-    abstract State buildClause(DFA dfa, State state);
-    protected ParameterExtractor parameterExtractor = new ParameterExtractor();
+    protected ClauseEnum clauseEnum;
+    protected ParameterExtractor parameterExtractor;
 
-    public ClauseBuilder(Graph graph) {
+    public ClauseBuilder(ClauseEnum clauseEnum, Graph graph) {
         this.graph = graph;
+        this.clauseEnum = clauseEnum;
+        this.parameterExtractor = new ParameterExtractor();
     }
 
-    class ParameterExtractor {
+    public abstract DfaAction clauseAction();
+    public abstract String getExpressionOfClauseRegex();
 
-        public Property extract(String key, String value) {
-            Property property;
-            if (isStringType(value)) {
-                property = new Property(key, PropertyType.STRING, value.substring(1, value.length() - 1));
-            } else if (isIntType(value)) {
-                property = new Property(key, PropertyType.INT, new Integer(value));
-            } else if (isDoubleType(value)) {
-                property = new Property(key, PropertyType.DOUBLE, new Double(value));
-            } else
-                throw new NotImplementedException();
+    public State buildClause(DFA dfa, State state) {
+        State clauseState = state;
+        State actionState = new State(clauseEnum, "[" + clauseEnum + "] action state!");
+        new Transition(clauseState, actionState, validateClause(), clauseAction());
+        return actionState;
+    }
 
-            return property;
+    protected Predicate<ClauseInvocation> validateClause() {
+        return clauseInvocation -> {
+            boolean clauseNameValidation = getClauseNamePredicate().test(clauseInvocation.getClause().name());
+            boolean subQueryValidation = getExpressionOfClausePredicate().test(clauseInvocation.getSubQuery());
+            return clauseNameValidation && subQueryValidation;
+        };
+    }
+
+    protected Predicate<String> getClauseNamePredicate() {
+        return x -> x.equals(clauseEnum.name());
+    }
+    protected Predicate<String> getExpressionOfClausePredicate() {
+        return x -> x.matches(getExpressionOfClauseRegex());
+    }
+
+    protected Optional<Property> transformToProperty(String property, String value) {
+        if (property == null || value == null) {
+            return Optional.empty();
         }
 
-        private boolean isStringType(String value) {
-            return value.contains("'");
-        }
+        PropertyType propertyType = getArgumentType(value);
+        switch (propertyType) {
+            case LONG:
+                return Optional.of(new Property(property, propertyType, new Long(value)));
 
-        private boolean isIntType(String value) {
-            return value.matches("[\\d]+");
-        }
+            case STRING:
+                return Optional.of(new Property(property, propertyType, (String) value.substring(1, value.length()-1)));
 
-        private boolean isDoubleType(String value) {
-            return value.matches("[\\d]+.[\\d]+");
+            default:
+                throw new IllegalArgumentException("type does not recognized!");
         }
+    }
+
+    protected PropertyType getArgumentType(String argument) {
+        return argument.contains("'") ? STRING : LONG;
     }
 }
