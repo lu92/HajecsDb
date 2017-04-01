@@ -27,8 +27,11 @@ public class ClausesSeparator {
             Stack<ClauseInvocation> clauseInvocationStack = new Stack<>();
 
             IntStream.range(0, clauses.size()).forEach(i -> {
+                String clause = clauses.get(i);
                 String expressionPart = expressionQueryParts.get(i+1).replaceAll("\\s+","");
-                ClauseInvocation clauseInvocation = new ClauseInvocation(ClauseEnum.valueOf(clauses.get(i)), expressionPart);
+                ClauseEnum clauseEnum = ClauseEnum.recognizeClause(clause, expressionPart);
+                ClauseInvocation clauseInvocation = new ClauseInvocation(clauseEnum, expressionPart);
+                System.out.println("Recognized: " + clauseInvocation);
                 clauseInvocationStack.add(0, clauseInvocation);
             });
 

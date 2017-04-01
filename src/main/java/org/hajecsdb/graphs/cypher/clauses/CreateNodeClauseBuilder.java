@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class CreateNodeClauseBuilder extends ClauseBuilder {
 
     public CreateNodeClauseBuilder(Graph graph) {
-        super(ClauseEnum.CREATE, graph);
+        super(ClauseEnum.CREATE_NODE, graph);
     }
 
     @Override

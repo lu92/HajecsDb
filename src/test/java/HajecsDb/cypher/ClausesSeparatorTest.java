@@ -26,7 +26,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(2);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(CREATE, "(n:Person)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(CREATE_NODE, "(n:Person)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
     }
@@ -41,7 +41,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(2);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n:Person)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n:Person)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
     }
@@ -56,7 +56,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(3);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n:Person)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n:Person)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(WHERE, "n.age>25"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
@@ -72,7 +72,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(2);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(REMOVE, "n.age"));
         //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
@@ -88,7 +88,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(2);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n:Person)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n:Person)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(REMOVE, "n:Person"));
 //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
@@ -104,7 +104,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(3);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(WHERE, "n.age>25"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(REMOVE, "n.age"));
         //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
@@ -121,7 +121,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(2);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(DELETE, "n"));
 //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
@@ -137,7 +137,7 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(3);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(WHERE, "n.age>25"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(DELETE, "n"));
 //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
@@ -154,9 +154,29 @@ public class ClausesSeparatorTest {
 
         // then
         assertThat(clauseInvocationStack).hasSize(3);
-        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH, "(n)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(n)"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(WHERE, "n.name='Selene'"));
         assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(SET, "n.name='Kate'"));
+//        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
+        assertThat(clauseInvocationStack).isEmpty();
+    }
+
+    @Test
+    public void splitDoubleMatchAndCreateClauseTest() {
+        // given
+        StringBuilder commandBuilder = new StringBuilder()
+                .append("MATCH (u:User) ")
+                .append("MATCH (r:Role) ")
+                .append("CREATE (u)-[rel:HAS_ROLE]->(r)");
+
+        // when
+        Stack<ClauseInvocation> clauseInvocationStack = clausesSeparator.splitByClauses(commandBuilder.toString());
+
+        // then
+        assertThat(clauseInvocationStack).hasSize(3);
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(u:User)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_NODE, "(r:Role)"));
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(CREATE_RELATIONSHIP, "(u)-[rel:HAS_ROLE]->(r)"));
 //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
     }

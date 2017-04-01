@@ -1,27 +1,29 @@
 package org.hajecsdb.graphs.cypher.DFA;
 
+import org.hajecsdb.graphs.cypher.clauses.QueryContext;
+
 import java.util.Stack;
 
 public class CommandProcessing {
     private String command;
-    private String commandToProceed;
     private Stack<ClauseInvocation> clauseInvocationStack;
+    private QueryContext queryContext;
 
     public CommandProcessing(String command) {
         this.command = command;
-        this.commandToProceed = command;
+        this.queryContext = new QueryContext();
     }
 
     public String getOriginCommand() {
         return command;
     }
 
-    public String getProcessingCommand() {
-        return commandToProceed;
-    }
-
     public Stack<ClauseInvocation> getClauseInvocationStack() {
         return clauseInvocationStack;
+    }
+
+    public QueryContext getQueryContext() {
+        return queryContext;
     }
 
     public void setClauseInvocationStack(Stack<ClauseInvocation> clauseInvocationStack) {

@@ -21,7 +21,7 @@ import static org.hajecsdb.graphs.cypher.ContentType.NODE;
 public class MatchNodeClauseBuilder extends ClauseBuilder {
 
     public MatchNodeClauseBuilder(Graph graph) {
-        super(ClauseEnum.MATCH, graph);
+        super(ClauseEnum.MATCH_NODE, graph);
     }
 
     @Override
@@ -41,6 +41,9 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
 //                    System.out.println("#" + label + "#");
 
                     matchNode(graph, result, label, null);
+                    if (!variableName.isEmpty()) {
+                        commandProcessing.getQueryContext().insert(variableName, result);
+                    }
                 }
 
                 result.setCompleted(true);
