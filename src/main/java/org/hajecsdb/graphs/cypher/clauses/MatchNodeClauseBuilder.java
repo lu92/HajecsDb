@@ -8,6 +8,7 @@ import org.hajecsdb.graphs.cypher.DFA.*;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +34,24 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
                 if (matcher.find()) {
                     String variableName = matcher.group(1);
                     Label label = new Label(matcher.group(2));
-                    matchNode(graph, result, label, null);
+                    List<Property> parameters = new LinkedList<>();
+
+                    if (matcher.group(3) != null && !matcher.group(3).isEmpty()) {
+                        String paramContent = matcher.group(3);
+                        String paramRegex = "([\\w]*):([\\w'.]*)";
+                        Pattern paramPattern = Pattern.compile(paramRegex);
+                        Matcher paramsMatcher = paramPattern.matcher(paramContent);
+
+                        while (paramsMatcher.find()) {
+                            String variable = paramsMatcher.group(1);
+                            String value = paramsMatcher.group(2);
+                            Property property = parameterExtractor.extract(variable, value);
+
+                            parameters.add(property);
+
+                        }
+                    }
+                    matchNode(graph, result, label, parameters);
                     if (!variableName.isEmpty()) {
                         commandProcessing.getQueryContext().insert(variableName, result.copy());
                     }
@@ -45,22 +63,23 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
 
             void matchNode(Graph graph, Result result, Label label, List<Property> parameters) {
                 result.getResults().clear();
-                List<Node> filteredNodesByLabel = null;
+                List<Node> filteredNodes = null;
 
                 if (label.getName().isEmpty()) {
-                    filteredNodesByLabel = graph.getAllNodes().stream().collect(Collectors.toList());
+                    filteredNodes = graph.getAllNodes().stream().collect(Collectors.toList());
                 } else {
-                    filteredNodesByLabel = graph.getAllNodes().stream()
+                    filteredNodes = graph.getAllNodes().stream()
                             .filter(node -> node.getLabel().equals(label))
                             .collect(Collectors.toList());
                 }
-                for (int i = 0; i < filteredNodesByLabel.size(); i++) {
-                    ResultRow resultRow = new ResultRow();
-                    resultRow.setContentType(NODE);
-                    resultRow.setNode(filteredNodesByLabel.get(i));
+
+                // filter by parameters
+                if (!parameters.isEmpty()) {
+                    filteredNodes = filteredNodes.stream().filter(node -> node.getAllProperties().getAllProperties().containsAll(parameters))
+                            .collect(Collectors.toList());
                 }
 
-                List<ResultRow> resultRows = filteredNodesByLabel.stream().map(node -> {
+                List<ResultRow> resultRows = filteredNodes.stream().map(node -> {
                     ResultRow resultRow = new ResultRow();
                     resultRow.setContentType(NODE);
                     resultRow.setNode(node);
@@ -79,7 +98,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
 
     @Override
     public String getExpressionOfClauseRegex() {
-        return "\\(([\\w]+):?([\\w]*)\\)";
+        return "\\(([\\w]+):?([\\w]*)(\\{[\\w:' ,]+\\})?\\)";
     }
 
     public State buildClause(DFA dfa, State state) {

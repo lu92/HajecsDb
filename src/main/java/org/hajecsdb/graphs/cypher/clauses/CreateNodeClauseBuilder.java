@@ -30,11 +30,8 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                 Pattern pattern = Pattern.compile(getExpressionOfClauseRegex());
                 Matcher matcher = pattern.matcher(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
                 if (matcher.find()) {
-                    System.out.println("#" + matcher.group() + "#");
                     String variableName = matcher.group(1);
-                    System.out.println("#" + variableName + "#");
                     Label label = new Label(matcher.group(2));
-                    System.out.println("#" + label + "#");
                     List<Property> parameters = new LinkedList<>();
 
                     if (matcher.groupCount() == 4 && matcher.group(4) != null) {
@@ -45,15 +42,10 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
 
                         while (paramsMatcher.find()) {
                             String variable = paramsMatcher.group(1);
-//                            System.out.println("#" + variable + "#");
                             String value = paramsMatcher.group(2);
-//                            System.out.println("#" + value + "#");
                             Property property = parameterExtractor.extract(variable, value);
-
                             parameters.add(property);
-
                         }
-                        matcher.group(4);
                     }
                     createNode(graph, result, label, parameters);
                 }
