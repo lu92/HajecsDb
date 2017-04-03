@@ -8,6 +8,10 @@ public class Result {
     private boolean completed;
     private Map<Integer, ResultRow> results = new HashMap<>();
 
+    public boolean hasContent() {
+        return !results.isEmpty();
+    }
+
     public String getCommand() {
         return command;
     }
@@ -32,6 +36,19 @@ public class Result {
         Result copy = new Result();
         copy.setCommand(command);
         copy.setCompleted(completed);
+        for (int i = 0; i < getResults().size(); i++) {
+
+            ResultRow resultRowOrigin = getResults().get(i+1);
+
+            // fill ResultRow copy
+            ResultRow resultRowCopy = new ResultRow();
+            resultRowCopy.setContentType(resultRowOrigin.getContentType());
+            resultRowCopy.setMessage(resultRowOrigin.getMessage());
+            resultRowCopy.setNode(resultRowOrigin.getNode());
+            resultRowCopy.setRelationship(resultRowOrigin.getRelationship());
+
+            copy.getResults().put(i, resultRowCopy);
+        }
         return copy;
     }
 }

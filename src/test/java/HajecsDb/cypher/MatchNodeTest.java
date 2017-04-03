@@ -148,4 +148,29 @@ public class MatchNodeTest {
         assertThat(result.getResults().get(2)).isEqualTo(expectedResultRow2);
         assertThat(result.getResults().get(3)).isEqualTo(expectedResultRow3);
     }
+
+    @Test
+    public void doubleMatchTest() {
+
+        // given
+        String command = "MATCH (n) MATCH (n: Person) WHERE n.name = 'first'";
+        graph = new GraphImpl("pathDir", "graphDir");
+        graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        graph.createNode(new Label("Person"), new Properties().add("name", "second", STRING));
+        graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        cypherExecutor = new CypherExecutor(graph);
+
+        ResultRow expectedResultRow1 = new ResultRow();
+        expectedResultRow1.setContentType(NODE);
+        expectedResultRow1.setNode(graph.getNodeById(1l).get());
+
+        // when
+        Result result = cypherExecutor.execute(command);
+
+        //then
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.getCommand()).isEqualTo("MATCH (n) MATCH (n: Person) WHERE n.name = 'first'");
+        assertThat(result.getResults()).hasSize(1);
+        assertThat(result.getResults().get(0)).isEqualTo(expectedResultRow1);
+    }
 }

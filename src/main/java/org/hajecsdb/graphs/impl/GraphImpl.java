@@ -124,11 +124,14 @@ public class GraphImpl implements Graph {
         Optional<Node> secondNodeById = getNodeById(endNodeId);
 
         Predicate<Relationship> find = relationship -> relationship.getStartNode().getId() == beginNodeId
-                && relationship.getEndNode().getId() == endNodeId && relationship.getType().equals(relationshipType);
+                && relationship.getEndNode().getId() == endNodeId && relationship.getType().equals(relationshipType)
+                && relationship.getDirection() == Direction.OUTGOING;
 
         if (beginNodeById.isPresent() && secondNodeById.isPresent()) {
+
             Optional<Relationship> relationship =
                     beginNodeById.get().getRelationships().stream().filter(find).findFirst();
+
             if (relationship.isPresent())
                 return relationship.get();
             else

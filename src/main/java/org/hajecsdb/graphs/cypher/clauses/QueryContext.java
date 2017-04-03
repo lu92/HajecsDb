@@ -11,4 +11,8 @@ public class QueryContext {
     public void insert(String variableName, Result result) {
         context.put(variableName, result);
     }
+
+    public Result get(String variableName) {
+        return context.get(variableName);
+    }
 }

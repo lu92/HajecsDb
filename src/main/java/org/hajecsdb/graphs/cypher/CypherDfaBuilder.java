@@ -8,6 +8,7 @@ import org.hajecsdb.graphs.cypher.clauses.*;
 public class CypherDfaBuilder {
     private DFA dfa;
     private CreateNodeClauseBuilder createNodeClauseBuilder;
+    private CreateRelationshipClauseBuilder createRelationshipClauseBuilder;
     private MatchNodeClauseBuilder matchNodeClauseBuilder;
     private WhereClauseBuilder whereClauseBuilder;
     private DeleteNodeClaudeBuilder deleteNodeClaudeBuilder;
@@ -17,6 +18,7 @@ public class CypherDfaBuilder {
     public CypherDfaBuilder(Graph graph) {
         dfa = new DFA();
         createNodeClauseBuilder = new CreateNodeClauseBuilder(graph);
+        createRelationshipClauseBuilder = new CreateRelationshipClauseBuilder(graph);
         matchNodeClauseBuilder = new MatchNodeClauseBuilder(graph);
         whereClauseBuilder = new WhereClauseBuilder(graph);
         deleteNodeClaudeBuilder = new DeleteNodeClaudeBuilder(graph);
@@ -28,6 +30,7 @@ public class CypherDfaBuilder {
         State beginState = dfa.getBeginState();
         createNodeClauseBuilder.buildClause(dfa, beginState);
         State matchClauseEndState = matchNodeClauseBuilder.buildClause(dfa, beginState);
+        createRelationshipClauseBuilder.buildClause(dfa, matchClauseEndState);
         State whereClauseEndState = whereClauseBuilder.buildClause(dfa, matchClauseEndState);
         setClauseBuilder.buildClause(dfa, matchClauseEndState);
         setClauseBuilder.buildClause(dfa, whereClauseEndState);

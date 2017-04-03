@@ -31,7 +31,6 @@ public class ClausesSeparator {
                 String expressionPart = expressionQueryParts.get(i+1).replaceAll("\\s+","");
                 ClauseEnum clauseEnum = ClauseEnum.recognizeClause(clause, expressionPart);
                 ClauseInvocation clauseInvocation = new ClauseInvocation(clauseEnum, expressionPart);
-                System.out.println("Recognized: " + clauseInvocation);
                 clauseInvocationStack.add(0, clauseInvocation);
             });
 

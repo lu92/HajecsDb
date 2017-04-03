@@ -4,10 +4,7 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.cypher.DFA.ClauseInvocation;
-import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
-import org.hajecsdb.graphs.cypher.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.DFA.State;
+import org.hajecsdb.graphs.cypher.DFA.*;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 
@@ -34,15 +31,11 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
 
                 Matcher matcher = pattern.matcher(clauseInvocation.getSubQuery());
                 if (matcher.find()) {
-//                    System.out.println("#" + matcher.group() + "#");
                     String variableName = matcher.group(1);
-//                    System.out.println("#" + variableName + "#");
                     Label label = new Label(matcher.group(2));
-//                    System.out.println("#" + label + "#");
-
                     matchNode(graph, result, label, null);
                     if (!variableName.isEmpty()) {
-                        commandProcessing.getQueryContext().insert(variableName, result);
+                        commandProcessing.getQueryContext().insert(variableName, result.copy());
                     }
                 }
 
@@ -51,6 +44,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
             }
 
             void matchNode(Graph graph, Result result, Label label, List<Property> parameters) {
+                result.getResults().clear();
                 List<Node> filteredNodesByLabel = null;
 
                 if (label.getName().isEmpty()) {
@@ -86,5 +80,13 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
     @Override
     public String getExpressionOfClauseRegex() {
         return "\\(([\\w]+):?([\\w]*)\\)";
+    }
+
+    public State buildClause(DFA dfa, State state) {
+        State clauseState = state;
+        State actionState = new State(clauseEnum, "[" + clauseEnum + "] action state!");
+        new Transition(clauseState, actionState, validateClause(), clauseAction());
+        new Transition(actionState, actionState, validateClause(), clauseAction());
+        return actionState;
     }
 }
