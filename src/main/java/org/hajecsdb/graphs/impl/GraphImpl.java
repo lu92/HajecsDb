@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static org.hajecsdb.graphs.core.PropertyType.DATE_TIME;
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
@@ -119,12 +118,12 @@ public class GraphImpl implements Graph {
     }
 
     @Override
-    public Relationship findRelationship(long beginNodeId, long endNodeId, RelationshipType relationshipType) {
+    public Relationship findRelationship(long beginNodeId, long endNodeId, Label label) {
         Optional<Node> beginNodeById = getNodeById(beginNodeId);
         Optional<Node> secondNodeById = getNodeById(endNodeId);
 
         Predicate<Relationship> find = relationship -> relationship.getStartNode().getId() == beginNodeId
-                && relationship.getEndNode().getId() == endNodeId && relationship.getType().equals(relationshipType)
+                && relationship.getEndNode().getId() == endNodeId && relationship.getLabel().equals(label)
                 && relationship.getDirection() == Direction.OUTGOING;
 
         if (beginNodeById.isPresent() && secondNodeById.isPresent()) {
@@ -172,42 +171,32 @@ public class GraphImpl implements Graph {
 
     @Override
     public Iterable<Label> getAllLabels() {
-        return null;
-    }
-
-    @Override
-    public Iterable<RelationshipType> getAllRelationshipTypes() {
-        Set<RelationshipType> allRelationshipTypes = new HashSet<>();
+        Set<Label> allRelationshipTypes = new HashSet<>();
         for (Node node : getAllNodes()) {
             for (Relationship relationship : node.getRelationships()) {
-                allRelationshipTypes.add(relationship.getType());
+                allRelationshipTypes.add(relationship.getLabel());
             }
         }
         return allRelationshipTypes;
     }
 
     @Override
-    public Iterable<String> getAllPropertyKeys() {
-        return null;
-    }
-
-    @Override
-    public Relationship createRelationship(Node beginNode, Node endNode, RelationshipType type) {
+    public Relationship createRelationship(Node beginNode, Node endNode, Label label) {
         if (beginNode == null || endNode == null) {
             throw new IllegalArgumentException("One or both nodes don't exist!");
         }
 
         // check node's relationships before addition
-        if (type == null || StringUtils.isEmpty(type.getName())) {
+        if (label == null || StringUtils.isEmpty(label.getName())) {
             throw new IllegalArgumentException("Relationships type is null or empty!");
         }
 
-        Relationship relationship = new RelationshipImpl(idGenerator.generateId(), beginNode, endNode, Direction.OUTGOING, type);
+        Relationship relationship = new RelationshipImpl(idGenerator.generateId(), beginNode, endNode, Direction.OUTGOING, label);
         if (this.relationships.contains(relationship))
             throw new IllegalArgumentException("Relationships already exists!");
 
         beginNode.addRelationShip(relationship);
-        Relationship oppositeRelationship = new RelationshipImpl(idGenerator.generateId(), endNode, beginNode, Direction.INCOMING, type);
+        Relationship oppositeRelationship = new RelationshipImpl(idGenerator.generateId(), endNode, beginNode, Direction.INCOMING, label);
         endNode.addRelationShip(oppositeRelationship);
         this.relationships.add(relationship);
         this.relationships.add(oppositeRelationship);
@@ -216,7 +205,7 @@ public class GraphImpl implements Graph {
 
     @Override
     public Relationship createRelationship(Node beginNode, String type, Node endNode) {
-        return createRelationship(beginNode, endNode, new RelationshipType(type));
+        return createRelationship(beginNode, endNode, new Label(type));
     }
 
 }

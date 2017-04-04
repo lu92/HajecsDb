@@ -41,11 +41,11 @@ public class NodeImpl implements Node {
     }
 
     @Override
-    public Iterable<Relationship> getRelationships(Direction direction, RelationshipType... types) {
-        List<String> typeList = Arrays.asList(types).stream().map(RelationshipType::getName).collect(Collectors.toList());
+    public Iterable<Relationship> getRelationships(Direction direction, Label ... labels) {
+        List<String> typeList = Arrays.asList(labels).stream().map(Label::getName).collect(Collectors.toList());
         return relationships.stream()
                 .filter(relationship -> relationship.getDirection() == direction
-                        && typeList.contains(relationship.getType().getName())).collect(Collectors.toSet());
+                        && typeList.contains(relationship.getLabel().getName())).collect(Collectors.toSet());
     }
 
     @Override
@@ -56,11 +56,6 @@ public class NodeImpl implements Node {
     @Override
     public boolean hasRelationship(Direction dir) {
         return false;
-    }
-
-    @Override
-    public Iterable<RelationshipType> getRelationshipTypes() {
-        return null;
     }
 
     @Override

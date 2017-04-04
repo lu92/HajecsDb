@@ -1,7 +1,6 @@
 package org.hajecsdb.graphs.impl;
 
 import org.hajecsdb.graphs.core.*;
-
 import java.util.Optional;
 
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
@@ -10,7 +9,7 @@ import static org.hajecsdb.graphs.core.PropertyType.STRING;
 public class RelationshipImpl implements Relationship {
     private Node startNode;
     private Node endNode;
-    private RelationshipType relationshipType;
+    private Label label;
     private Direction direction;
     private Properties properties;
 
@@ -20,16 +19,16 @@ public class RelationshipImpl implements Relationship {
     }
 
 
-    public RelationshipImpl(long id, Node startNode, Node endNode, Direction direction, RelationshipType relationshipType) {
+    public RelationshipImpl(long id, Node startNode, Node endNode, Direction direction, Label label) {
         this.startNode = startNode;
         this.endNode = endNode;
         this.direction = direction;
-        this.relationshipType = relationshipType;
+        this.label = label;
         properties = new Properties();
         properties.add(ID, id, LONG);
         properties.add(new Property("startNode", LONG, startNode.getId()));
         properties.add(new Property("endNode", LONG, endNode.getId()));
-        properties.add(new Property("RelationshipType", STRING, relationshipType.getName()));
+        properties.add(new Property("label", STRING, label.getName()));
         properties.add(new Property("direction", STRING, direction.toString()));
     }
 
@@ -44,8 +43,8 @@ public class RelationshipImpl implements Relationship {
     }
 
     @Override
-    public RelationshipType getType() {
-        return relationshipType;
+    public Label getLabel() {
+        return label;
     }
 
     @Override
@@ -55,7 +54,7 @@ public class RelationshipImpl implements Relationship {
 
     @Override
     public Relationship reverse() {
-        return new RelationshipImpl(getId(), endNode, startNode, getDirection().reverse(), relationshipType);
+        return new RelationshipImpl(getId(), endNode, startNode, getDirection().reverse(), label);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class RelationshipImpl implements Relationship {
 
         if (startNode.getId() != that.startNode.getId()) return false;
         if (endNode.getId() != that.endNode.getId()) return false;
-        if (!relationshipType.getName().equals(that.relationshipType.getName())) return false;
+        if (!label.getName().equals(that.label.getName())) return false;
         return direction == that.direction;
     }
 
@@ -90,7 +89,7 @@ public class RelationshipImpl implements Relationship {
     public int hashCode() {
         int result = startNode.hashCode();
         result = 31 * result + endNode.hashCode();
-        result = 31 * result + relationshipType.hashCode();
+        result = 31 * result + label.hashCode();
         result = 31 * result + direction.hashCode();
         return result;
     }
@@ -98,9 +97,9 @@ public class RelationshipImpl implements Relationship {
     @Override
     public String toString() {
         if (direction == Direction.OUTGOING) {
-            return "Relationship (" + startNode.getId() + ")-[" + relationshipType.getName() + "]->(" + endNode.getId() + ")";
+            return "Relationship (" + startNode.getId() + ")-[" + label.getName() + "]->(" + endNode.getId() + ")";
         } else {
-            return "Relationship (" + startNode.getId() + ")<-[" + relationshipType.getName() + "]-(" + endNode.getId() + ")";
+            return "Relationship (" + startNode.getId() + ")<-[" + label.getName() + "]-(" + endNode.getId() + ")";
         }
     }
 

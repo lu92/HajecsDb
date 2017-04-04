@@ -1,6 +1,8 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
-import org.hajecsdb.graphs.core.*;
+import org.hajecsdb.graphs.core.Graph;
+import org.hajecsdb.graphs.core.Label;
+import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.DFA.State;
@@ -33,14 +35,11 @@ public class CreateRelationshipClauseBuilder extends ClauseBuilder {
                             Node leftNode = entry.getValue().getNode();
                             for (Map.Entry<Integer, ResultRow> entry2 : resultOfRightNodes.getResults().entrySet()) {
                                 Node rightNode = entry2.getValue().getNode();
-                                graph.createRelationship(leftNode, rightNode, new RelationshipType(relationshipData.relatonshipLabel.getName()));
+                                graph.createRelationship(leftNode, rightNode, new Label(relationshipData.relatonshipLabel.getName()));
                             }
-
                         }
                     }
-
                 }
-
                 return result;
             }
 

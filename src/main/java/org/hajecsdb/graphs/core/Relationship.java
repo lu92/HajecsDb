@@ -4,7 +4,7 @@ package org.hajecsdb.graphs.core;
 public interface Relationship extends Entity{
     Node getStartNode();
     Node getEndNode();
-    RelationshipType getType();
+    Label getLabel();
     Direction getDirection();
     Relationship reverse();
     void setProperties(Properties properties);

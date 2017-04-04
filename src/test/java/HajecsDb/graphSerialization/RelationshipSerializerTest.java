@@ -3,7 +3,6 @@ package HajecsDb.graphSerialization;
 import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.impl.NodeImpl;
 import org.hajecsdb.graphs.impl.RelationshipImpl;
-import org.hajecsdb.graphs.storage.entities.BinaryRelationship;
 import org.hajecsdb.graphs.storage.serializers.RelationshipSerializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hajecsdb.graphs.core.PropertyType.INT;
-import static org.hajecsdb.graphs.core.PropertyType.LONG;
-import static org.hajecsdb.graphs.core.PropertyType.STRING;
+import static org.hajecsdb.graphs.core.PropertyType.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RelationshipSerializerTest {
@@ -44,10 +41,10 @@ public class RelationshipSerializerTest {
                 .add(new Property("id", LONG, 1l))
                 .add(new Property("startNode", LONG, startNode.getId()))
                 .add(new Property("endNode", LONG, endNode.getId()))
-                .add(new Property("RelationshipType", STRING, "CONNECTED"))
+                .add(new Property("label", STRING, "CONNECTED"))
                 .add(new Property("direction", STRING, Direction.INCOMING.toString()));
 
-        Relationship relationship = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new RelationshipType("CONNECTED"));
+        Relationship relationship = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new Label("CONNECTED"));
 
         // when
         relationshipSerializer.save(relationship);
@@ -62,8 +59,8 @@ public class RelationshipSerializerTest {
 
     @Test
     public void saveTwoRelationshipsAndReadAllTest() throws IOException {
-        Relationship relationship1 = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new RelationshipType("CONNECTED"));
-        Relationship relationship2 = new RelationshipImpl(2, endNode, startNode, Direction.INCOMING, new RelationshipType("KNOWS"));
+        Relationship relationship1 = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new Label("CONNECTED"));
+        Relationship relationship2 = new RelationshipImpl(2, endNode, startNode, Direction.INCOMING, new Label("KNOWS"));
 
         // when
         relationshipSerializer.save(relationship1);
@@ -77,7 +74,7 @@ public class RelationshipSerializerTest {
     @Test
     public void saveAndDeleteRelationshipTest() throws IOException {
         // given
-        Relationship relationship = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new RelationshipType("CONNECTED"));
+        Relationship relationship = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new Label("CONNECTED"));
 
         // when
         relationshipSerializer.save(relationship);
@@ -91,7 +88,7 @@ public class RelationshipSerializerTest {
     @Test
     public void saveAndUpdateRelationshipTest() throws IOException, NotFoundException {
         // given
-        Relationship relationship = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new RelationshipType("CONNECTED"));
+        Relationship relationship = new RelationshipImpl(1, startNode, endNode, Direction.INCOMING, new Label("CONNECTED"));
         relationshipSerializer.save(relationship);
 
         // when
@@ -102,7 +99,6 @@ public class RelationshipSerializerTest {
         Optional<Relationship> relationshipOptional = relationshipSerializer.read(1);
         assertThat(relationshipOptional.isPresent()).isTrue();
         assertThat(relationshipOptional.get().getProperty("length").get()).isEqualTo(new Property("length", INT, 10));
-
     }
 
     private void clearContentFile(String filename) throws FileNotFoundException {

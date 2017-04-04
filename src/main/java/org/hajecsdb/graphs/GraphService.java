@@ -1,7 +1,6 @@
 package org.hajecsdb.graphs;
 
 import org.hajecsdb.graphs.core.*;
-import org.hajecsdb.graphs.storage.BinaryGraphStorage;
 import org.hajecsdb.graphs.storage.GraphStorage;
 import org.hajecsdb.graphs.transactions.*;
 
@@ -104,7 +103,7 @@ public class GraphService implements Graph, Transactional {
     }
 
     @Override
-    public Relationship findRelationship(long beginNodeId, long endNodeId, RelationshipType relationshipType) {
+    public Relationship findRelationship(long beginNodeId, long endNodeId, Label label) {
         return null;
     }
 
@@ -129,18 +128,8 @@ public class GraphService implements Graph, Transactional {
     }
 
     @Override
-    public Iterable<RelationshipType> getAllRelationshipTypes() {
-        return null;
-    }
-
-    @Override
-    public Iterable<String> getAllPropertyKeys() {
-        return null;
-    }
-
-    @Override
-    public Relationship createRelationship(Node beginNode, Node endNode, RelationshipType type) {
-        Relationship relationship = graph.createRelationship(beginNode, endNode, type);
+    public Relationship createRelationship(Node beginNode, Node endNode, Label label) {
+        Relationship relationship = graph.createRelationship(beginNode, endNode, label);
         transaction.getScope().add(relationship, OperationType.CREATE);
         return relationship;
     }
