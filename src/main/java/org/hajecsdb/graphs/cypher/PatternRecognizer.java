@@ -8,8 +8,8 @@ public class PatternRecognizer {
     //      \(([\w]+):?([\w]+)?(\{[\w]+:[\w'.,:]+\})?\)
     private final static String NODE_PATTERN = "\\(([\\w]+):?([\\w]+)?(\\{[\\w]+:[\\w'.,:]+\\})?\\)";
 
-    //      \(([\w]+):?([\w]+)?\)<?-\[(([\w]+)?:?([\w]+)?)\]->?\(([\w]+):?([\w]+)?\)
-    private final static String RELATIONSHIP_PATTERN = "\\(([\\w]+):?([\\w]+)?\\)<?-\\[(([\\w]+)?:?([\\w]+)?)\\]->?\\(([\\w]+):?([\\w]+)?\\)";
+    //      \(([\w]+):?([\w]+)?(\{[\w:' }]+)?\)(--|-\[([\w]+):?([\w]+)?\]->|<-\[([\w]+):?([\w]+)?\]-)\(([\w]+):?([\w]+)?(\{[\w:' }]+)?\)
+    private final static String RELATIONSHIP_PATTERN = "\\(([\\w]+):?([\\w]+)?(\\{[\\w:' }]+)?\\)(--|-\\[([\\w]+):?([\\w]+)?\\]->|<-\\[([\\w]+):?([\\w]+)?\\]-)\\(([\\w]+):?([\\w]+)?(\\{[\\w:' }]+)?\\)";
 
     public static boolean isNode(String subQuery) {
         return subQuery.matches(NODE_PATTERN);

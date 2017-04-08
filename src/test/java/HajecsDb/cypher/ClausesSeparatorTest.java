@@ -195,4 +195,20 @@ public class ClausesSeparatorTest {
 //        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
         assertThat(clauseInvocationStack).isEmpty();
     }
+
+    @Test
+    public void splitMatchRelationshipClauseTest() {
+        // given
+        String command = "MATCH (director: Person { name: 'Johnson' })--(movie)";
+
+        // when
+        Stack<ClauseInvocation> clauseInvocationStack = clausesSeparator.splitByClauses(command);
+
+        // then
+        assertThat(clauseInvocationStack).hasSize(1);
+        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(MATCH_RELATIONSHIP, "(director:Person{name:'Johnson'})--(movie)"));
+//        assertThat(clauseInvocationStack.pop()).isEqualTo(new ClauseInvocation(RETURN, "n"));
+        assertThat(clauseInvocationStack).isEmpty();
+    }
+
 }
