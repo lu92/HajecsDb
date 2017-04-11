@@ -1,14 +1,13 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
 
-import org.hajecsdb.graphs.core.Graph;
-import org.hajecsdb.graphs.core.Label;
-import org.hajecsdb.graphs.core.Properties;
-import org.hajecsdb.graphs.core.Property;
+import org.hajecsdb.graphs.core.*;
+import org.hajecsdb.graphs.cypher.ContentType;
 import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.DFA.State;
 import org.hajecsdb.graphs.cypher.Result;
+import org.hajecsdb.graphs.cypher.ResultRow;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,19 +47,29 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                         }
                     }
                     createNode(graph, result, label, parameters);
+                    commandProcessing.getQueryContext().insert(variableName, result.copy());
                 }
                 return result;
             }
 
             void createNode(Graph graph, Result result, Label label, List<Property> parameters) {
+                Node node = createNode(graph, label, parameters);
+                int index = result.getResults().size() + 1;
+                ResultRow resultRow = new ResultRow();
+                result.setCompleted(true);
+                resultRow.setContentType(ContentType.NODE);
+                resultRow.setNode(node);
+                result.getResults().put(index, resultRow);
+            }
+
+            private Node createNode(Graph graph, Label label, List<Property> parameters) {
                 if (parameters.isEmpty()) {
-                    graph.createNode(label);
+                    return graph.createNode(label);
                 } else {
                     Properties properties = new Properties();
                     properties.addAll(parameters);
-                    graph.createNode(label, properties);
+                    return graph.createNode(label, properties);
                 }
-                result.setCompleted(true);
             }
 
         };

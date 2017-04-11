@@ -3,6 +3,8 @@ package org.hajecsdb.graphs.cypher.clauses;
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
+import org.hajecsdb.graphs.core.Relationship;
+import org.hajecsdb.graphs.cypher.ContentType;
 import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.DFA.State;
@@ -31,11 +33,19 @@ public class CreateRelationshipClauseBuilder extends ClauseBuilder {
                     Result resultOfLeftNodes = commandProcessing.getQueryContext().get(relationshipData.leftNodesVariableName);
                     Result resultOfRightNodes = commandProcessing.getQueryContext().get(relationshipData.rightNodesVariableName);
                     if (resultOfLeftNodes.hasContent() && resultOfRightNodes.hasContent()) {
+                        result.getResults().clear();
                         for (Map.Entry<Integer, ResultRow> entry : resultOfLeftNodes.getResults().entrySet()) {
                             Node leftNode = entry.getValue().getNode();
                             for (Map.Entry<Integer, ResultRow> entry2 : resultOfRightNodes.getResults().entrySet()) {
                                 Node rightNode = entry2.getValue().getNode();
-                                graph.createRelationship(leftNode, rightNode, new Label(relationshipData.relatonshipLabel.getName()));
+                                Relationship relationship = graph.createRelationship(leftNode, rightNode, new Label(relationshipData.relatonshipLabel.getName()));
+                                int index = result.getResults().size()+1;
+                                ResultRow resultRow = new ResultRow();
+                                result.setCompleted(true);
+                                resultRow.setContentType(ContentType.RELATIONSHIP);
+                                resultRow.setRelationship(relationship);
+                                result.getResults().put(index, resultRow);
+                                commandProcessing.getQueryContext().insert(relationshipData.relationshipName, result.copy());
                             }
                         }
                     }

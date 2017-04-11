@@ -15,6 +15,7 @@ public class CypherDfaBuilder {
     private DeleteNodeClaudeBuilder deleteNodeClaudeBuilder;
     private SetClauseBuilder setClauseBuilder;
     private RemoveClauseBuilder removeClauseBuilder;
+    private ReturnClauseBuilder returnClauseBuilder;
 
     public CypherDfaBuilder(Graph graph) {
         dfa = new DFA();
@@ -26,21 +27,27 @@ public class CypherDfaBuilder {
         deleteNodeClaudeBuilder = new DeleteNodeClaudeBuilder(graph);
         setClauseBuilder = new SetClauseBuilder(graph);
         removeClauseBuilder = new RemoveClauseBuilder(graph);
+        returnClauseBuilder = new ReturnClauseBuilder(graph);
     }
 
     public void buildClauses() {
         State beginState = dfa.getBeginState();
-        createNodeClauseBuilder.buildClause(dfa, beginState);
-        State matchClauseEndState = matchNodeClauseBuilder.buildClause(dfa, beginState);
-        createRelationshipClauseBuilder.buildClause(dfa, matchClauseEndState);
-        matchRelationshipClauseBuilder.buildClause(dfa, beginState);
-        State whereClauseEndState = whereClauseBuilder.buildClause(dfa, matchClauseEndState);
-        setClauseBuilder.buildClause(dfa, matchClauseEndState);
+        State createNodeClauseEndState = createNodeClauseBuilder.buildClause(dfa, beginState);
+        State matchNodeClauseEndState = matchNodeClauseBuilder.buildClause(dfa, beginState);
+        State createRelationshipClauseEndState = createRelationshipClauseBuilder.buildClause(dfa, matchNodeClauseEndState);
+        State matchRelationshipClauseEndState = matchRelationshipClauseBuilder.buildClause(dfa, beginState);
+        State whereClauseEndState = whereClauseBuilder.buildClause(dfa, matchNodeClauseEndState);
+        setClauseBuilder.buildClause(dfa, matchNodeClauseEndState);
         setClauseBuilder.buildClause(dfa, whereClauseEndState);
-        deleteNodeClaudeBuilder.buildClause(dfa, matchClauseEndState);
+        deleteNodeClaudeBuilder.buildClause(dfa, matchNodeClauseEndState);
         deleteNodeClaudeBuilder.buildClause(dfa, whereClauseEndState);
-        removeClauseBuilder.buildClause(dfa, matchClauseEndState);
+        removeClauseBuilder.buildClause(dfa, matchNodeClauseEndState);
         removeClauseBuilder.buildClause(dfa, whereClauseEndState);
+        returnClauseBuilder.buildClause(dfa, createNodeClauseEndState);
+        returnClauseBuilder.buildClause(dfa, matchNodeClauseEndState);
+        returnClauseBuilder.buildClause(dfa, createRelationshipClauseEndState);
+        returnClauseBuilder.buildClause(dfa, matchRelationshipClauseEndState);
+        returnClauseBuilder.buildClause(dfa, whereClauseEndState);
     }
 
     public DFA getDfa() {

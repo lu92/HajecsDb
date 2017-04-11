@@ -8,6 +8,10 @@ public class ResultRow {
     private Node node;
     private Relationship relationship;
     private String message;
+    private Integer intValue;
+    private Long longValue;
+    private Float floatValue;
+    private Double doubleValue;
 
     @Override
     public boolean equals(Object o) {
@@ -62,5 +66,37 @@ public class ResultRow {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Long getLongValue() {
+        return longValue;
+    }
+
+    public void setLongValue(Long longValue) {
+        this.longValue = longValue;
+    }
+
+    public Integer getIntValue() {
+        return intValue;
+    }
+
+    public void setIntValue(Integer intValue) {
+        this.intValue = intValue;
+    }
+
+    public Double getDoubleValue() {
+        return doubleValue;
+    }
+
+    public void setDoubleValue(Double doubleValue) {
+        this.doubleValue = doubleValue;
+    }
+
+    public Float getFloatValue() {
+        return floatValue;
+    }
+
+    public void setFloatValue(Float floatValue) {
+        this.floatValue = floatValue;
     }
 }
