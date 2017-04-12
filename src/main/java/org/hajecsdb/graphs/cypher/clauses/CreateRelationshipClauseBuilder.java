@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 
 public class CreateRelationshipClauseBuilder extends ClauseBuilder {
 
-    public CreateRelationshipClauseBuilder(Graph graph) {
-        super(ClauseEnum.CREATE_RELATIONSHIP, graph);
+    public CreateRelationshipClauseBuilder() {
+        super(ClauseEnum.CREATE_RELATIONSHIP);
     }
 
     @Override

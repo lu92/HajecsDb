@@ -21,7 +21,7 @@ import static org.hajecsdb.graphs.core.PropertyType.STRING;
 public class DeleteNodeTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
     private NodeComparator nodeComparator = new NodeComparator();
 
 
@@ -30,14 +30,13 @@ public class DeleteNodeTest {
         // given
         String command = "MATCH (n) DELETE n";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 0");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -54,14 +53,13 @@ public class DeleteNodeTest {
         String command = "MATCH (n) DELETE n";
         graph = new GraphImpl("pathDir", "graphDir");
         graph.createNode();
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -80,14 +78,13 @@ public class DeleteNodeTest {
         graph.createNode();
         graph.createNode();
         graph.createNode();
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 3");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -103,14 +100,13 @@ public class DeleteNodeTest {
         // given
         String command = "MATCH (n: Useless) DELETE n";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 0");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -127,14 +123,13 @@ public class DeleteNodeTest {
         String command = "MATCH (n: Useless) DELETE n";
         graph = new GraphImpl("pathDir", "graphDir");
         graph.createNode(new Label("Useless"));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -153,14 +148,13 @@ public class DeleteNodeTest {
         graph.createNode(new Label("Useless"));
         graph.createNode(new Label("Useless"));
         graph.createNode(new Label("Useless"));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 3");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -179,14 +173,13 @@ public class DeleteNodeTest {
         graph.createNode(new Label("Useless"), new Properties().add("name", "Andrew", STRING));
         graph.createNode(new Label("Useless"), new Properties().add("name", "Victor", STRING));
         graph.createNode(new Label("Useless"), new Properties().add("name", "Amelia", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(2);
@@ -209,14 +202,13 @@ public class DeleteNodeTest {
         graph.createNode(new Label("Useless"), new Properties().add("name", "Andrew", STRING).add("age", 25l, LONG));
         graph.createNode(new Label("Useless"), new Properties().add("name", "Victor", STRING).add("age", 21l, LONG));
         graph.createNode(new Label("Useless"), new Properties().add("name", "Amelia", STRING).add("age", 30l, LONG));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Nodes deleted: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(2);

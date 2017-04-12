@@ -19,8 +19,8 @@ import static org.fest.util.Strings.isEmpty;
 
 public class ReturnClauseBuilder extends ClauseBuilder {
 
-    public ReturnClauseBuilder(Graph graph) {
-        super(ClauseEnum.RETURN, graph);
+    public ReturnClauseBuilder() {
+        super(ClauseEnum.RETURN);
     }
 
     @Override

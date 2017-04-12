@@ -20,7 +20,7 @@ import static org.hajecsdb.graphs.cypher.ContentType.NODE;
 public class MatchNodeTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
 
     @Test
     public void matchAnyNodeInEmptyGraphExpectedEmptyListTest() {
@@ -28,10 +28,9 @@ public class MatchNodeTest {
         // given
         String command = "MATCH (n)";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -45,10 +44,9 @@ public class MatchNodeTest {
         // given
         String command = "MATCH (n: Person)";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -68,10 +66,8 @@ public class MatchNodeTest {
         expectedResultRow.setContentType(NODE);
         expectedResultRow.setNode(graph.getNodeById(1l).get());
 
-        cypherExecutor = new CypherExecutor(graph);
-
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -89,7 +85,6 @@ public class MatchNodeTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "second", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -104,7 +99,7 @@ public class MatchNodeTest {
         expectedResultRow3.setNode(graph.getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -124,7 +119,6 @@ public class MatchNodeTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "second", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -139,7 +133,7 @@ public class MatchNodeTest {
         expectedResultRow3.setNode(graph.getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -159,14 +153,13 @@ public class MatchNodeTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "second", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
         expectedResultRow1.setNode(graph.getNodeById(1l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -184,14 +177,13 @@ public class MatchNodeTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "Adam", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
         expectedResultRow2.setNode(graph.getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -208,14 +200,13 @@ public class MatchNodeTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "Adam", STRING).add("age", 25, INT));
         graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
         expectedResultRow2.setNode(graph.getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();

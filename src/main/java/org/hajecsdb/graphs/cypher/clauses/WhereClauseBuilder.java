@@ -27,8 +27,8 @@ import static org.hajecsdb.graphs.cypher.ContentType.NODE;
 
 public class WhereClauseBuilder extends ClauseBuilder {
 
-    public WhereClauseBuilder(Graph graph) {
-        super(ClauseEnum.WHERE, graph);
+    public WhereClauseBuilder() {
+        super(ClauseEnum.WHERE);
     }
 
     @Override

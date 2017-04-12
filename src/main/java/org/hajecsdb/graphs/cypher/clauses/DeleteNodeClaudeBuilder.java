@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class DeleteNodeClaudeBuilder extends ClauseBuilder {
 
-    public DeleteNodeClaudeBuilder(Graph graph) {
-        super(ClauseEnum.DELETE, graph);
+    public DeleteNodeClaudeBuilder() {
+        super(ClauseEnum.DELETE);
     }
 
     @Override

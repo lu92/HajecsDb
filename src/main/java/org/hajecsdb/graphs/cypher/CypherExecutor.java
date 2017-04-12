@@ -8,19 +8,17 @@ import org.hajecsdb.graphs.cypher.DFA.DFA;
 
 import java.util.Stack;
 
-public class CypherExecutor {
-    private Graph graph;
+public final class CypherExecutor {
     private CypherDfaBuilder cypherDfaBuilder;
     private ClausesSeparator clausesSeparator;
 
-    public CypherExecutor(Graph graph) {
-        this.graph = graph;
-        this.cypherDfaBuilder = new CypherDfaBuilder(graph);
+    public CypherExecutor() {
+        this.cypherDfaBuilder = new CypherDfaBuilder();
         this.clausesSeparator = new ClausesSeparator();
         this.cypherDfaBuilder.buildClauses();
     }
 
-    public Result execute(String command) {
+    public Result execute(Graph graph, String command) {
         DFA dfa = cypherDfaBuilder.getDfa();
         Stack<ClauseInvocation> clauseInvocationStack = clausesSeparator.splitByClauses(command);
         CommandProcessing commandProcessing = new CommandProcessing(command);

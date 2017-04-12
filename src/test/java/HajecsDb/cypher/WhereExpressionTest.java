@@ -22,7 +22,7 @@ import static org.hajecsdb.graphs.cypher.ContentType.NODE;
 public class WhereExpressionTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
     private NodeComparator nodeComparator = new NodeComparator();
 
     @Test
@@ -31,10 +31,9 @@ public class WhereExpressionTest {
         // given
         String command = "MATCH (n) WHERE n.age = 25";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -51,14 +50,13 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "second", STRING));
         graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
         expectedResultRow1.setNode(graph.getNodeById(1l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -76,7 +74,6 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -87,7 +84,7 @@ public class WhereExpressionTest {
         expectedResultRow2.setNode(graph.getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -110,7 +107,6 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -121,7 +117,7 @@ public class WhereExpressionTest {
         expectedResultRow2.setNode(graph.getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -144,7 +140,6 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 24l, LONG));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -155,7 +150,7 @@ public class WhereExpressionTest {
         expectedResultRow2.setNode(graph.getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -179,7 +174,6 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("age", 31l, LONG));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -190,7 +184,7 @@ public class WhereExpressionTest {
         expectedResultRow2.setNode(graph.getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -214,7 +208,6 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("name", "Henry", STRING));
         graph.createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
         graph.createNode(new Label("Person"), new Properties().add("name", "Victor", STRING));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
@@ -225,7 +218,7 @@ public class WhereExpressionTest {
         expectedResultRow2.setNode(graph.getNodeById(4l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -248,14 +241,13 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
         graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
         graph.createNode(new Label("Person"), new Properties().add("age", 30, INT));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
         expectedResultRow1.setNode(graph.getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -273,14 +265,13 @@ public class WhereExpressionTest {
         graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
         graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
         graph.createNode(new Label("Person"), new Properties().add("age", 30, INT));
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
         expectedResultRow1.setNode(graph.getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();

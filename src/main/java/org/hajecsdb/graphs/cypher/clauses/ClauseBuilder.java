@@ -13,12 +13,10 @@ import static org.hajecsdb.graphs.core.PropertyType.LONG;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
 public abstract class ClauseBuilder {
-    protected Graph graph;
     protected ClauseEnum clauseEnum;
     protected ParameterExtractor parameterExtractor;
 
-    public ClauseBuilder(ClauseEnum clauseEnum, Graph graph) {
-        this.graph = graph;
+    public ClauseBuilder(ClauseEnum clauseEnum) {
         this.clauseEnum = clauseEnum;
         this.parameterExtractor = new ParameterExtractor();
     }

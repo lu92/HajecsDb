@@ -19,14 +19,13 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RemovePropertyTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
 
     @Test
     public void removeSinglePropertyFromNodeTest() {
         // given
         String command = "MATCH (n) REMOVE n.age";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("age", 40l, PropertyType.LONG));
 
         ResultRow expectedResultRow = new ResultRow();
@@ -34,7 +33,7 @@ public class RemovePropertyTest {
         expectedResultRow.setMessage("Properties removed: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(1);
@@ -52,7 +51,6 @@ public class RemovePropertyTest {
         // given
         String command = "MATCH (n) REMOVE n.age";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("age", 40l, PropertyType.LONG));
         graph.createNode(new Properties().add("age", 30l, PropertyType.LONG));
         graph.createNode(new Properties().add("age", 20l, PropertyType.LONG));
@@ -62,7 +60,7 @@ public class RemovePropertyTest {
         expectedResultRow.setMessage("Properties removed: 3");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(3);
@@ -88,7 +86,6 @@ public class RemovePropertyTest {
         // given
         String command = "MATCH (n: Person) REMOVE n:Person";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Label("Person"));
 
         ResultRow expectedResultRow = new ResultRow();
@@ -96,7 +93,7 @@ public class RemovePropertyTest {
         expectedResultRow.setMessage("Labels removed: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(1);
@@ -114,7 +111,6 @@ public class RemovePropertyTest {
         // given
         String command = "MATCH (n: Person) REMOVE n:Person";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Label("Person"));
         graph.createNode(new Label("Person"));
         graph.createNode(new Label("Person"));
@@ -124,7 +120,7 @@ public class RemovePropertyTest {
         expectedResultRow.setMessage("Labels removed: 3");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(3);
@@ -146,7 +142,6 @@ public class RemovePropertyTest {
         // given
         String command = "MATCH (n) REMOVE n.fakeProperty";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode();
 
         ResultRow expectedResultRow = new ResultRow();
@@ -154,7 +149,7 @@ public class RemovePropertyTest {
         expectedResultRow.setMessage("Properties removed: 0");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(1);
@@ -172,7 +167,6 @@ public class RemovePropertyTest {
         // given
         String command = "MATCH (n) WHERE n.age > 25 REMOVE n.age";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("age", 40l, PropertyType.LONG));
 
         ResultRow expectedResultRow = new ResultRow();
@@ -180,7 +174,7 @@ public class RemovePropertyTest {
         expectedResultRow.setMessage("Properties removed: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(1);

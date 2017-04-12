@@ -9,15 +9,14 @@ import org.hajecsdb.graphs.cypher.DFA.State;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CreateNodeClauseBuilder extends ClauseBuilder {
 
-    public CreateNodeClauseBuilder(Graph graph) {
-        super(ClauseEnum.CREATE_NODE, graph);
+    public CreateNodeClauseBuilder() {
+        super(ClauseEnum.CREATE_NODE);
     }
 
     @Override
@@ -31,21 +30,8 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                 if (matcher.find()) {
                     String variableName = matcher.group(1);
                     Label label = new Label(matcher.group(2));
-                    List<Property> parameters = new LinkedList<>();
-
-                    if (matcher.groupCount() == 4 && matcher.group(4) != null) {
-                        String paramContent = matcher.group(4);
-                        String paramRegex = "([\\w]*):([\\w'.]*)";
-                        Pattern paramPattern = Pattern.compile(paramRegex);
-                        Matcher paramsMatcher = paramPattern.matcher(paramContent);
-
-                        while (paramsMatcher.find()) {
-                            String variable = paramsMatcher.group(1);
-                            String value = paramsMatcher.group(2);
-                            Property property = parameterExtractor.extract(variable, value);
-                            parameters.add(property);
-                        }
-                    }
+                    String parametersBody = matcher.group(4);
+                    List<Property> parameters = extractParameters(parametersBody);
                     createNode(graph, result, label, parameters);
                     commandProcessing.getQueryContext().insert(variableName, result.copy());
                 }

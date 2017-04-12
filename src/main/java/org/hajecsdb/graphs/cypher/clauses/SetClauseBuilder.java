@@ -16,8 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SetClauseBuilder extends ClauseBuilder {
-    public SetClauseBuilder(Graph graph) {
-        super(ClauseEnum.SET, graph);
+    public SetClauseBuilder() {
+        super(ClauseEnum.SET);
     }
 
     @Override

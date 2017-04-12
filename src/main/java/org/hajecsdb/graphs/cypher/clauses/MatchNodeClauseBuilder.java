@@ -8,7 +8,6 @@ import org.hajecsdb.graphs.cypher.DFA.*;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,8 +17,8 @@ import static org.hajecsdb.graphs.cypher.ContentType.NODE;
 
 public class MatchNodeClauseBuilder extends ClauseBuilder {
 
-    public MatchNodeClauseBuilder(Graph graph) {
-        super(ClauseEnum.MATCH_NODE, graph);
+    public MatchNodeClauseBuilder() {
+        super(ClauseEnum.MATCH_NODE);
     }
 
     @Override
@@ -29,34 +28,17 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
             public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
                 Pattern pattern = Pattern.compile(getExpressionOfClauseRegex());
                 ClauseInvocation clauseInvocation = commandProcessing.getClauseInvocationStack().peek();
-
                 Matcher matcher = pattern.matcher(clauseInvocation.getSubQuery());
                 if (matcher.find()) {
                     String variableName = matcher.group(1);
                     Label label = new Label(matcher.group(2));
-                    List<Property> parameters = new LinkedList<>();
-
-                    if (matcher.group(3) != null && !matcher.group(3).isEmpty()) {
-                        String paramContent = matcher.group(3);
-                        String paramRegex = "([\\w]*):([\\w'.]*)";
-                        Pattern paramPattern = Pattern.compile(paramRegex);
-                        Matcher paramsMatcher = paramPattern.matcher(paramContent);
-
-                        while (paramsMatcher.find()) {
-                            String variable = paramsMatcher.group(1);
-                            String value = paramsMatcher.group(2);
-                            Property property = parameterExtractor.extract(variable, value);
-
-                            parameters.add(property);
-
-                        }
-                    }
+                    String parametersBody = matcher.group(3);
+                    List<Property> parameters = extractParameters(parametersBody);
                     matchNode(graph, result, label, parameters);
                     if (!variableName.isEmpty()) {
                         commandProcessing.getQueryContext().insert(variableName, result.copy());
                     }
                 }
-
                 result.setCompleted(true);
                 return result;
             }

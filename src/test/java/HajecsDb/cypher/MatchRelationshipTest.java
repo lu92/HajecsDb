@@ -17,7 +17,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class MatchRelationshipTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
 
     ResultRow expectedResultRow1;
     ResultRow expectedResultRow2;
@@ -29,18 +29,17 @@ public class MatchRelationshipTest {
 
     {
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
-        cypherExecutor.execute("CREATE (p: Vampire {name: 'Selene'})");
-        cypherExecutor.execute("CREATE (p: Vampire {name: 'Victor'})");
-        cypherExecutor.execute("CREATE (p: Hibrid {name: 'Marcus'})");
-        cypherExecutor.execute("CREATE (p: Hibrid {name: 'Michael'})");
-        cypherExecutor.execute("CREATE (p: Vampire {name: 'Kraven'})");
-        cypherExecutor.execute("CREATE (p: Vampire {name: 'Tanis'})");
-        cypherExecutor.execute("CREATE (p: Lykan {name: 'William'})");
-        cypherExecutor.execute("MATCH (m {name: 'Marcus'}) MATCH (s {name: 'Selene'}) CREATE (m)-[p:KNOW]->(s)");
-        cypherExecutor.execute("MATCH (m {name: 'Selene'}) MATCH (s {name: 'Tanis'}) CREATE (m)-[p:KNOW]->(s)");
-        cypherExecutor.execute("MATCH (v {name: 'Victor'}) MATCH (s {name: 'Selene'}) CREATE (v)-[p:LIKES]->(s)");
-        cypherExecutor.execute("MATCH (v {name: 'Victor'}) MATCH (s {name: 'Kraven'}) CREATE (v)-[p:LIKES]->(s)");
+        cypherExecutor.execute(graph, "CREATE (p: Vampire {name: 'Selene'})");
+        cypherExecutor.execute(graph, "CREATE (p: Vampire {name: 'Victor'})");
+        cypherExecutor.execute(graph, "CREATE (p: Hibrid {name: 'Marcus'})");
+        cypherExecutor.execute(graph, "CREATE (p: Hibrid {name: 'Michael'})");
+        cypherExecutor.execute(graph, "CREATE (p: Vampire {name: 'Kraven'})");
+        cypherExecutor.execute(graph, "CREATE (p: Vampire {name: 'Tanis'})");
+        cypherExecutor.execute(graph, "CREATE (p: Lykan {name: 'William'})");
+        cypherExecutor.execute(graph, "MATCH (m {name: 'Marcus'}) MATCH (s {name: 'Selene'}) CREATE (m)-[p:KNOW]->(s)");
+        cypherExecutor.execute(graph, "MATCH (m {name: 'Selene'}) MATCH (s {name: 'Tanis'}) CREATE (m)-[p:KNOW]->(s)");
+        cypherExecutor.execute(graph, "MATCH (v {name: 'Victor'}) MATCH (s {name: 'Selene'}) CREATE (v)-[p:LIKES]->(s)");
+        cypherExecutor.execute(graph, "MATCH (v {name: 'Victor'}) MATCH (s {name: 'Kraven'}) CREATE (v)-[p:LIKES]->(s)");
 
         expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(ContentType.NODE);
@@ -85,7 +84,7 @@ public class MatchRelationshipTest {
         String command = "MATCH (vampire: Vampire)--(other { name: 'Selene' })";
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -100,7 +99,7 @@ public class MatchRelationshipTest {
         String command = "MATCH (vampire { name: 'Victor' })--(other)";
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -116,9 +115,9 @@ public class MatchRelationshipTest {
         String command2 = "MATCH (n: Vampire { name: 'Selene' })--(v: Vampire)";
 
         // when
-        Result result = cypherExecutor.execute(command1);
+        Result result = cypherExecutor.execute(graph, command1);
 
-        Result result2 = cypherExecutor.execute(command2);
+        Result result2 = cypherExecutor.execute(graph, command2);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -138,7 +137,7 @@ public class MatchRelationshipTest {
         String command = "MATCH (n:Vampire { name: 'Selene' })-[r]->(other)";
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -153,7 +152,7 @@ public class MatchRelationshipTest {
         String command = "MATCH (n:Vampire { name: 'Selene' })<-[r:LIKES]-(other)";
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();

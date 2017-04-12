@@ -19,17 +19,16 @@ import static org.hajecsdb.graphs.core.PropertyType.*;
 public class CreateNodeTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
 
     @Test
     public void createEmptyNodeWithLabelTest() {
         // given
         String command = "CREATE (n: Person) RETURN n";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -50,10 +49,9 @@ public class CreateNodeTest {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -78,10 +76,9 @@ public class CreateNodeTest {
         // given
         String command = "CREATE (n: Person {name: 'Peter'}) RETURN n";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -105,10 +102,9 @@ public class CreateNodeTest {
         // given
         String command = "CREATE (n: Person {firstName: 'Jan', lastName: 'Kowalski'}) RETURN n";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -133,10 +129,9 @@ public class CreateNodeTest {
         // given
         String command = "CREATE (n: Person {firstName: 'Jan', salary: 3000.00, age: 40}) RETURN n";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();

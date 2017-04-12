@@ -16,17 +16,16 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ReturnExpressionTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
 
     @Test
     public void expectedIntValueFromNode() {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n.age";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -44,10 +43,9 @@ public class ReturnExpressionTest {
         // given
         String command = "CREATE (n: Person {name: 'Robert'}) RETURN n.name";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -65,10 +63,9 @@ public class ReturnExpressionTest {
         // given
         String command = "CREATE (n: Person {salary: 3000.00}) RETURN n.salary";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -86,10 +83,9 @@ public class ReturnExpressionTest {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n.missingProperty";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -104,10 +100,9 @@ public class ReturnExpressionTest {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -125,12 +120,11 @@ public class ReturnExpressionTest {
         // given
         String command = "MATCH (f {name : 'first'}) MATCH (s {name : 'second'}) CREATE (f)-[r:CONNECTED]->(s) RETURN r";
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
-        cypherExecutor.execute("CREATE (n: Person {name: 'first'})");
-        cypherExecutor.execute("CREATE (n: Person {name: 'second'})");
+        cypherExecutor.execute(graph, "CREATE (n: Person {name: 'first'})");
+        cypherExecutor.execute(graph, "CREATE (n: Person {name: 'second'})");
 
         //when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         // then
         ResultRow expectedResultRow1 = new ResultRow();

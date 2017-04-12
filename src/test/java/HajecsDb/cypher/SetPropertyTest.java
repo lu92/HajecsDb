@@ -20,21 +20,20 @@ import static org.hajecsdb.graphs.core.PropertyType.STRING;
 public class SetPropertyTest {
 
     private Graph graph;
-    private CypherExecutor cypherExecutor;
+    private CypherExecutor cypherExecutor = new CypherExecutor();
 
     @Test
     public void updateNamePropertyOfEmptyGraph() {
         // given
         String command = "MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties set: 0");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -50,7 +49,6 @@ public class SetPropertyTest {
         // given
         String command = "MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("name", "Selene", STRING));
 
         ResultRow expectedResultRow = new ResultRow();
@@ -58,7 +56,7 @@ public class SetPropertyTest {
         expectedResultRow.setMessage("Properties set: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(1);
@@ -79,7 +77,6 @@ public class SetPropertyTest {
         // given
         String command = "MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("name", "Selene", STRING));
         graph.createNode(new Properties().add("name", "Selene", STRING));
         graph.createNode(new Properties().add("name", "Amelia", STRING));
@@ -89,7 +86,7 @@ public class SetPropertyTest {
         expectedResultRow.setMessage("Properties set: 2");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(3);
@@ -121,14 +118,13 @@ public class SetPropertyTest {
         // given
         String command = "MATCH (n) WHERE n.name = 'Andres' SET n.lastname = 'Taylor'";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties set: 0");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).isEmpty();
@@ -144,7 +140,6 @@ public class SetPropertyTest {
         // given
         String command = "MATCH (n) WHERE n.name = 'Andres' SET n.lastname = 'Taylor'";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("name", "Andres", STRING));
 
         ResultRow expectedResultRow = new ResultRow();
@@ -152,7 +147,7 @@ public class SetPropertyTest {
         expectedResultRow.setMessage("Properties set: 1");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(1);
@@ -175,7 +170,6 @@ public class SetPropertyTest {
         // given
         String command = "MATCH (n) SET n.lastname = 'Taylor'";
         graph = new GraphImpl("pathDir", "graphDir");
-        cypherExecutor = new CypherExecutor(graph);
         graph.createNode(new Properties().add("name", "Andres", STRING));
         graph.createNode(new Properties().add("age", 25l, LONG));
         graph.createNode(new Properties().add("university", "UJ", STRING));
@@ -185,7 +179,7 @@ public class SetPropertyTest {
         expectedResultRow.setMessage("Properties set: 3");
 
         // when
-        Result result = cypherExecutor.execute(command);
+        Result result = cypherExecutor.execute(graph, command);
 
         //then
         assertThat(graph.getAllNodes()).hasSize(3);

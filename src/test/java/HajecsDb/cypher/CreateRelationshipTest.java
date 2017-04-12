@@ -22,10 +22,10 @@ public class CreateRelationshipTest {
 
         // given
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
+        cypherExecutor = new CypherExecutor();
 
-        cypherExecutor.execute("CREATE (u: User {username:'admin'})");
-        cypherExecutor.execute("CREATE (r: Role {name:'ROLE_WEB_USER'})");
+        cypherExecutor.execute(graph, "CREATE (u: User {username:'admin'})");
+        cypherExecutor.execute(graph, "CREATE (r: Role {name:'ROLE_WEB_USER'})");
 
         StringBuilder commandBuilder = new StringBuilder()
                 .append("MATCH (u: User) ")
@@ -34,7 +34,7 @@ public class CreateRelationshipTest {
 
 
         // when
-        Result result = cypherExecutor.execute(commandBuilder.toString());
+        Result result = cypherExecutor.execute(graph, commandBuilder.toString());
 
 
         // then
@@ -53,14 +53,14 @@ public class CreateRelationshipTest {
 
         // given
         graph = new GraphImpl("pathDir", "graphName");
-        cypherExecutor = new CypherExecutor(graph);
+        cypherExecutor = new CypherExecutor();
 
-        cypherExecutor.execute("CREATE (u: User {username:'admin'})");
-        cypherExecutor.execute("CREATE (u: User {username:'userA'})");
-        cypherExecutor.execute("CREATE (u: User {username:'userB'})");
-        cypherExecutor.execute("CREATE (g: Guest {username:'guest1'})");
-        cypherExecutor.execute("CREATE (g: Guest {username:'guest2'})");
-        cypherExecutor.execute("CREATE (r: Role {name:'ROLE_USER'})");
+        cypherExecutor.execute(graph,"CREATE (u: User {username:'admin'})");
+        cypherExecutor.execute(graph,"CREATE (u: User {username:'userA'})");
+        cypherExecutor.execute(graph,"CREATE (u: User {username:'userB'})");
+        cypherExecutor.execute(graph,"CREATE (g: Guest {username:'guest1'})");
+        cypherExecutor.execute(graph,"CREATE (g: Guest {username:'guest2'})");
+        cypherExecutor.execute(graph,"CREATE (r: Role {name:'ROLE_USER'})");
 
         StringBuilder commandBuilder = new StringBuilder()
                 .append("MATCH (u: User) ")
@@ -68,7 +68,7 @@ public class CreateRelationshipTest {
                 .append("CREATE (u)-[p:HAS_ROLE]->(r)");
 
         // when
-        Result result = cypherExecutor.execute(commandBuilder.toString());
+        Result result = cypherExecutor.execute(graph, commandBuilder.toString());
 
 
         // then

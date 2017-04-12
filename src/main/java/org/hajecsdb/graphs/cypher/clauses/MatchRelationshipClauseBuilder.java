@@ -19,8 +19,8 @@ import static org.hajecsdb.graphs.cypher.clauses.ClauseEnum.MATCH_RELATIONSHIP;
 
 public class MatchRelationshipClauseBuilder extends ClauseBuilder {
 
-    public MatchRelationshipClauseBuilder(Graph graph) {
-        super(MATCH_RELATIONSHIP, graph);
+    public MatchRelationshipClauseBuilder() {
+        super(MATCH_RELATIONSHIP);
     }
 
     @Override

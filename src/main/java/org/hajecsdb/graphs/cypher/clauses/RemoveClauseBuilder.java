@@ -16,8 +16,8 @@ import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
 public class RemoveClauseBuilder extends ClauseBuilder {
 
-    public RemoveClauseBuilder(Graph graph) {
-        super(ClauseEnum.REMOVE, graph);
+    public RemoveClauseBuilder() {
+        super(ClauseEnum.REMOVE);
     }
 
     @Override
