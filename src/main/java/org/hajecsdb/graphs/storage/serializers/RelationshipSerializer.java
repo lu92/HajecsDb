@@ -3,7 +3,7 @@ package org.hajecsdb.graphs.storage.serializers;
 import org.hajecsdb.graphs.core.NotFoundException;
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Relationship;
-import org.hajecsdb.graphs.impl.RelationshipImpl;
+import org.hajecsdb.graphs.core.impl.RelationshipImpl;
 import org.hajecsdb.graphs.storage.ByteUtils;
 import org.hajecsdb.graphs.storage.entities.BinaryProperties;
 import org.hajecsdb.graphs.storage.entities.BinaryRelationship;

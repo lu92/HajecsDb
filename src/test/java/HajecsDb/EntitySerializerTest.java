@@ -4,7 +4,7 @@ import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.PropertyType;
-import org.hajecsdb.graphs.impl.NodeImpl;
+import org.hajecsdb.graphs.core.impl.NodeImpl;
 import org.hajecsdb.graphs.storage.serializers.EntitySerializer;
 import org.hajecsdb.graphs.storage.EntityType;
 import org.junit.Test;

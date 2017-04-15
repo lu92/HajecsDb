@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.impl;
+package org.hajecsdb.graphs.core.impl;
 
 import org.hajecsdb.graphs.core.*;
 import java.util.Optional;

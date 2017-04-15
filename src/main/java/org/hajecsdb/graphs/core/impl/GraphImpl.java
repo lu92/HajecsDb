@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.impl;
+package org.hajecsdb.graphs.core.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hajecsdb.graphs.IdGenerator;

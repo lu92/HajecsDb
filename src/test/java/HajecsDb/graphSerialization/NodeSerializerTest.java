@@ -3,7 +3,7 @@ package HajecsDb.graphSerialization;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.NotFoundException;
 import org.hajecsdb.graphs.core.Properties;
-import org.hajecsdb.graphs.impl.NodeImpl;
+import org.hajecsdb.graphs.core.impl.NodeImpl;
 import org.hajecsdb.graphs.storage.serializers.NodeSerializer;
 import org.junit.Before;
 import org.junit.Test;

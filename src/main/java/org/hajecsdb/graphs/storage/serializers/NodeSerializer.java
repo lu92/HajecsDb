@@ -4,7 +4,7 @@ package org.hajecsdb.graphs.storage.serializers;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.NotFoundException;
 import org.hajecsdb.graphs.core.Properties;
-import org.hajecsdb.graphs.impl.NodeImpl;
+import org.hajecsdb.graphs.core.impl.NodeImpl;
 import org.hajecsdb.graphs.storage.ByteUtils;
 import org.hajecsdb.graphs.storage.entities.BinaryNode;
 import org.hajecsdb.graphs.storage.entities.BinaryProperties;

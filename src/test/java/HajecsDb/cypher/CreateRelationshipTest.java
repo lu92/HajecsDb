@@ -4,7 +4,7 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
-import org.hajecsdb.graphs.impl.GraphImpl;
+import org.hajecsdb.graphs.core.impl.GraphImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

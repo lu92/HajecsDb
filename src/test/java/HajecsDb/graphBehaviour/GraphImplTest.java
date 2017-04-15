@@ -1,8 +1,8 @@
 package HajecsDb.graphBehaviour;
 
 import org.hajecsdb.graphs.core.*;
-import org.hajecsdb.graphs.impl.GraphImpl;
-import org.hajecsdb.graphs.impl.RelationshipImpl;
+import org.hajecsdb.graphs.core.impl.GraphImpl;
+import org.hajecsdb.graphs.core.impl.RelationshipImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

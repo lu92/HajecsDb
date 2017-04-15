@@ -1,8 +1,8 @@
 package HajecsDb.graphSerialization;
 
 import org.hajecsdb.graphs.core.*;
-import org.hajecsdb.graphs.impl.NodeImpl;
-import org.hajecsdb.graphs.impl.RelationshipImpl;
+import org.hajecsdb.graphs.core.impl.NodeImpl;
+import org.hajecsdb.graphs.core.impl.RelationshipImpl;
 import org.hajecsdb.graphs.storage.serializers.RelationshipSerializer;
 import org.junit.Before;
 import org.junit.Test;

@@ -3,7 +3,7 @@ package HajecsDb;
 import org.hajecsdb.graphs.GraphService;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Relationship;
-import org.hajecsdb.graphs.impl.GraphImpl;
+import org.hajecsdb.graphs.core.impl.GraphImpl;
 import org.hajecsdb.graphs.storage.BinaryGraphStorage;
 import org.hajecsdb.graphs.transactions.OperationElement;
 import org.junit.Test;

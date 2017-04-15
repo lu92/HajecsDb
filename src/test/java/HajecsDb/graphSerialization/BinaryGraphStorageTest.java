@@ -1,17 +1,14 @@
 package HajecsDb.graphSerialization;
 
 import org.hajecsdb.graphs.core.Label;
-import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Properties;
-import org.hajecsdb.graphs.core.PropertyType;
-import org.hajecsdb.graphs.impl.GraphImpl;
+import org.hajecsdb.graphs.core.impl.GraphImpl;
 import org.hajecsdb.graphs.storage.BinaryGraphStorage;
 import org.hajecsdb.graphs.storage.GraphStorage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.print.DocFlavor;
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
