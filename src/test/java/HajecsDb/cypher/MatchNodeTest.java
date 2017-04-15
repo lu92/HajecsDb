@@ -64,7 +64,7 @@ public class MatchNodeTest {
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(NODE);
-        expectedResultRow.setNode(graph.getNodeById(1l).get());
+        expectedResultRow.setNode(graph.getNodeById(1).get());
 
         // when
         Result result = cypherExecutor.execute(graph, command);
@@ -73,7 +73,7 @@ public class MatchNodeTest {
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n: Person)");
         assertThat(result.getResults()).hasSize(1);
-        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow);
+        assertThat(result.getResults().get(0)).isEqualTo(expectedResultRow);
     }
 
     @Test
@@ -105,9 +105,9 @@ public class MatchNodeTest {
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n: Person)");
         assertThat(result.getResults()).hasSize(3);
-        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow1);
-        assertThat(result.getResults().get(2)).isEqualTo(expectedResultRow2);
-        assertThat(result.getResults().get(3)).isEqualTo(expectedResultRow3);
+        assertThat(result.getResults().get(0)).isEqualTo(expectedResultRow1);
+        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow2);
+        assertThat(result.getResults().get(2)).isEqualTo(expectedResultRow3);
     }
 
     @Test
@@ -139,9 +139,9 @@ public class MatchNodeTest {
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n)");
         assertThat(result.getResults()).hasSize(3);
-        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow1);
-        assertThat(result.getResults().get(2)).isEqualTo(expectedResultRow2);
-        assertThat(result.getResults().get(3)).isEqualTo(expectedResultRow3);
+        assertThat(result.getResults().get(0)).isEqualTo(expectedResultRow1);
+        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow2);
+        assertThat(result.getResults().get(2)).isEqualTo(expectedResultRow3);
     }
 
     @Test
@@ -188,7 +188,7 @@ public class MatchNodeTest {
         //then
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getResults()).hasSize(1);
-        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow2);
+        assertThat(result.getResults().get(0)).isEqualTo(expectedResultRow2);
     }
 
     @Test
@@ -211,6 +211,6 @@ public class MatchNodeTest {
         //then
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getResults()).hasSize(1);
-        assertThat(result.getResults().get(1)).isEqualTo(expectedResultRow2);
+        assertThat(result.getResults().get(0)).isEqualTo(expectedResultRow2);
     }
 }

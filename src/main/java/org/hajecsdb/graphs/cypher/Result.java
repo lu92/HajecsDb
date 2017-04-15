@@ -38,7 +38,7 @@ public final class Result {
         copy.setCompleted(completed);
         for (int i = 0; i < getResults().size(); i++) {
 
-            ResultRow resultRowOrigin = getResults().get(i+1);
+            ResultRow resultRowOrigin = getResults().get(i);
 
             // fill ResultRow copy
             ResultRow resultRowCopy = new ResultRow();

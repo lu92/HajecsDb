@@ -71,7 +71,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
 
 
                 for (int i = 0; i < resultRows.size(); i++) {
-                    result.getResults().put(i + 1, resultRows.get(i));
+                    result.getResults().put(i, resultRows.get(i));
                 }
                 result.setCompleted(true);
             }
@@ -85,9 +85,8 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
     }
 
     public State buildClause(DFA dfa, State state) {
-        State clauseState = state;
         State actionState = new State(clauseEnum, "[" + clauseEnum + "] action state!");
-        new Transition(clauseState, actionState, validateClause(), clauseAction());
+        new Transition(state, actionState, validateClause(), clauseAction());
         new Transition(actionState, actionState, validateClause(), clauseAction());
         return actionState;
     }

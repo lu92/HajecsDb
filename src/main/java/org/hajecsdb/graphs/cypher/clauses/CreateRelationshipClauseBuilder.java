@@ -39,7 +39,7 @@ public class CreateRelationshipClauseBuilder extends ClauseBuilder {
                             for (Map.Entry<Integer, ResultRow> entry2 : resultOfRightNodes.getResults().entrySet()) {
                                 Node rightNode = entry2.getValue().getNode();
                                 Relationship relationship = graph.createRelationship(leftNode, rightNode, subQueryData.getRelationship().getLabel().get());
-                                int index = result.getResults().size()+1;
+                                int index = result.getResults().size();
                                 ResultRow resultRow = new ResultRow();
                                 result.setCompleted(true);
                                 resultRow.setContentType(ContentType.RELATIONSHIP);

@@ -40,7 +40,7 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
 
             void createNode(Graph graph, Result result, Label label, List<Property> parameters) {
                 Node node = createNode(graph, label, parameters);
-                int index = result.getResults().size() + 1;
+                int index = result.getResults().size();
                 ResultRow resultRow = new ResultRow();
                 result.setCompleted(true);
                 resultRow.setContentType(ContentType.NODE);
