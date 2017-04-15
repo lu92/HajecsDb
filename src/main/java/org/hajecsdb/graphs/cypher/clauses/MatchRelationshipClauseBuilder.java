@@ -8,9 +8,7 @@ import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
-import org.hajecsdb.graphs.cypher.clauses.helpers.parameterExtractor.ParameterExtractor;
 import org.hajecsdb.graphs.cypher.clauses.helpers.parameterExtractor.SubQueryData;
 
 import java.util.ArrayList;

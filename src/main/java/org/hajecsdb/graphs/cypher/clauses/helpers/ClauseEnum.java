@@ -27,17 +27,14 @@ public enum ClauseEnum {
     }
 
     public static ClauseEnum recognizeClause(String clause, String subQuery) {
-//        System.out.println("try: '" + clause +"'\t'" + subQuery + "'");
         PatternEnum matchedPattern = PatternRecognizer.getType(subQuery);
-//        System.out.println("PATTERN: " + matchedPattern);
-        List<ClauseEnum> matchedClauses = Arrays.asList(values()).stream()
+        List<ClauseEnum> matchedClauses = Arrays.stream(values())
                 .filter(clauseEnum -> clauseEnum.clauseName.equals(clause) && clauseEnum.patternEnum == matchedPattern)
                 .collect(Collectors.toList());
 
         if (matchedClauses.size() == 1) {
             return matchedClauses.get(0);
         } else {
-//            System.out.println(matchedClauses);
             throw new IllegalArgumentException("Not recognized clause!");
         }
     }

@@ -2,13 +2,12 @@ package org.hajecsdb.graphs.cypher.clauses;
 
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
-import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
-import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
-import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
+import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
+import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 
 import java.util.Map;
 import java.util.Optional;

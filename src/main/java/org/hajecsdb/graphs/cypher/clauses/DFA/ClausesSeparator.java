@@ -18,11 +18,11 @@ public class ClausesSeparator {
 
     private Stack<ClauseInvocation> splitByClause(String command) {
         List<String> expressionQueryParts = Arrays.asList(command.split(regex));
-        List<String> clauses = Arrays.asList(command.split("\\s")).stream()
+        List<String> clauses = Arrays.stream(command.split("\\s"))
                 .filter(word -> word.matches(regex))
                 .collect(Collectors.toList());
 
-        if (clauses.size() == expressionQueryParts.size()-1) {
+        if (clauses.size() == expressionQueryParts.size() - 1) {
 
             Stack<ClauseInvocation> clauseInvocationStack = new Stack<>();
 

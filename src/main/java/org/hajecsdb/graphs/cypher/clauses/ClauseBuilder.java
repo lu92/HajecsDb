@@ -12,9 +12,9 @@ import java.util.function.Predicate;
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
-public abstract class ClauseBuilder {
-    protected ClauseEnum clauseEnum;
-    protected ParameterExtractor parameterExtractor;
+abstract class ClauseBuilder {
+    ClauseEnum clauseEnum;
+    ParameterExtractor parameterExtractor;
 
     public ClauseBuilder(ClauseEnum clauseEnum) {
         this.clauseEnum = clauseEnum;
@@ -25,9 +25,8 @@ public abstract class ClauseBuilder {
     public abstract String getExpressionOfClauseRegex();
 
     public State buildClause(DFA dfa, State state) {
-        State clauseState = state;
         State actionState = new State(clauseEnum, "[" + clauseEnum + "] action state!");
-        new Transition(clauseState, actionState, validateClause(), clauseAction());
+        new Transition(state, actionState, validateClause(), clauseAction());
         return actionState;
     }
 
@@ -57,7 +56,7 @@ public abstract class ClauseBuilder {
                 return Optional.of(new Property(property, propertyType, new Long(value)));
 
             case STRING:
-                return Optional.of(new Property(property, propertyType, (String) value.substring(1, value.length()-1)));
+                return Optional.of(new Property(property, propertyType, value.substring(1, value.length()-1)));
 
             default:
                 throw new IllegalArgumentException("type does not recognized!");

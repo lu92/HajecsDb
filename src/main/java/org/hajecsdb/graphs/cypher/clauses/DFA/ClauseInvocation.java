@@ -33,8 +33,7 @@ public class ClauseInvocation {
         final ClauseInvocation that = (ClauseInvocation) o;
 
         if (completed != that.completed) return false;
-        if (clause != that.clause) return false;
-        return subQuery.equals(that.subQuery);
+        return clause == that.clause && subQuery.equals(that.subQuery);
     }
 
     @Override

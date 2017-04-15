@@ -4,9 +4,9 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.cypher.clauses.DFA.*;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
+import org.hajecsdb.graphs.cypher.clauses.DFA.*;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 
 import java.util.List;
