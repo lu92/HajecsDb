@@ -28,7 +28,7 @@ public class ReturnClauseBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
+            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
                 Pattern pattern = Pattern.compile(getExpressionOfClauseRegex());
                 Matcher matcher = pattern.matcher(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
                 if (matcher.find()) {
@@ -42,9 +42,7 @@ public class ReturnClauseBuilder extends ClauseBuilder {
                         }
                     } else {
                         for (Map.Entry<Integer, ResultRow> entry : commandProcessing.getQueryContext().get(variable).getResults().entrySet()) {
-
-                            ResultRow row = entry.getValue(); // nasz node
-
+                            ResultRow row = entry.getValue();
                             ResultRow searchedPropertyResultRow = getSearchedProperty(row, searchedProperty);
                             result.getResults().put(entry.getKey(), searchedPropertyResultRow);
                         }

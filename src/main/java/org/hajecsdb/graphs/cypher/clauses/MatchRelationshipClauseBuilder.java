@@ -30,7 +30,7 @@ public class MatchRelationshipClauseBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
+            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
 
                 SubQueryData subQueryData = parameterExtractor.fetchData(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
 

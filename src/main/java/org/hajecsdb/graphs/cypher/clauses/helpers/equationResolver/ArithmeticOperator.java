@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.cypher.clauses.helpers;
+package org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver;
 
 public enum ArithmeticOperator {
     EQUALS("="),

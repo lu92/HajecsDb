@@ -22,7 +22,7 @@ public class DeleteNodeClaudeBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
+            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
                 int deletedNodes = 0;
                 for (Map.Entry<Integer, ResultRow> entry : result.getResults().entrySet()) {
                     ResultRow resultRow = entry.getValue();

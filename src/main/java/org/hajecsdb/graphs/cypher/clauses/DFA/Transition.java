@@ -28,7 +28,7 @@ public class Transition {
         ClauseInvocation clauseInvocation = commandProcessing.getClauseInvocationStack().peek();
         if (clauseInvocation.getClause() == nextState.getClauseEnum()) {
             System.out.println("[" + nextState.getClauseEnum() + "] clause verified!");
-            Result updatedResult = action.perform(graph, result, beginState, commandProcessing);
+            Result updatedResult = action.perform(graph, result, commandProcessing);
             commandProcessing.getClauseInvocationStack().pop();
             System.out.println("[" + nextState.getClauseEnum() + "] performed!");
             return updatedResult;

@@ -1,7 +1,8 @@
-package org.hajecsdb.graphs.cypher.clauses.helpers;
+package org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver;
 
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
+import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.ArithmeticOperator;
 
 import java.util.Optional;
 

@@ -4,13 +4,17 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
+import org.hajecsdb.graphs.cypher.Result;
+import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.clauses.DFA.State;
-import org.hajecsdb.graphs.cypher.Result;
-import org.hajecsdb.graphs.cypher.ResultRow;
-import org.hajecsdb.graphs.cypher.clauses.helpers.*;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.ArithmeticOperator;
+import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.Equation;
+import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.EquationResolver;
+import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.LogicalOperator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +45,12 @@ public class WhereClauseBuilder extends ClauseBuilder {
             }
 
             @Override
-            public Result perform(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
+            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
                 ClauseInvocation clauseInvocation = commandProcessing.getClauseInvocationStack().peek();
                 if (determineExpressionOfSubQuery(clauseInvocation.getSubQuery())) {
-                    return performClauseWithIdFunction(graph, result, currentState, commandProcessing);
+                    return performClauseWithIdFunction(result, commandProcessing);
                 } else {
-                    return performClauseWithConditionFunction(graph, result, currentState, commandProcessing);
+                    return performClauseWithConditionFunction(result, commandProcessing);
                 }
             }
 
@@ -59,7 +63,7 @@ public class WhereClauseBuilder extends ClauseBuilder {
                 return identityFunctionMatched;
             }
 
-            private Result performClauseWithConditionFunction(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
+            private Result performClauseWithConditionFunction(Result result, CommandProcessing commandProcessing) {
                 Map<Integer, ResultRow> matchedNodes = new HashMap<>();
                 Pattern pattern = Pattern.compile(getConditionFunctionRegex());
                 Matcher matcher = pattern.matcher(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
@@ -108,7 +112,7 @@ public class WhereClauseBuilder extends ClauseBuilder {
                 return result;
             }
 
-            private Result performClauseWithIdFunction(Graph graph, Result result, State currentState, CommandProcessing commandProcessing) {
+            private Result performClauseWithIdFunction(Result result, CommandProcessing commandProcessing) {
                 Result finalResult = new Result();
                 Pattern pattern = Pattern.compile(getIdentityFunctionRegex());
                 Matcher matcher = pattern.matcher(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
