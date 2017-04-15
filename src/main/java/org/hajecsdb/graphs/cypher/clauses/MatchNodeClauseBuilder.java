@@ -4,16 +4,17 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.cypher.DFA.*;
+import org.hajecsdb.graphs.cypher.clauses.DFA.*;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.hajecsdb.graphs.cypher.ContentType.NODE;
+import static org.hajecsdb.graphs.cypher.clauses.helpers.ContentType.NODE;
 
 public class MatchNodeClauseBuilder extends ClauseBuilder {
 
@@ -33,7 +34,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
                     String variableName = matcher.group(1);
                     Label label = new Label(matcher.group(2));
                     String parametersBody = matcher.group(3);
-                    List<Property> parameters = extractParameters(parametersBody);
+                    List<Property> parameters = parameterExtractor.extractParameters(parametersBody);
                     matchNode(graph, result, label, parameters);
                     if (!variableName.isEmpty()) {
                         commandProcessing.getQueryContext().insert(variableName, result.copy());

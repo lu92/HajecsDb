@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.cypher.DFA;
+package org.hajecsdb.graphs.cypher.clauses.DFA;
 
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.Result;

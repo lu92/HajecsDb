@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.cypher.clauses;
+package org.hajecsdb.graphs.cypher.clauses.helpers;
 
 import org.hajecsdb.graphs.cypher.Result;
 

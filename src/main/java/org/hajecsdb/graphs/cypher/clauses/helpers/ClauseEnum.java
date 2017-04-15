@@ -1,13 +1,10 @@
-package org.hajecsdb.graphs.cypher.clauses;
-
-import org.hajecsdb.graphs.cypher.PatternEnum;
-import org.hajecsdb.graphs.cypher.PatternRecognizer;
+package org.hajecsdb.graphs.cypher.clauses.helpers;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hajecsdb.graphs.cypher.PatternEnum.*;
+import static org.hajecsdb.graphs.cypher.clauses.helpers.PatternEnum.*;
 
 public enum ClauseEnum {
     CREATE_NODE("CREATE", NODE),

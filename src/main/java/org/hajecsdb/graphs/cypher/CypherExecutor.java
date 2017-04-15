@@ -1,10 +1,10 @@
 package org.hajecsdb.graphs.cypher;
 
 import org.hajecsdb.graphs.core.Graph;
-import org.hajecsdb.graphs.cypher.DFA.ClauseInvocation;
-import org.hajecsdb.graphs.cypher.DFA.ClausesSeparator;
-import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
-import org.hajecsdb.graphs.cypher.DFA.DFA;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClausesSeparator;
+import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
+import org.hajecsdb.graphs.cypher.clauses.DFA.DFA;
 
 import java.util.Stack;
 

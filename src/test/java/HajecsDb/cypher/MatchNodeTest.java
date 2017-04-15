@@ -14,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hajecsdb.graphs.core.PropertyType.INT;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
-import static org.hajecsdb.graphs.cypher.ContentType.NODE;
+import static org.hajecsdb.graphs.cypher.clauses.helpers.ContentType.NODE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatchNodeTest {

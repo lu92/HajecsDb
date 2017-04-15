@@ -1,9 +1,9 @@
-package org.hajecsdb.graphs.cypher.DFA;
+package org.hajecsdb.graphs.cypher.clauses.DFA;
 
 
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.Result;
-import org.hajecsdb.graphs.cypher.clauses.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 
 import java.util.LinkedList;
 import java.util.List;

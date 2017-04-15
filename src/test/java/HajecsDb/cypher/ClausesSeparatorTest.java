@@ -1,7 +1,7 @@
 package HajecsDb.cypher;
 
-import org.hajecsdb.graphs.cypher.DFA.ClauseInvocation;
-import org.hajecsdb.graphs.cypher.DFA.ClausesSeparator;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClausesSeparator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -9,7 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Stack;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hajecsdb.graphs.cypher.clauses.ClauseEnum.*;
+import static org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClausesSeparatorTest {

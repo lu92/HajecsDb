@@ -3,7 +3,7 @@ package org.hajecsdb.graphs.cypher;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Result {
+public final class Result {
     private String command;
     private boolean completed;
     private Map<Integer, ResultRow> results = new HashMap<>();

@@ -2,10 +2,10 @@ package HajecsDb.cypher;
 
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
-import org.hajecsdb.graphs.cypher.ContentType;
 import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.impl.GraphImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;

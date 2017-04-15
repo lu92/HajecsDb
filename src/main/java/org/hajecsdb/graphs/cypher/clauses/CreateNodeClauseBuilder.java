@@ -2,10 +2,11 @@ package org.hajecsdb.graphs.cypher.clauses;
 
 
 import org.hajecsdb.graphs.core.*;
-import org.hajecsdb.graphs.cypher.ContentType;
-import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
-import org.hajecsdb.graphs.cypher.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.DFA.State;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
+import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
+import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
+import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 
@@ -31,7 +32,7 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                     String variableName = matcher.group(1);
                     Label label = new Label(matcher.group(2));
                     String parametersBody = matcher.group(4);
-                    List<Property> parameters = extractParameters(parametersBody);
+                    List<Property> parameters = parameterExtractor.extractParameters(parametersBody);
                     createNode(graph, result, label, parameters);
                     commandProcessing.getQueryContext().insert(variableName, result.copy());
                 }

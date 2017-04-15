@@ -1,4 +1,4 @@
-package org.hajecsdb.graphs.cypher.DFA;
+package org.hajecsdb.graphs.cypher.clauses.DFA;
 
 public class Matched {
     Transition transition;

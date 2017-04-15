@@ -4,16 +4,13 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
-import org.hajecsdb.graphs.cypher.DFA.ClauseInvocation;
-import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
-import org.hajecsdb.graphs.cypher.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.DFA.State;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
+import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
+import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
+import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
-import org.hajecsdb.graphs.cypher.clauses.helpers.ArithmeticOperator;
-import org.hajecsdb.graphs.cypher.clauses.helpers.Equation;
-import org.hajecsdb.graphs.cypher.clauses.helpers.EquationResolver;
-import org.hajecsdb.graphs.cypher.clauses.helpers.LogicalOperator;
+import org.hajecsdb.graphs.cypher.clauses.helpers.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.hajecsdb.graphs.cypher.ContentType.NODE;
+import static org.hajecsdb.graphs.cypher.clauses.helpers.ContentType.NODE;
 
 public class WhereClauseBuilder extends ClauseBuilder {
 

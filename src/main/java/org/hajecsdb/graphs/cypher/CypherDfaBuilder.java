@@ -1,11 +1,11 @@
 package org.hajecsdb.graphs.cypher;
 
 
-import org.hajecsdb.graphs.cypher.DFA.DFA;
-import org.hajecsdb.graphs.cypher.DFA.State;
+import org.hajecsdb.graphs.cypher.clauses.DFA.DFA;
+import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.clauses.*;
 
-public class CypherDfaBuilder {
+final class CypherDfaBuilder {
     private DFA dfa;
     private CreateNodeClauseBuilder createNodeClauseBuilder;
     private CreateRelationshipClauseBuilder createRelationshipClauseBuilder;

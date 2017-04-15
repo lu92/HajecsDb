@@ -1,6 +1,6 @@
-package org.hajecsdb.graphs.cypher.DFA;
+package org.hajecsdb.graphs.cypher.clauses.DFA;
 
-import org.hajecsdb.graphs.cypher.clauses.QueryContext;
+import org.hajecsdb.graphs.cypher.clauses.helpers.QueryContext;
 
 import java.util.Stack;
 

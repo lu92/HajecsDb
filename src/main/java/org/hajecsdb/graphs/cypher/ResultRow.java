@@ -2,8 +2,9 @@ package org.hajecsdb.graphs.cypher;
 
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Relationship;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 
-public class ResultRow {
+public final class ResultRow {
     private ContentType contentType;
     private Node node;
     private Relationship relationship;

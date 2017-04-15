@@ -4,10 +4,11 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Relationship;
-import org.hajecsdb.graphs.cypher.ContentType;
-import org.hajecsdb.graphs.cypher.DFA.CommandProcessing;
-import org.hajecsdb.graphs.cypher.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.DFA.State;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
+import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
+import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
+import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 

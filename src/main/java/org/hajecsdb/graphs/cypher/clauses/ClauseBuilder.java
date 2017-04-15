@@ -1,10 +1,10 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
-import org.hajecsdb.graphs.cypher.DFA.*;
-import org.hajecsdb.graphs.cypher.clauses.helpers.ParameterExtractor;
+import org.hajecsdb.graphs.cypher.clauses.DFA.*;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.parameterExtractor.ParameterExtractor;
 
 import java.util.Optional;
 import java.util.function.Predicate;

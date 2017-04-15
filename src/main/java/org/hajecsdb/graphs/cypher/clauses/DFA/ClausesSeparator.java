@@ -1,6 +1,6 @@
-package org.hajecsdb.graphs.cypher.DFA;
+package org.hajecsdb.graphs.cypher.clauses.DFA;
 
-import org.hajecsdb.graphs.cypher.clauses.ClauseEnum;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 
 import java.util.Arrays;
 import java.util.List;
