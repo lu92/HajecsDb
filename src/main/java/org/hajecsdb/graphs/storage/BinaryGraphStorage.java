@@ -4,6 +4,7 @@ import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.NotFoundException;
 import org.hajecsdb.graphs.core.Relationship;
+import org.hajecsdb.graphs.core.impl.GraphImpl;
 import org.hajecsdb.graphs.storage.entities.BinaryNode;
 import org.hajecsdb.graphs.storage.entities.BinaryRelationship;
 import org.hajecsdb.graphs.storage.mappers.PropertiesBinaryMapper;
@@ -12,6 +13,7 @@ import org.hajecsdb.graphs.storage.serializers.RelationshipSerializer;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -47,7 +49,25 @@ public class BinaryGraphStorage implements GraphStorage {
 
     @Override
     public Graph loadGraph(String filename) throws IOException {
-        return null;
+//        final String pathDir = "/home";
+        final String graphName = "test";
+        RandomAccessFile graphDataAccessFile = new RandomAccessFile(graphFilename, "rw");
+        graphDataAccessFile.seek(0);
+        byte[] binaryPathDir = new byte[120];
+        graphDataAccessFile.read(binaryPathDir);
+        String pathDir = ByteUtils.bytesToString(binaryPathDir);
+        System.out.println("loaded pathDir: " + pathDir);
+
+
+        Graph graph = new GraphImpl(pathDir, graphName);
+
+        graph.getAllNodes().addAll(nodeSerializer.readAll());
+
+        List<Relationship> relationships = relationshipSerializer.readAll();
+        graph.getAllRelationships().addAll(relationships);
+        graphDataAccessFile.close();
+
+        return graph;
     }
 
     @Override
