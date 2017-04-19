@@ -35,7 +35,7 @@ public class RelationshipSerializer implements Serializer<Relationship, BinaryRe
         RandomAccessFile metaDataAccessFile = new RandomAccessFile(relationshipMetadataFilename, "rw");
 
         if (metaDataAccessFile.length() == 0) {
-            // insert 0 number of nodes if file is empty
+            // insert 0 number of relationships if file is empty
             metaDataAccessFile.write(ByteUtils.longToBytes(0l));
             metaDataAccessFile.seek(0);
         }
@@ -43,21 +43,21 @@ public class RelationshipSerializer implements Serializer<Relationship, BinaryRe
         BinaryProperties binaryProperties = propertiesBinaryMapper.toBinaryFigure(relationship.getAllProperties());
         BinaryRelationship binaryRelationship = new BinaryRelationship(relationship.getId(), binaryProperties);
 
-        // increment number of nodes
-        long numberOfNodes = metaDataAccessFile.readLong();
-        numberOfNodes++;
+        // increment number of relationships
+        long numberOfRelationships = metaDataAccessFile.readLong();
+        numberOfRelationships++;
         metaDataAccessFile.seek(0);
-        metaDataAccessFile.writeLong(numberOfNodes);
+        metaDataAccessFile.writeLong(numberOfRelationships);
 
-        // save binary node
+        // save binary relationship
         relationshipAccessFile.seek(relationshipAccessFile.length());
-        long beforeSaveNodeContentSize = relationshipAccessFile.length();
+        long beforeSaveContentSize = relationshipAccessFile.length();
         relationshipAccessFile.write(binaryRelationship.getBytes());
         long afterSaveNodeContentSize = relationshipAccessFile.length();
 
 
         // create metadata
-        RelationshipMetaData relationshipMetaData = new RelationshipMetaData(relationship.getId(), beforeSaveNodeContentSize, afterSaveNodeContentSize);
+        RelationshipMetaData relationshipMetaData = new RelationshipMetaData(relationship.getId(), beforeSaveContentSize, afterSaveNodeContentSize);
 
         // save metadata
         metaDataAccessFile.seek(metaDataAccessFile.length());
@@ -211,7 +211,7 @@ public class RelationshipSerializer implements Serializer<Relationship, BinaryRe
                 metaDataAccessFile.seek(position);
                 metaDataAccessFile.writeByte(0); // mark node as deleted
 
-                // decrease number of nodes
+                // decrease number of relationship
                 metaDataAccessFile.seek(0);
                 metaDataAccessFile.writeLong(--numberOfRelationships);
 

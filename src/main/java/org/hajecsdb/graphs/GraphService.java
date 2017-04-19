@@ -108,6 +108,11 @@ public class GraphService implements Graph, Transactional {
     }
 
     @Override
+    public Relationship findRelationship(long beginNodeId, long endNodeId, Direction direction, Label label) {
+        return null;
+    }
+
+    @Override
     public Optional<Relationship> getRelationshipById(long id) {
         return null;
     }

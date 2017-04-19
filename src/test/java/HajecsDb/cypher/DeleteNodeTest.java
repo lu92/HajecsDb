@@ -227,9 +227,9 @@ public class DeleteNodeTest {
 //        // given
 //        String command = "MATCH (n) WHERE n.age > 25 AND n.age < 30 DELETE n";
 //        graph = new GraphImpl("pathDir", "graphDir");
-//        graph.createNode(new Label("Useless"), new Properties().add("name", "Andrew", STRING).add("age", 25l, LONG));
-//        graph.createNode(new Label("Useless"), new Properties().add("name", "Victor", STRING).add("age", 21l, LONG));
-//        graph.createNode(new Label("Useless"), new Properties().add("name", "Amelia", STRING).add("age", 30l, LONG));
+//        graph.saveNode(new Label("Useless"), new Properties().add("name", "Andrew", STRING).add("age", 25l, LONG));
+//        graph.saveNode(new Label("Useless"), new Properties().add("name", "Victor", STRING).add("age", 21l, LONG));
+//        graph.saveNode(new Label("Useless"), new Properties().add("name", "Amelia", STRING).add("age", 30l, LONG));
 //        cypherExecutor = new CypherExecutor(graph);
 //
 //        ResultRow expectedResultRow = new ResultRow();

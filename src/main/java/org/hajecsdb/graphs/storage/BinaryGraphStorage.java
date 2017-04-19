@@ -1,9 +1,6 @@
 package org.hajecsdb.graphs.storage;
 
-import org.hajecsdb.graphs.core.Graph;
-import org.hajecsdb.graphs.core.Node;
-import org.hajecsdb.graphs.core.NotFoundException;
-import org.hajecsdb.graphs.core.Relationship;
+import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.core.impl.GraphImpl;
 import org.hajecsdb.graphs.storage.entities.BinaryNode;
 import org.hajecsdb.graphs.storage.entities.BinaryRelationship;
@@ -64,6 +61,16 @@ public class BinaryGraphStorage implements GraphStorage {
         graph.getAllNodes().addAll(nodeSerializer.readAll());
 
         List<Relationship> relationships = relationshipSerializer.readAll();
+        for (Relationship relationship : relationships) {
+            relationship.setId((Long)relationship.getProperty("id").get().getValue());
+            Node startNode = graph.getNodeById((long) relationship.getProperty("startNode").get().getValue()).get();
+            relationship.setStartNode(startNode);
+            Node endNode = graph.getNodeById((long) relationship.getProperty("endNode").get().getValue()).get();
+            relationship.setEndNode(endNode);
+            relationship.setLabel(new Label((String) relationship.getProperty("label").get().getValue()));
+            relationship.setDirection(Direction.valueOf((String) relationship.getProperty("direction").get().getValue()));
+            startNode.getRelationships().add(relationship);
+        }
         graph.getAllRelationships().addAll(relationships);
         graphDataAccessFile.close();
 
@@ -71,7 +78,7 @@ public class BinaryGraphStorage implements GraphStorage {
     }
 
     @Override
-    public BinaryNode createNode(Node node) throws IOException {
+    public BinaryNode saveNode(Node node) throws IOException {
         return nodeSerializer.save(node);
     }
 
@@ -91,13 +98,35 @@ public class BinaryGraphStorage implements GraphStorage {
     }
 
     @Override
-    public BinaryRelationship createRelationship(Relationship relationship) throws IOException {
-        return relationshipSerializer.save(relationship);
+    public long countNodes() throws IOException {
+        return nodeSerializer.count();
+    }
+
+    @Override
+    public BinaryRelationship saveRelationship(Relationship relationship) throws IOException {
+        BinaryRelationship binaryRelationship = relationshipSerializer.save(relationship);
+        Relationship revertedRelationship = relationship.reverse();
+        revertedRelationship.setId(relationship.getId()+1);
+        relationshipSerializer.save(revertedRelationship);
+        return binaryRelationship;
     }
 
     @Override
     public Optional<Relationship> readRelationship(long id) throws IOException {
-        return relationshipSerializer.read(id);
+        Optional<Relationship> fetchedRelationship = relationshipSerializer.read(id);
+
+        if (fetchedRelationship.isPresent()) {
+            // load relationship's start and end nodes
+            Node startNode = nodeSerializer.read((Long) fetchedRelationship.get().getProperty("startNode").get().getValue()).get();
+            Node endNode = nodeSerializer.read((Long) fetchedRelationship.get().getProperty("endNode").get().getValue()).get();
+
+            fetchedRelationship.get().setId((Long)fetchedRelationship.get().getProperty("id").get().getValue());
+            fetchedRelationship.get().setLabel(new Label((String) fetchedRelationship.get().getProperty("label").get().getValue()));
+            fetchedRelationship.get().setStartNode(startNode);
+            fetchedRelationship.get().setEndNode(endNode);
+            fetchedRelationship.get().setDirection(Direction.valueOf((String) fetchedRelationship.get().getProperty("direction").get().getValue()));
+        }
+        return fetchedRelationship;
     }
 
     @Override
@@ -108,5 +137,11 @@ public class BinaryGraphStorage implements GraphStorage {
     @Override
     public void deleteRelationship(long id) throws IOException, NotFoundException {
         relationshipSerializer.delete(id);
+//        relationshipSerializer.delete(id+1);
+    }
+
+    @Override
+    public long countRelationships() throws IOException {
+        return relationshipSerializer.count();
     }
 }

@@ -33,8 +33,18 @@ public class RelationshipImpl implements Relationship {
     }
 
     @Override
+    public void setId(long id) {
+        this.properties.add(new Property(ID, LONG, id));
+    }
+
+    @Override
     public Node getStartNode() {
         return startNode;
+    }
+
+    @Override
+    public void setStartNode(Node node) {
+        this.startNode = node;
     }
 
     @Override
@@ -43,13 +53,28 @@ public class RelationshipImpl implements Relationship {
     }
 
     @Override
+    public void setEndNode(Node node) {
+        this.endNode = node;
+    }
+
+    @Override
     public Label getLabel() {
         return label;
     }
 
     @Override
+    public void setLabel(Label label) {
+        this.label = label;
+    }
+
+    @Override
     public Direction getDirection() {
         return direction;
+    }
+
+    @Override
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 
     @Override

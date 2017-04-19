@@ -17,6 +17,7 @@ public interface Graph {
     Set<Node> getAllNodes();
     Node deleteNode(long id);
     Relationship findRelationship(long beginNodeId, long endNodeId, Label label);
+    Relationship findRelationship(long beginNodeId, long endNodeId, Direction direction, Label label);
     Optional<Relationship> getRelationshipById(long id);
     Relationship deleteRelationship(long id);
     Set<Relationship> getAllRelationships();

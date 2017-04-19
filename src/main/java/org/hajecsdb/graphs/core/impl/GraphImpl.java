@@ -119,12 +119,17 @@ public class GraphImpl implements Graph {
 
     @Override
     public Relationship findRelationship(long beginNodeId, long endNodeId, Label label) {
+        return findRelationship(beginNodeId, endNodeId, Direction.OUTGOING, label);
+    }
+
+    @Override
+    public Relationship findRelationship(long beginNodeId, long endNodeId, Direction direction, Label label) {
         Optional<Node> beginNodeById = getNodeById(beginNodeId);
         Optional<Node> secondNodeById = getNodeById(endNodeId);
 
         Predicate<Relationship> find = relationship -> relationship.getStartNode().getId() == beginNodeId
                 && relationship.getEndNode().getId() == endNodeId && relationship.getLabel().equals(label)
-                && relationship.getDirection() == Direction.OUTGOING;
+                && relationship.getDirection() == direction;
 
         if (beginNodeById.isPresent() && secondNodeById.isPresent()) {
 

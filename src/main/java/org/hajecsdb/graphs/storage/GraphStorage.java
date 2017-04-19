@@ -13,12 +13,14 @@ import java.util.Optional;
 public interface GraphStorage {
     void saveGraph(Graph graph) throws IOException;
     Graph loadGraph(String filename) throws IOException;
-    BinaryNode createNode(Node node) throws IOException;
+    BinaryNode saveNode(Node node) throws IOException;
     Optional<Node> readNode(long id) throws IOException;
     void updateNode(Node node) throws IOException, NotFoundException;
     void deleteNode(long id) throws IOException, NotFoundException;
-    BinaryRelationship createRelationship(Relationship relationship) throws IOException;
+    long countNodes() throws IOException;
+    BinaryRelationship saveRelationship(Relationship relationship) throws IOException;
     Optional<Relationship> readRelationship(long id) throws IOException;
     void updateRelationship(Relationship relationship) throws IOException, NotFoundException;
     void deleteRelationship(long id) throws IOException, NotFoundException;
+    long countRelationships() throws IOException;
 }
