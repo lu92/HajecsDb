@@ -5,12 +5,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.hajecsdb.graphs.core.PropertyType;
 import org.hajecsdb.graphs.storage.ByteUtils;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 
 public class BinaryProperty {
-    public static final int KEY_SIZE = 30;
+    private static final int KEY_SIZE = 30;
     private byte[] key;
     private byte type;
     private byte[] bytes;

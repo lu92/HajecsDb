@@ -194,7 +194,7 @@ public class NodeSerializerTest {
             nodeSerializer.delete(1l);
         } catch (NotFoundException e) {
             // then
-            assertThat(e.getMessage()).isEqualTo("Not found node with nodeId: " + 1);
+            assertThat(e.getMessage()).isEqualTo("Not found entity with id: " + 1);
         }
     }
 
@@ -205,7 +205,7 @@ public class NodeSerializerTest {
             nodeSerializer.delete(-1l);
         } catch (NotFoundException e) {
             // then
-            assertThat(e.getMessage()).isEqualTo("Not found node with nodeId: " + -1);
+            assertThat(e.getMessage()).isEqualTo("Not found entity with id: " + -1);
             assertThat(nodeSerializer.count()).isEqualTo(0);
         }
     }
@@ -368,7 +368,7 @@ public class NodeSerializerTest {
             nodeSerializer.update(node);
         } catch (NotFoundException e) {
             // then
-            assertThat(e.getMessage()).isEqualTo("Not found node with nodeId: " + 1);
+            assertThat(e.getMessage()).isEqualTo("Not found entity with id: " + 1);
             assertThat(nodeSerializer.count()).isEqualTo(0);
         }
     }

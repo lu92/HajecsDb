@@ -2,8 +2,7 @@ package org.hajecsdb.graphs.storage;
 
 import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.core.impl.GraphImpl;
-import org.hajecsdb.graphs.storage.entities.BinaryNode;
-import org.hajecsdb.graphs.storage.entities.BinaryRelationship;
+import org.hajecsdb.graphs.storage.entities.BinaryEntity;
 import org.hajecsdb.graphs.storage.mappers.PropertiesBinaryMapper;
 import org.hajecsdb.graphs.storage.serializers.NodeSerializer;
 import org.hajecsdb.graphs.storage.serializers.RelationshipSerializer;
@@ -78,7 +77,7 @@ public class BinaryGraphStorage implements GraphStorage {
     }
 
     @Override
-    public BinaryNode saveNode(Node node) throws IOException {
+    public BinaryEntity saveNode(Node node) throws IOException {
         return nodeSerializer.save(node);
     }
 
@@ -103,8 +102,8 @@ public class BinaryGraphStorage implements GraphStorage {
     }
 
     @Override
-    public BinaryRelationship saveRelationship(Relationship relationship) throws IOException {
-        BinaryRelationship binaryRelationship = relationshipSerializer.save(relationship);
+    public BinaryEntity saveRelationship(Relationship relationship) throws IOException {
+        BinaryEntity binaryRelationship = relationshipSerializer.save(relationship);
         Relationship revertedRelationship = relationship.reverse();
         revertedRelationship.setId(relationship.getId()+1);
         relationshipSerializer.save(revertedRelationship);

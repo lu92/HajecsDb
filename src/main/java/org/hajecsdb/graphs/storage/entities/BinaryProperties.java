@@ -11,11 +11,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BinaryProperties {
-    int numberOfProperties;
-    long beginIndex;
-    long lastIndex;
-    List<PropertyHeader> propertyHeaderList = new ArrayList<>();
-    byte[] bytes;
+    private int numberOfProperties;
+    private long beginIndex;
+    private long lastIndex;
+    private List<PropertyHeader> propertyHeaderList = new ArrayList<>();
+    private byte[] bytes;
 
 
     private PropertyHeaderMapper propertyHeaderMapper = new PropertyHeaderMapper();
