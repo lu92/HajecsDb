@@ -1,4 +1,4 @@
-package HajecsDb.utils;
+package HajecsDb.unitTests.utils;
 
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Properties;

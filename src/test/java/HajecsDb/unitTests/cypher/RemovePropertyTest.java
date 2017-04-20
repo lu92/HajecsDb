@@ -1,4 +1,4 @@
-package HajecsDb.cypher;
+package HajecsDb.unitTests.cypher;
 
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;

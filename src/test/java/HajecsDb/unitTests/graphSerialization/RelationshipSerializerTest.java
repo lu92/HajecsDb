@@ -1,4 +1,4 @@
-package HajecsDb.graphSerialization;
+package HajecsDb.unitTests.graphSerialization;
 
 import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.core.impl.NodeImpl;

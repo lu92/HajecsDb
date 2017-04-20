@@ -1,4 +1,4 @@
-package HajecsDb.graphSerialization;
+package HajecsDb.unitTests.graphSerialization;
 
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.NotFoundException;

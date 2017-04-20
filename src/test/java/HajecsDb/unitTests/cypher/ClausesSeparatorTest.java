@@ -1,4 +1,4 @@
-package HajecsDb.cypher;
+package HajecsDb.unitTests.cypher;
 
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClausesSeparator;

@@ -1,6 +1,6 @@
-package HajecsDb.cypher;
+package HajecsDb.unitTests.cypher;
 
-import HajecsDb.utils.NodeComparator;
+import HajecsDb.unitTests.utils.NodeComparator;
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Properties;

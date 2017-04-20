@@ -1,6 +1,7 @@
-package HajecsDb.graphSerialization;
+package HajecsDb.unitTests.graphSerialization;
 
-import HajecsDb.utils.NodeComparator;
+import HajecsDb.unitTests.utils.FileUtils;
+import HajecsDb.unitTests.utils.NodeComparator;
 import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.core.impl.GraphImpl;
 import org.hajecsdb.graphs.storage.BinaryGraphStorage;
