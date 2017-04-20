@@ -60,7 +60,6 @@ public class BinaryGraphStorageTest {
         nodeComparator.isSame(node2, graph.getNodeById(2).get());
         nodeComparator.isSame(node3, graph.getNodeById(3).get());
         assertThat(loadedGraph.getAllRelationships()).isEmpty();
-//        assertThat(loadedGraph.getProperties().getProperty("lastGeneratedId").get()).isEqualTo(new Property())
     }
 
     @Test
@@ -102,14 +101,16 @@ public class BinaryGraphStorageTest {
     }
 
     @Test
-    public void readNodesInEmptyGraphTest() throws IOException {
+    public void readNumberOfNodesInEmptyGraphTest() throws IOException {
         // given
         GraphImpl graph = new GraphImpl("/home", "test");
-
-        // when
         graphStorage.saveGraph(graph);
 
-        assertThat(graphStorage.countNodes()).isEqualTo(0);
+        // when
+        long numberOfNodes = graphStorage.countNodes();
+
+        // then
+        assertThat(numberOfNodes).isEqualTo(0);
     }
 
     @Test
@@ -310,7 +311,7 @@ public class BinaryGraphStorageTest {
     }
 
     @Test
-    public void createAndReadRelationship() throws IOException {
+    public void createAndReadRelationshipTest() throws IOException {
         // given
         GraphImpl graph = new GraphImpl("/home", "test");
         Node node1 = graph.createNode(new Properties()
@@ -345,7 +346,7 @@ public class BinaryGraphStorageTest {
     }
 
     @Test
-    public void createAndDeleteRelationship() throws IOException {
+    public void createAndDeleteRelationshipTest() throws IOException {
         // given
         GraphImpl graph = new GraphImpl("/home", "test");
         Node node1 = graph.createNode(new Properties()
@@ -368,8 +369,45 @@ public class BinaryGraphStorageTest {
 
         assertThat(graphStorage.readNode(1).get().getRelationships()).isEmpty();
         assertThat(graphStorage.readNode(2).get().getRelationships()).isEmpty();
+    }
 
 
+    @Test
+    public void createAndChangeLabelOfRelationshipTest() throws IOException {
+        // given
+        GraphImpl graph = new GraphImpl("/home", "test");
+        Node node1 = graph.createNode(new Properties()
+                .add("name", "first", STRING));
+        Node node2 = graph.createNode(new Properties()
+                .add("name", "second", STRING));
 
+        graphStorage.saveGraph(graph);
+        assertThat(graphStorage.countNodes()).isEqualTo(2);
+
+        Relationship relationship = graph.createRelationship(node1, node2, new Label("CONNECTED"));
+        graphStorage.saveRelationship(relationship);
+        assertThat(graphStorage.countRelationships()).isEqualTo(2);
+
+        relationship.setLabel(new Label("CHANGED"));
+
+        // when
+        graphStorage.updateRelationship(relationship);
+
+        // then
+        assertThat(graphStorage.countRelationships()).isEqualTo(2);
+
+        Relationship fetchedRelationship = graphStorage.readRelationship(relationship.getId()).get();
+        assertThat(nodeComparator.isSame(node1, fetchedRelationship.getStartNode())).isTrue();
+        assertThat(nodeComparator.isSame(node2, fetchedRelationship.getEndNode())).isTrue();
+        assertThat(fetchedRelationship.getId()).isEqualTo(3);
+        assertThat(fetchedRelationship.getLabel()).isEqualTo(new Label("CHANGED"));
+        assertThat(fetchedRelationship.getDirection()).isEqualTo(Direction.OUTGOING);
+
+        Relationship fetchedRelationship2 = graphStorage.readRelationship(relationship.getId()+1).get();
+        assertThat(nodeComparator.isSame(node2, fetchedRelationship2.getStartNode())).isTrue();
+        assertThat(nodeComparator.isSame(node1, fetchedRelationship2.getEndNode())).isTrue();
+        assertThat(fetchedRelationship2.getId()).isEqualTo(4);
+        assertThat(fetchedRelationship2.getLabel()).isEqualTo(new Label("CHANGED"));
+        assertThat(fetchedRelationship2.getDirection()).isEqualTo(Direction.INCOMING);
     }
 }

@@ -189,8 +189,10 @@ public abstract class EntitySerializer<EntityObject extends Entity> {
             throw new NotFoundException("Not found entity with id: " + id);
         }
 
+        boolean foundedEntity = false;
+
         // get metaData
-        for (int i = 0; i < numberOfEntities; i++) {
+        while(!foundedEntity) {
             long entityId = metaDataAccessFile.readLong();
             boolean deleted = metaDataAccessFile.readByte() == 0;
             metaDataAccessFile.readLong();
@@ -207,6 +209,7 @@ public abstract class EntitySerializer<EntityObject extends Entity> {
                 metaDataAccessFile.seek(0);
                 metaDataAccessFile.writeLong(--numberOfEntities);
 
+                foundedEntity = true;
                 return;
             }
         }

@@ -34,6 +34,7 @@ public class RelationshipImpl implements Relationship {
 
     @Override
     public void setId(long id) {
+        this.properties.delete(ID);
         this.properties.add(new Property(ID, LONG, id));
     }
 
@@ -65,6 +66,8 @@ public class RelationshipImpl implements Relationship {
     @Override
     public void setLabel(Label label) {
         this.label = label;
+        this.properties.delete(LABEL);
+        this.properties.add(new Property(LABEL, STRING, label.getName()));
     }
 
     @Override

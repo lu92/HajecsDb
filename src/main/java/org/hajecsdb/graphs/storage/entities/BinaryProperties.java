@@ -39,7 +39,7 @@ public class BinaryProperties {
 
     private void invalidateBytes(List<PropertyHeader> propertyHeaderList) {
         int totalBytes = Integer.BYTES + Long.BYTES + Long.BYTES + propertyHeaderList.stream()
-                .mapToInt(binaryProperty -> binaryProperty.getLength())
+                .mapToInt(PropertyHeader::getLength)
                 .sum();
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(totalBytes)
@@ -47,7 +47,7 @@ public class BinaryProperties {
                 .putLong(beginIndex)
                 .putLong(lastIndex);
 
-        propertyHeaderList.stream().forEach(header -> byteBuffer.put(header.getBytes()));
+        propertyHeaderList.forEach(header -> byteBuffer.put(header.getBytes()));
         bytes = byteBuffer.array();
     }
 

@@ -106,7 +106,7 @@ public class BinaryGraphStorage implements GraphStorage {
         BinaryEntity binaryRelationship = relationshipSerializer.save(relationship);
         Relationship revertedRelationship = relationship.reverse();
         revertedRelationship.setId(relationship.getId()+1);
-        relationshipSerializer.save(revertedRelationship);
+        BinaryEntity binaryRelationship2 = relationshipSerializer.save(revertedRelationship);
         return binaryRelationship;
     }
 
@@ -131,12 +131,15 @@ public class BinaryGraphStorage implements GraphStorage {
     @Override
     public void updateRelationship(Relationship relationship) throws IOException, NotFoundException {
         relationshipSerializer.update(relationship);
+        Relationship revertedRelationship = relationship.reverse();
+        revertedRelationship.setId(relationship.getId()+1);
+        relationshipSerializer.update(revertedRelationship);
     }
 
     @Override
     public void deleteRelationship(long id) throws IOException, NotFoundException {
         relationshipSerializer.delete(id);
-//        relationshipSerializer.delete(id+1);
+        relationshipSerializer.delete(id+1);
     }
 
     @Override
