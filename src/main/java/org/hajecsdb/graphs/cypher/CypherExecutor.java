@@ -5,9 +5,11 @@ import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClausesSeparator;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DFA;
+import org.springframework.stereotype.Component;
 
 import java.util.Stack;
 
+@Component
 public final class CypherExecutor {
     private CypherDfaBuilder cypherDfaBuilder;
     private ClausesSeparator clausesSeparator;

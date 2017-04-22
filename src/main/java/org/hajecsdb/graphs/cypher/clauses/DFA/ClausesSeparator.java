@@ -1,6 +1,7 @@
 package org.hajecsdb.graphs.cypher.clauses.DFA;
 
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +9,8 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ClausesSeparator {
+@Component
+public final class ClausesSeparator {
 
     private String regex = "CREATE|MATCH|WHERE|DELETE|SET|REMOVE|RETURN";
 

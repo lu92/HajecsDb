@@ -1,8 +1,10 @@
 package org.hajecsdb.graphs.restLayer.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class Command {
+@AllArgsConstructor
+public final class Command {
     private String command;
 }
