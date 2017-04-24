@@ -13,4 +13,10 @@ import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 public final class ResultRowDto {
     private ContentType contentType;
     private NodeDto node;
+    private RelationshipDto relationship;
+    private String message;
+    private Integer intValue;
+    private Long longValue;
+    private Float floatValue;
+    private Double doubleValue;
 }

@@ -10,11 +10,11 @@ import org.hajecsdb.graphs.core.Direction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class RelationshipDto {
+public class RelationshipDto {
     private long id;
     private String label;
-    private long beginNodeId;
+    private long startNodeId;
     private long endNodeId;
     private Direction direction;
-    private PropertiesDto propertiesDto;
+    private PropertiesDto properties;
 }
