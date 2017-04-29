@@ -5,24 +5,36 @@ import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.restLayer.dto.Command;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
+import org.hajecsdb.graphs.restLayer.dto.SessionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-public class CypherController {
+public class ApplicationController {
 
-    private final EntityConverter entityConverter;
-    private final CypherExecutor cypherExecutor;
+    @Autowired
+    private SessionPool sessionPool;
+
+    @Autowired
+    private EntityConverter entityConverter;
+
+    @Autowired
+    private CypherExecutor cypherExecutor;
 
     private GraphImpl graph = new GraphImpl("/home", "test");
     private InternalBinaryGraphOperationScheduler internalBinaryGraphOperationScheduler = new InternalBinaryGraphOperationScheduler();
 
-    @Autowired
-    public CypherController(EntityConverter entityConverter, CypherExecutor cypherExecutor) {
-        this.entityConverter = entityConverter;
-        this.cypherExecutor = cypherExecutor;
+    @RequestMapping(method = RequestMethod.GET, path = "/Session")
+    @ResponseBody
+    public SessionDto createSession() {
+        Session session = sessionPool.createSession();
+        return new SessionDto(session.getSessionId());
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/Session")
+    @ResponseBody
+    public String closeSession(@RequestBody SessionDto sessionDto) {
+        return sessionPool.closeSession(sessionDto.getSessionId());
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/Cypher")
@@ -33,7 +45,4 @@ public class CypherController {
         return entityConverter.toResult(result);
     }
 
-    public Result execute (List<String> commands) {
-        return null;
-    }
 }

@@ -5,7 +5,7 @@ import org.fest.assertions.Assertions;
 import org.hajecsdb.graphs.IdGenerator;
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
-import org.hajecsdb.graphs.restLayer.CypherController;
+import org.hajecsdb.graphs.restLayer.ApplicationController;
 import org.hajecsdb.graphs.restLayer.dto.Command;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import org.hajecsdb.graphs.restLayer.dto.ResultRowDto;
@@ -46,7 +46,7 @@ public class CypherRestTest {
     private WebApplicationContext webCtx;
 
     @Autowired
-    private CypherController cypherController;
+    private ApplicationController applicationController;
 
     private MockMvc mockMvc;
 
@@ -55,7 +55,7 @@ public class CypherRestTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(webCtx).build();
 
         // reset graph's id counter
-        Graph graph = (Graph) ReflectionTestUtils.getField(cypherController, "graph");
+        Graph graph = (Graph) ReflectionTestUtils.getField(applicationController, "graph");
         IdGenerator idGenerator = (IdGenerator) ReflectionTestUtils.getField(graph, "idGenerator");
         ReflectionTestUtils.setField(idGenerator, "lastGeneratedIndex", 0);
 
