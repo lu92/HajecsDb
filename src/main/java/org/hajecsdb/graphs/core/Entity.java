@@ -6,4 +6,5 @@ public interface Entity extends PropertyContainer{
     String ID = "id";
 
     long getId();
+    ResourceType getType();
 }

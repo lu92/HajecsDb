@@ -26,6 +26,11 @@ public class NodeImpl implements Node {
     }
 
     @Override
+    public ResourceType getType() {
+        return ResourceType.NODE;
+    }
+
+    @Override
     public Set<Relationship> getRelationships() {
         return relationships;
     }
@@ -101,6 +106,17 @@ public class NodeImpl implements Node {
             deletedProperties.add(deletedProperty);
         }
         return deletedProperties;
+    }
+
+    @Override
+    public Node copy() {
+        NodeImpl copy = new NodeImpl(getId());
+        copy.setLabel(getLabel());
+        Properties propertiesCopy = new Properties();
+        List<Property> properties = getAllProperties().getAllProperties().stream().map(Property::copy).collect(Collectors.toList());
+        propertiesCopy.addAll(properties);
+        copy.setProperties(propertiesCopy);
+        return copy;
     }
 
     @Override

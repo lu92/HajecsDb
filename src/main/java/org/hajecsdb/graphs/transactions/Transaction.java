@@ -1,8 +1,9 @@
 package org.hajecsdb.graphs.transactions;
 
 public interface Transaction {
-    boolean commit();
-    boolean rollback();
+    long getId();
+    TransactionStatus commit();
+    TransactionStatus rollback();
     TransactionStatus getStatus();
     TransactionScope getScope();
 }

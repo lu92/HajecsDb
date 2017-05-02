@@ -16,4 +16,5 @@ public interface Node extends Entity {
     boolean hasLabel();
     void setProperties(Properties properties);
     Properties deleteProperties(String ... keys);
+    Node copy();
 }

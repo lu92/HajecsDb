@@ -23,6 +23,10 @@ public class Property {
         return type;
     }
 
+    public Property copy() {
+        return new Property(key,  type, value);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
