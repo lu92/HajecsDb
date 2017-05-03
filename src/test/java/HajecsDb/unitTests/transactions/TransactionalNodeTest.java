@@ -29,7 +29,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and set new property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -64,7 +64,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and set new property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -98,7 +98,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and update property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -132,7 +132,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and delete property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -167,7 +167,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and set new property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -200,7 +200,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and update property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -233,7 +233,7 @@ public class TransactionalNodeTest {
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and delete property
         TransactionChange change = new TransactionChange(transactionId, false);
@@ -264,12 +264,13 @@ public class TransactionalNodeTest {
     @Test(expected = TransactionException.class)
     public void tryCommitTransactionWhichDoesNotExist() {
         // given
-        long fakeTransactionId = 1001;
+        long trueTransactionId = 1001;
+        long fakeTransactionId = -1;
         NodeImpl node = new NodeImpl(1);
         node.setLabel(new Label("Person"));
         node.setProperties(new Properties().add("name", "Adam", STRING));
 
-        TNode tNode = new TNode(node);
+        TNode tNode = new TNode(trueTransactionId, node);
 
         // when
         tNode.commitTransaction(fakeTransactionId);

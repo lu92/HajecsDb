@@ -6,4 +6,5 @@ public interface Transaction {
     TransactionStatus rollback();
     TransactionStatus getStatus();
     TransactionScope getScope();
+    boolean isPerformed();
 }
