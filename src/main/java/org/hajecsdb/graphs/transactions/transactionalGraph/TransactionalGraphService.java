@@ -27,13 +27,13 @@ public class TransactionalGraphService {
         return tGraph;
     }
 
-    public Set<Node> getAllNodes() {
-        return tGraph.getAllNodes();
+    public Set<Node> getAllPersistentNodes() {
+        return tGraph.tNodes.stream().filter(tNode -> tNode.isCommitted()).map(tNode -> tNode.getOriginNode()).collect(Collectors.toSet());
     }
 
     public Optional<Node> getPersistentNodeById(long nodeId) {
         return tGraph.tNodes.stream()
-                .filter(tNode -> tNode.isCommited() == true && tNode.getOriginNode().getId() == nodeId)
+                .filter(tNode -> tNode.isCommitted() && tNode.getOriginNode().getId() == nodeId)
                 .map(tNode -> tNode.getOriginNode()).findAny();
     }
 
@@ -76,8 +76,8 @@ public class TransactionalGraphService {
         @Override
         public Set<Node> getAllNodes() {
             return tNodes.stream()
-                    .filter(tNode -> tNode.isCommited() == true)
-                    .map(tNode -> tNode.getOriginNode())
+                    .filter(tNode -> tNode.containsTransactionChanges(transaction.getId()))
+                    .map(tNode -> tNode.getWorkingNode(transaction.getId()))
                     .collect(Collectors.toSet());
         }
 
@@ -98,9 +98,14 @@ public class TransactionalGraphService {
                 throw new TransactionException("Transaction was performed!");
 
             // delete nodes if needed
-            tNodes = tNodes.stream().filter(tNode -> tNode.isDeleted() == false).collect(Collectors.toSet());
+            Set<TNode> nodesReadyToDelete = tNodes.stream().filter(TNode::isDeleted).collect(Collectors.toSet());
+            tNodes.removeAll(nodesReadyToDelete);
 
-            tNodes.forEach(tNode -> tNode.commitTransaction(transaction.getId()));
+            Set<TNode> nodesReadyToCommit = tNodes.stream()
+                    .filter(tNode -> tNode.containsTransactionChanges(transaction.getId()) == true)
+                    .collect(Collectors.toSet());
+
+            nodesReadyToCommit.forEach(tNode -> tNode.commitTransaction(transaction.getId()));
             transaction.commit();
         }
 
@@ -112,7 +117,7 @@ public class TransactionalGraphService {
 
         private Optional<TNode> getTNodeById(long id) {
             return tNodes.stream()
-                    .filter(tNode -> tNode.isCommited() == true && tNode.getOriginNode().getId() == id)
+                    .filter(tNode -> tNode.isCommitted() == true && tNode.getOriginNode().getId() == id)
                     .findFirst();
         }
     }

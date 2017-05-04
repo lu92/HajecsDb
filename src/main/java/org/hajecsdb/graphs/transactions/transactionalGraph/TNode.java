@@ -10,13 +10,13 @@ import java.util.Optional;
 
 public class TNode {
     private Node originNode;
-    private boolean commited;
+    private boolean committed;
     private boolean deleted;
     private List<TransactionWork> transactionWorkList = new ArrayList<>();
 
     public TNode(long transactionId, Node node) {
         this.originNode = node;
-        this.commited = false;
+        this.committed = false;
         this.deleted = false;
         createTransactionWork(transactionId);
     }
@@ -99,15 +99,15 @@ public class TNode {
         TransactionWork transactionWork = getTransactionWork(transactionId);
         this.originNode = transactionWork.readNode();
         this.transactionWorkList.remove(transactionWork);
-        commited = true;
+        committed = true;
     }
 
     public Node getOriginNode() {
         return originNode;
     }
 
-    public boolean isCommited() {
-        return commited;
+    public boolean isCommitted() {
+        return committed;
     }
 
     public boolean containsTransactionChanges(long transactionId) {

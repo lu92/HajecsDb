@@ -36,7 +36,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran1).commit();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).hasSize(1);
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
         Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
         assertThat(nodeOptional.get().getId()).isEqualTo(1);
         assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
@@ -57,7 +57,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran1).rollback();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).isEmpty();
+        assertThat(transactionalGraphService.getAllPersistentNodes()).isEmpty();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).commit();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).isEmpty();
+        assertThat(transactionalGraphService.getAllPersistentNodes()).isEmpty();
     }
 
     @Test
@@ -101,7 +101,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).rollback();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).hasSize(1);
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
         Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
         assertThat(nodeOptional.get().getId()).isEqualTo(1);
         assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
@@ -127,7 +127,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).commit();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).hasSize(1);
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
         Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
         assertThat(nodeOptional.get().getId()).isEqualTo(1);
         assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
@@ -154,7 +154,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).rollback();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).hasSize(1);
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
         Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
         assertThat(nodeOptional.get().getId()).isEqualTo(1);
         assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
@@ -182,7 +182,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).commit();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).hasSize(1);
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
         Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
         assertThat(nodeOptional.get().getId()).isEqualTo(1);
         assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
@@ -211,7 +211,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).rollback();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).hasSize(1);
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
         Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
         assertThat(nodeOptional.get().getId()).isEqualTo(1);
         assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
@@ -233,7 +233,7 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran1).commit();
 
         // then
-        assertThat(transactionalGraphService.getAllNodes()).isEmpty();
+        assertThat(transactionalGraphService.getAllPersistentNodes()).isEmpty();
     }
 
     @Test
