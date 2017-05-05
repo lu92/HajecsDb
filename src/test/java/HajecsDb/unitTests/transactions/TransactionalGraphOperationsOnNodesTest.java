@@ -17,7 +17,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransactionalGraphTest {
+public class TransactionalGraphOperationsOnNodesTest {
 
     private TransactionManager transactionManager = new TransactionManager();
     private SessionPool sessionPool = new SessionPool();
@@ -208,6 +208,63 @@ public class TransactionalGraphTest {
         transactionalGraphService.context(tran2).setPropertyToNode(1, new Property("name", STRING, "Bob"));
         Node readedNode = transactionalGraphService.context(tran2).getNodeById(1).get();
         assertThat(readedNode.getProperty("name").get()).isEqualTo(new Property("name", STRING, "Bob"));
+        transactionalGraphService.context(tran2).rollback();
+
+        // then
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
+        Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
+        assertThat(nodeOptional.get().getId()).isEqualTo(1);
+        assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
+        assertThat(nodeOptional.get().hasProperty("name")).isTrue();
+        assertThat(nodeOptional.get().getProperty("name").get()).isEqualTo(new Property("name", STRING, "Adam"));
+        assertThat(nodeOptional.get().getRelationships()).isEmpty();
+    }
+
+    @Test
+    public void deletePropertyToNodeInTransactionAndCommitTest() {
+        // given
+        Session session = sessionPool.createSession();
+        session.setTransactionManager(transactionManager);
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+
+        Transaction tran1 = session.beginTransaction();
+        transactionalGraphService.context(tran1).createNode(new Label("Person"), new Properties().add("name", "Adam", STRING));
+        transactionalGraphService.context(tran1).commit();
+        assertThat(transactionalGraphService.getPersistentNodeById(1).isPresent()).isTrue();
+
+        //when
+        Transaction tran2 = session.beginTransaction();
+        transactionalGraphService.context(tran2).deletePropertyFromNode(1, "name");
+        Node readedNode = transactionalGraphService.context(tran2).getNodeById(1).get();
+        assertThat(readedNode.hasProperty("name")).isFalse();
+        transactionalGraphService.context(tran2).commit();
+
+        // then
+        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
+        Optional<Node> nodeOptional = transactionalGraphService.getPersistentNodeById(1);
+        assertThat(nodeOptional.get().getId()).isEqualTo(1);
+        assertThat(nodeOptional.get().getLabel()).isEqualTo(new Label("Person"));
+        assertThat(nodeOptional.get().hasProperty("name")).isFalse();
+        assertThat(nodeOptional.get().getRelationships()).isEmpty();
+    }
+
+    @Test
+    public void deletePropertyToNodeInTransactionAndRollbackTest() {
+        // given
+        Session session = sessionPool.createSession();
+        session.setTransactionManager(transactionManager);
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+
+        Transaction tran1 = session.beginTransaction();
+        transactionalGraphService.context(tran1).createNode(new Label("Person"), new Properties().add("name", "Adam", STRING));
+        transactionalGraphService.context(tran1).commit();
+        assertThat(transactionalGraphService.getPersistentNodeById(1).isPresent()).isTrue();
+
+        //when
+        Transaction tran2 = session.beginTransaction();
+        transactionalGraphService.context(tran2).deletePropertyFromNode(1, "name");
+        Node readedNode = transactionalGraphService.context(tran2).getNodeById(1).get();
+        assertThat(readedNode.hasProperty("name")).isFalse();
         transactionalGraphService.context(tran2).rollback();
 
         // then

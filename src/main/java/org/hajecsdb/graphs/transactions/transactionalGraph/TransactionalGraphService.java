@@ -100,6 +100,15 @@ public class TransactionalGraphService {
         }
 
         @Override
+        public void deletePropertyFromNode(int nodeId, String propertyKey) {
+            Optional<TNode> tNode = getTNodeById(nodeId);
+            if (tNode.isPresent()) {
+                tNode.get().deleteProperty(transaction.getId(), propertyKey);
+            } else
+                throw new NotFoundException("Relationship does not exist!");
+        }
+
+        @Override
         public Relationship createRelationship(long startNodeId, long endNodeId, Label label) {
             Optional<TNode> startTNode = getTNodeById(startNodeId);
             Optional<TNode> endTNode = getTNodeById(endNodeId);
@@ -146,7 +155,16 @@ public class TransactionalGraphService {
                 return deletedRelationship;
             }
 
-            throw new NotFoundException("Node does not exist!");
+            throw new NotFoundException("Relationship does not exist!");
+        }
+
+        @Override
+        public void deletePropertyFromRelationship(int relationshipId, String propertyKey) {
+            Optional<TRelationship> tRelationship = getTRelationshipById(relationshipId);
+            if (tRelationship.isPresent()) {
+                tRelationship.get().deleteProperty(transaction.getId(), propertyKey);
+            } else
+                throw new NotFoundException("Relationship does not exist!");
         }
 
         @Override

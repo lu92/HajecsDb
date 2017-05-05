@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.CREATE_RELATIONSHIPS_PROPERTY;
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.UPDATE_RELATIONSHIPS_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.*;
 
 class TRelationship {
     Relationship originRelationship;
@@ -123,5 +122,18 @@ class TRelationship {
         this.deleted = true;
         Relationship relationship = transactionWork.readRelationship();
         return relationship;
+    }
+
+    public void deleteProperty(long transactionId, String propertyKey) {
+        if (!isTransactionWorkExists(transactionId)) {
+            createTransactionWork(transactionId);
+        }
+        Relationship workingRelationship = getWorkingRelationship(transactionId);
+        if (workingRelationship.hasProperty(propertyKey)) {
+            TransactionChange change = new TransactionChange(DELETE_RELATIONSHIPS_PROPERTY, propertyKey);
+            addTransactionChange(transactionId, change);
+        } else
+            throw new NotFoundException("Property '" + propertyKey + "' was not found!");
+
     }
 }

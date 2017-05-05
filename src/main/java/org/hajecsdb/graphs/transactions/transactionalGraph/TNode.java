@@ -1,15 +1,16 @@
 package org.hajecsdb.graphs.transactions.transactionalGraph;
 
 import org.hajecsdb.graphs.core.Node;
+import org.hajecsdb.graphs.core.NotFoundException;
 import org.hajecsdb.graphs.core.Property;
+import org.hajecsdb.graphs.core.Relationship;
 import org.hajecsdb.graphs.transactions.exceptions.TransactionException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.CREATE_NODES_PROPERTY;
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.UPDATE_NODES_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.*;
 
 public class TNode {
     private Node originNode;
@@ -114,5 +115,18 @@ public class TNode {
     public boolean containsTransactionChanges(long transactionId) {
         return this.transactionWorkList.stream()
                 .anyMatch(transactionWork -> transactionWork.getTransactionId() == transactionId);
+    }
+
+    public void deleteProperty(long transactionId, String propertyKey) {
+        if (!isTransactionWorkExists(transactionId)) {
+            createTransactionWork(transactionId);
+        }
+        Node workingNode = getWorkingNode(transactionId);
+        if (workingNode.hasProperty(propertyKey)) {
+            TransactionChange change = new TransactionChange(DELETE_NODES_PROPERTY, propertyKey);
+            addTransactionChange(transactionId, change);
+        } else
+            throw new NotFoundException("Property '" + propertyKey + "' was not found!");
+
     }
 }
