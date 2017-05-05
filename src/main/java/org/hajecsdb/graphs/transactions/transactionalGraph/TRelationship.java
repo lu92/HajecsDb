@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.CREATE_RELATIONSHIPS_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.UPDATE_RELATIONSHIPS_PROPERTY;
 
 class TRelationship {
     Relationship originRelationship;
@@ -59,6 +60,9 @@ class TRelationship {
         Relationship workingRelationship = getWorkingRelationship(transactionId);
         if (!workingRelationship.hasProperty(property.getKey())) {
             TransactionChange change = new TransactionChange(CREATE_RELATIONSHIPS_PROPERTY, property);
+            addTransactionChange(transactionId, change);
+        } else {
+            TransactionChange change = new TransactionChange(UPDATE_RELATIONSHIPS_PROPERTY, property);
             addTransactionChange(transactionId, change);
         }
     }

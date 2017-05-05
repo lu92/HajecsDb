@@ -188,4 +188,84 @@ public class TransactionalGraphOperationsOnRelationshipsTest {
         assertThat(relationshipOptional.get().hasProperty("since")).isFalse();
     }
 
+    @Test
+    public void UpdatePropertyToRelationshipInTransactionAndCommitTest() {
+        // given
+        Session session = sessionPool.createSession();
+        session.setTransactionManager(transactionManager);
+        Transaction transaction = session.beginTransaction();
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+
+        // transaction - provide default state of graph
+        Node alice = transactionalGraphService.context(transaction)
+                .createNode(new Label("Person"), new Properties().add(new Property("name", STRING, "Alice")));
+        Node gina = transactionalGraphService.context(transaction)
+                .createNode(new Label("Person"), new Properties().add(new Property("name", STRING, "Gina")));
+
+        Node bob = transactionalGraphService.context(transaction)
+                .createNode(new Label("Person"), new Properties().add(new Property("name", STRING, "Bob")));
+        Relationship alice_knows_gina_relationship =
+                transactionalGraphService.context(transaction).createRelationship(alice.getId(), gina.getId(), new Label("KNOWS"));
+        transactionalGraphService.context(transaction).setPropertyToRelationship(4, new Property("since", STRING, "1997"));
+        transactionalGraphService.context(transaction).commit();
+
+
+
+        // when
+        Transaction tran1 = session.beginTransaction();
+        transactionalGraphService.context(tran1).setPropertyToRelationship(4, new Property("since", STRING, "2007"));
+        transactionalGraphService.context(tran1).commit();
+
+        // then
+        Optional<Relationship> relationshipOptional = transactionalGraphService.getPersistentRelationshipById(4);
+        assertThat(relationshipOptional.isPresent()).isTrue();
+        assertThat(relationshipOptional.get().getId()).isEqualTo(4);
+        assertThat(relationshipOptional.get().getStartNode()).isEqualTo(alice);
+        assertThat(relationshipOptional.get().getEndNode()).isEqualTo(gina);
+        assertThat(relationshipOptional.get().getLabel()).isEqualTo(new Label("KNOWS"));
+        assertThat(relationshipOptional.get().getDirection()).isEqualTo(Direction.OUTGOING);
+        assertThat(relationshipOptional.get().hasProperty("since")).isTrue();
+        assertThat(relationshipOptional.get().getProperty("since").get()).isEqualTo(new Property("since", STRING, "2007"));
+    }
+
+    @Test
+    public void UpdatePropertyToRelationshipInTransactionAndRollbackTest() {
+        // given
+        Session session = sessionPool.createSession();
+        session.setTransactionManager(transactionManager);
+        Transaction transaction = session.beginTransaction();
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+
+        // transaction - provide default state of graph
+        Node alice = transactionalGraphService.context(transaction)
+                .createNode(new Label("Person"), new Properties().add(new Property("name", STRING, "Alice")));
+        Node gina = transactionalGraphService.context(transaction)
+                .createNode(new Label("Person"), new Properties().add(new Property("name", STRING, "Gina")));
+
+        Node bob = transactionalGraphService.context(transaction)
+                .createNode(new Label("Person"), new Properties().add(new Property("name", STRING, "Bob")));
+        Relationship alice_knows_gina_relationship =
+                transactionalGraphService.context(transaction).createRelationship(alice.getId(), gina.getId(), new Label("KNOWS"));
+        transactionalGraphService.context(transaction).setPropertyToRelationship(4, new Property("since", STRING, "1997"));
+        transactionalGraphService.context(transaction).commit();
+
+
+
+        // when
+        Transaction tran1 = session.beginTransaction();
+        transactionalGraphService.context(tran1).setPropertyToRelationship(4, new Property("since", STRING, "2007"));
+        transactionalGraphService.context(tran1).rollback();
+
+        // then
+        Optional<Relationship> relationshipOptional = transactionalGraphService.getPersistentRelationshipById(4);
+        assertThat(relationshipOptional.isPresent()).isTrue();
+        assertThat(relationshipOptional.get().getId()).isEqualTo(4);
+        assertThat(relationshipOptional.get().getStartNode()).isEqualTo(alice);
+        assertThat(relationshipOptional.get().getEndNode()).isEqualTo(gina);
+        assertThat(relationshipOptional.get().getLabel()).isEqualTo(new Label("KNOWS"));
+        assertThat(relationshipOptional.get().getDirection()).isEqualTo(Direction.OUTGOING);
+        assertThat(relationshipOptional.get().hasProperty("since")).isTrue();
+        assertThat(relationshipOptional.get().getProperty("since").get()).isEqualTo(new Property("since", STRING, "1997"));
+    }
+
 }

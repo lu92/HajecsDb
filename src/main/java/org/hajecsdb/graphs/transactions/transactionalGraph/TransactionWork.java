@@ -62,6 +62,11 @@ public class TransactionWork {
             case CREATE_RELATIONSHIPS_PROPERTY:
                 workingRelationship.getAllProperties().add(transactionChange.getProperty());
                 break;
+
+            case UPDATE_RELATIONSHIPS_PROPERTY:
+                workingRelationship.getAllProperties().delete(transactionChange.getProperty().getKey());
+                workingRelationship.getAllProperties().add(transactionChange.getProperty());
+                break;
         }
     }
 
