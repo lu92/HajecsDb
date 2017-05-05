@@ -1,9 +1,6 @@
 package org.hajecsdb.graphs.transactions.transactionalGraph;
 
-import org.hajecsdb.graphs.core.Direction;
-import org.hajecsdb.graphs.core.Label;
-import org.hajecsdb.graphs.core.Property;
-import org.hajecsdb.graphs.core.Relationship;
+import org.hajecsdb.graphs.core.*;
 import org.hajecsdb.graphs.core.impl.RelationshipImpl;
 import org.hajecsdb.graphs.transactions.exceptions.TransactionException;
 
@@ -105,6 +102,10 @@ class TRelationship {
         return committed;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
     public Relationship getOriginRelationship() {
         return originRelationship;
     }
@@ -114,4 +115,13 @@ class TRelationship {
     }
 
 
+    public synchronized Relationship deleteRelationship(long transactionId) {
+        if (!isTransactionWorkExists(transactionId)) {
+            createTransactionWork(transactionId);
+        }
+        TransactionWork transactionWork = getTransactionWork(transactionId);
+        this.deleted = true;
+        Relationship relationship = transactionWork.readRelationship();
+        return relationship;
+    }
 }

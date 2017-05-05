@@ -137,6 +137,19 @@ public class TransactionalGraphService {
         }
 
         @Override
+        public Relationship deleteRelationship(long id) {
+            Optional<TRelationship> tRelationship = getTRelationshipById(id);
+            if (tRelationship.isPresent()) {
+                Relationship deletedRelationship = tRelationship.get().deleteRelationship(transaction.getId());
+                getTNodeById(deletedRelationship.getStartNode().getId()).get().getWorkingNode(transaction.getId()).getRelationships().remove(deletedRelationship);
+                getTNodeById(deletedRelationship.getEndNode().getId()).get().getWorkingNode(transaction.getId()).getRelationships().remove(deletedRelationship);
+                return deletedRelationship;
+            }
+
+            throw new NotFoundException("Node does not exist!");
+        }
+
+        @Override
         public void commit() {
             if (transaction.isPerformed())
                 throw new TransactionException("Transaction was performed!");
@@ -151,6 +164,10 @@ public class TransactionalGraphService {
                     .collect(Collectors.toSet());
 
             nodesReadyToCommit.forEach(tNode -> tNode.commitTransaction(transaction.getId()));
+
+            // delete relationships if needed
+            Set<TRelationship> relationshipsReadyToDelete = tRelationships.stream().filter(TRelationship::isDeleted).collect(Collectors.toSet());
+            tRelationships.removeAll(relationshipsReadyToDelete);
 
             // COMMIT RELATIONSHIPS
             Set<TRelationship> relationshipsReadyToCommit = tRelationships.stream()

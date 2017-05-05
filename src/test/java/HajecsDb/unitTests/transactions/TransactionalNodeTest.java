@@ -6,7 +6,6 @@ import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.impl.NodeImpl;
 import org.hajecsdb.graphs.transactions.exceptions.TransactionException;
-import org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TNode;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionChange;
 import org.junit.Test;
@@ -16,9 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.CREATE_NODES_PROPERTY;
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.DELETE_NODES_PROPERTY;
-import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.UPDATE_NODES_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionalNodeTest {

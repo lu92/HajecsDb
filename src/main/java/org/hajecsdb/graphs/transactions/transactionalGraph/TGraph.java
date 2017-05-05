@@ -13,6 +13,7 @@ public interface TGraph {
     Node deleteNode(long id);
     Relationship createRelationship(long startNodeId, long endNodeId, Label label);
     Relationship setPropertyToRelationship(long relationshipId, Property property);
+    Relationship deleteRelationship(long id);
     void commit();
     void rollback();
 }
