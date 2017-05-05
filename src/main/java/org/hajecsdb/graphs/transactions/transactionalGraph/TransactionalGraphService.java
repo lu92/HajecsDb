@@ -37,11 +37,18 @@ public class TransactionalGraphService {
                 .map(tNode -> tNode.getOriginNode()).findAny();
     }
 
+    public Optional<Relationship> getPersistentRelationshipById(long relationshipId) {
+        return tGraph.tRelationships.stream()
+                .filter(tRelationship -> tRelationship.isCommitted() && tRelationship.originRelationship.getId() == relationshipId)
+                .map(tRelationship -> tRelationship.originRelationship).findAny();
+    }
+
 
     //      TGraph IMPLEMENTATION
     class TGraphImpl implements TGraph {
         private IdGenerator idGenerator = new IdGenerator();
         private Set<TNode> tNodes = new HashSet<>();
+        private Set<TRelationship> tRelationships = new HashSet<>();
 
         @Override
         public Node createNode(Label label, Properties properties) {
@@ -58,7 +65,7 @@ public class TransactionalGraphService {
         }
 
         @Override
-        public Node setProperty(long nodeId, Property property) {
+        public Node setPropertyToNode(long nodeId, Property property) {
             Optional<TNode> tNode = getTNodeById(nodeId);
             if (tNode.isPresent()) {
                 tNode.get().setProperty(transaction.getId(), property);
@@ -93,6 +100,43 @@ public class TransactionalGraphService {
         }
 
         @Override
+        public Relationship createRelationship(long startNodeId, long endNodeId, Label label) {
+            Optional<TNode> startTNode = getTNodeById(startNodeId);
+            Optional<TNode> endTNode = getTNodeById(endNodeId);
+
+            if (!(startTNode.isPresent() && endTNode.isPresent()))
+                throw new NotFoundException("Cannot found one or both nodes!");
+
+            if (label == null)
+                throw new IllegalArgumentException("Relationship must have label!");
+
+            if (!startTNode.get().containsTransactionChanges(transaction.getId())) {
+                startTNode.get().createTransactionWork(transaction.getId());
+            }
+
+            if (!endTNode.get().containsTransactionChanges(transaction.getId())) {
+                endTNode.get().createTransactionWork(transaction.getId());
+            }
+
+            TRelationship tRelationship = new TRelationship(
+                    transaction.getId(), idGenerator.generateId(), startTNode.get(), endTNode.get(), label);
+
+            tRelationships.add(tRelationship);
+            return tRelationship.originRelationship;
+        }
+
+        @Override
+        public Relationship setPropertyToRelationship(long relationshipId, Property property) {
+            Optional<TRelationship> tRelationship = getTRelationshipById(relationshipId);
+            if (tRelationship.isPresent()) {
+                tRelationship.get().setProperty(transaction.getId(), property);
+                return tRelationship.get().getWorkingRelationship(transaction.getId());
+            }
+            else
+                throw new NotFoundException("");
+        }
+
+        @Override
         public void commit() {
             if (transaction.isPerformed())
                 throw new TransactionException("Transaction was performed!");
@@ -101,23 +145,39 @@ public class TransactionalGraphService {
             Set<TNode> nodesReadyToDelete = tNodes.stream().filter(TNode::isDeleted).collect(Collectors.toSet());
             tNodes.removeAll(nodesReadyToDelete);
 
+            // COMMIT NODES
             Set<TNode> nodesReadyToCommit = tNodes.stream()
                     .filter(tNode -> tNode.containsTransactionChanges(transaction.getId()) == true)
                     .collect(Collectors.toSet());
 
             nodesReadyToCommit.forEach(tNode -> tNode.commitTransaction(transaction.getId()));
+
+            // COMMIT RELATIONSHIPS
+            Set<TRelationship> relationshipsReadyToCommit = tRelationships.stream()
+                    .filter(tRelationship -> tRelationship.containsTransactionChanges(transaction.getId()) == true)
+                    .collect(Collectors.toSet());
+            relationshipsReadyToCommit.forEach(tRelationship -> tRelationship.commitTransaction(transaction.getId()));
+
             transaction.commit();
         }
 
         @Override
         public void rollback() {
-            tNodes.forEach(tNode -> tNode.rollbackTransaction(transaction.getId()));
+            tNodes.stream()
+                    .filter(tNode -> tNode.containsTransactionChanges(transaction.getId()))
+                    .forEach(tNode -> tNode.rollbackTransaction(transaction.getId()));
             transaction.rollback();
         }
 
-        private Optional<TNode> getTNodeById(long id) {
+        private Optional<TNode> getTNodeById(long nodeId) {
             return tNodes.stream()
-                    .filter(tNode -> tNode.isCommitted() == true && tNode.getOriginNode().getId() == id)
+                    .filter(tNode -> tNode.getOriginNode().getId() == nodeId)
+                    .findFirst();
+        }
+
+        private Optional<TRelationship> getTRelationshipById(long id) {
+            return tRelationships.stream()
+                    .filter(tRelationship -> tRelationship.getOriginRelationship().getId() == id)
                     .findFirst();
         }
     }

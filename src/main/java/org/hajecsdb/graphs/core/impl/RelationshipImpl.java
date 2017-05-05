@@ -1,7 +1,10 @@
 package org.hajecsdb.graphs.core.impl;
 
 import org.hajecsdb.graphs.core.*;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
@@ -101,6 +104,17 @@ public class RelationshipImpl implements Relationship {
     }
 
     @Override
+    public Relationship copy() {
+        Relationship copy = new RelationshipImpl(
+                getId(), startNode.copy(), endNode.copy(), direction, new Label(label.getName()));
+        Properties propertiesCopy = new Properties();
+        List<Property> properties = getAllProperties().getAllProperties().stream().map(Property::copy).collect(Collectors.toList());
+        propertiesCopy.addAll(properties);
+        copy.setProperties(propertiesCopy);
+        return copy;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -137,9 +151,13 @@ public class RelationshipImpl implements Relationship {
     }
 
     @Override
-    public boolean hasProperty(String key) {
-        return false;
+    public ResourceType getType() {
+        return ResourceType.RELATIONSHIP;
     }
+
+    @Override
+    public boolean hasProperty(String key) {
+        return getAllProperties().hasProperty(key);    }
 
     @Override
     public Optional<Property> getProperty(String key) {

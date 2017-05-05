@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.CREATE_NODES_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.UPDATE_NODES_PROPERTY;
+
 public class TNode {
     private Node originNode;
     private boolean committed;
@@ -21,11 +24,11 @@ public class TNode {
         createTransactionWork(transactionId);
     }
 
-    public Node getWorkingNode(long transacionId) {
-        return getTransactionWork(transacionId).workingNode;
+    public Node getWorkingNode(long transactionId) {
+        return getTransactionWork(transactionId).getWorkingNode();
     }
 
-    private void createTransactionWork(long transactionId) {
+    public void createTransactionWork(long transactionId) {
         Node nodeCopy = originNode.copy();
         TransactionWork transactionWork = new TransactionWork(transactionId, nodeCopy);
         this.transactionWorkList.add(transactionWork);
@@ -38,7 +41,7 @@ public class TNode {
 
     private TransactionWork getTransactionWork(long transactionId) {
         Optional<TransactionWork> transactionWorkOptional = transactionWorkList.stream()
-                .filter(transactionWork -> transactionWork.transactionId == transactionId)
+                .filter(transactionWork -> transactionWork.getTransactionId() == transactionId)
                 .findFirst();
 
         if (!transactionWorkOptional.isPresent())
@@ -58,7 +61,7 @@ public class TNode {
 
     private boolean isTransactionWorkExists(long transactionId) {
         return transactionWorkList.stream()
-                .anyMatch(transactionWork -> transactionWork.transactionId == transactionId);
+                .anyMatch(transactionWork -> transactionWork.getTransactionId() == transactionId);
     }
 
     public Node setProperty(long transactionId, Property property) {
@@ -68,12 +71,10 @@ public class TNode {
 
         Node workingNode = getWorkingNode(transactionId);
         if (!workingNode.hasProperty(property.getKey())) {
-            TransactionChange change = new TransactionChange(transactionId, false);
-            change.setProperty(property);
+            TransactionChange change = new TransactionChange(CREATE_NODES_PROPERTY, property);
             addTransactionChange(transactionId, change);
         } else {
-            TransactionChange change = new TransactionChange(transactionId, false);
-            change.updateProperty(property);
+            TransactionChange change = new TransactionChange(UPDATE_NODES_PROPERTY, property);
             addTransactionChange(transactionId, change);
         }
 
@@ -112,50 +113,6 @@ public class TNode {
 
     public boolean containsTransactionChanges(long transactionId) {
         return this.transactionWorkList.stream()
-                .filter(transactionWork -> transactionWork.transactionId == transactionId)
-                .findAny().isPresent();
-    }
-
-    class TransactionWork {
-        private long transactionId;
-        private List<TransactionChange> transactionChanges = new ArrayList<>();
-        private Node workingNode;
-
-        public TransactionWork(long transactionId, Node node) {
-            this.transactionId = transactionId;
-            this.workingNode = node;
-        }
-
-        public void addChange(TransactionChange transactionChange) {
-            apply(transactionChange);
-            this.transactionChanges.add(transactionChange);
-        }
-
-        // concerns only operation on node's properties
-        private void apply(TransactionChange transactionChange) {
-            // in future Transaction Log will support this
-            switch (transactionChange.getCrudType()) {
-                case CREATE:
-                    workingNode.getAllProperties().add(transactionChange.getProperty());
-                    break;
-
-                case READ:
-                    break;
-
-                case UPDATE:
-                    workingNode.getAllProperties().delete(transactionChange.getProperty().getKey());
-                    workingNode.getAllProperties().add(transactionChange.getProperty());
-                    break;
-
-                case DELETE:
-                    workingNode.getAllProperties().delete(transactionChange.getPropertyKey());
-                    break;
-            }
-        }
-
-
-        public Node readNode() {
-            return workingNode;
-        }
+                .anyMatch(transactionWork -> transactionWork.getTransactionId() == transactionId);
     }
 }

@@ -80,13 +80,13 @@ public class VisibilityOfTransactionScopeTest {
 
         // tran1 sets age of alice to 20
         Transaction tran1 = session.beginTransaction();
-        transactionalGraphService.context(tran1).setProperty(1, new Property("age", LONG, 20l));
+        transactionalGraphService.context(tran1).setPropertyToNode(1, new Property("age", LONG, 20l));
         assertThat(transactionalGraphService.context(tran1).getNodeById(1).get().getProperty("age").get())
                 .isEqualTo(new Property("age", LONG, 20l));
 
         // tran1 sets age of alice to 30
         Transaction tran2 = session.beginTransaction();
-        transactionalGraphService.context(tran2).setProperty(1, new Property("age", LONG, 30l));
+        transactionalGraphService.context(tran2).setPropertyToNode(1, new Property("age", LONG, 30l));
         assertThat(transactionalGraphService.context(tran2).getNodeById(1).get().getProperty("age").get())
                 .isEqualTo(new Property("age", LONG, 30l));
 

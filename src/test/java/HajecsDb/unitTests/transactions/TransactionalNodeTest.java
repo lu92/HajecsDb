@@ -6,6 +6,7 @@ import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.impl.NodeImpl;
 import org.hajecsdb.graphs.transactions.exceptions.TransactionException;
+import org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TNode;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionChange;
 import org.junit.Test;
@@ -15,6 +16,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hajecsdb.graphs.core.PropertyType.LONG;
 import static org.hajecsdb.graphs.core.PropertyType.STRING;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.CREATE_NODES_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.DELETE_NODES_PROPERTY;
+import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.UPDATE_NODES_PROPERTY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionalNodeTest {
@@ -32,8 +36,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and set new property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.setProperty(new Property("lastname", STRING, "Nowak"));
+        TransactionChange change = new TransactionChange(CREATE_NODES_PROPERTY, new Property("lastname", STRING, "Nowak"));
         tNode.addTransactionChange(transactionId, change);
 
         // when
@@ -67,8 +70,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and set new property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.setProperty(new Property("age", LONG, 25l));
+        TransactionChange change = new TransactionChange(CREATE_NODES_PROPERTY, new Property("age", LONG, 25l));
         tNode.addTransactionChange(transactionId, change);
 
         // when
@@ -101,8 +103,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and update property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.updateProperty(new Property("name", STRING, "Piotr"));
+        TransactionChange change = new TransactionChange(UPDATE_NODES_PROPERTY, new Property("name", STRING, "Piotr"));
         tNode.addTransactionChange(transactionId, change);
 
         // when
@@ -135,8 +136,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and delete property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.deleteProperty("name");
+        TransactionChange change = new TransactionChange(DELETE_NODES_PROPERTY, "name");
         tNode.addTransactionChange(transactionId, change);
 
         // when
@@ -170,8 +170,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and set new property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.setProperty(new Property("lastname", STRING, "Nowak"));
+        TransactionChange change = new TransactionChange(CREATE_NODES_PROPERTY, new Property("lastname", STRING, "Nowak"));
         tNode.addTransactionChange(transactionId, change);
 
         // when
@@ -203,8 +202,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and update property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.updateProperty(new Property("name", STRING, "Piotr"));
+        TransactionChange change = new TransactionChange(UPDATE_NODES_PROPERTY, new Property("name", STRING, "Piotr"));
         tNode.addTransactionChange(transactionId, change);
 
         // when
@@ -236,8 +234,7 @@ public class TransactionalNodeTest {
         TNode tNode = new TNode(transactionId, node);
 
         // begin transaction and delete property
-        TransactionChange change = new TransactionChange(transactionId, false);
-        change.deleteProperty("name");
+        TransactionChange change = new TransactionChange(DELETE_NODES_PROPERTY, "name");
         tNode.addTransactionChange(transactionId, change);
 
         // when

@@ -14,4 +14,5 @@ public interface Relationship extends Entity{
     Relationship reverse();
     void setProperties(Properties properties);
     Properties deleteProperties(String ... keys);
+    Relationship copy();
 }

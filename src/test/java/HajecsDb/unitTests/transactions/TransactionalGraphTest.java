@@ -123,7 +123,7 @@ public class TransactionalGraphTest {
 
         //when
         Transaction tran2 = session.beginTransaction();
-        transactionalGraphService.context(tran2).setProperty(1, new Property("name", STRING, "Adam"));
+        transactionalGraphService.context(tran2).setPropertyToNode(1, new Property("name", STRING, "Adam"));
         transactionalGraphService.context(tran2).commit();
 
         // then
@@ -150,7 +150,7 @@ public class TransactionalGraphTest {
 
         //when
         Transaction tran2 = session.beginTransaction();
-        transactionalGraphService.context(tran2).setProperty(1, new Property("name", STRING, "Adam"));
+        transactionalGraphService.context(tran2).setPropertyToNode(1, new Property("name", STRING, "Adam"));
         transactionalGraphService.context(tran2).rollback();
 
         // then
@@ -176,7 +176,7 @@ public class TransactionalGraphTest {
 
         //when
         Transaction tran2 = session.beginTransaction();
-        transactionalGraphService.context(tran2).setProperty(1, new Property("name", STRING, "Bob"));
+        transactionalGraphService.context(tran2).setPropertyToNode(1, new Property("name", STRING, "Bob"));
         Node readedNode = transactionalGraphService.context(tran2).getNodeById(1).get();
         assertThat(readedNode.getProperty("name").get()).isEqualTo(new Property("name", STRING, "Bob"));
         transactionalGraphService.context(tran2).commit();
@@ -205,7 +205,7 @@ public class TransactionalGraphTest {
 
         //when
         Transaction tran2 = session.beginTransaction();
-        transactionalGraphService.context(tran2).setProperty(1, new Property("name", STRING, "Bob"));
+        transactionalGraphService.context(tran2).setPropertyToNode(1, new Property("name", STRING, "Bob"));
         Node readedNode = transactionalGraphService.context(tran2).getNodeById(1).get();
         assertThat(readedNode.getProperty("name").get()).isEqualTo(new Property("name", STRING, "Bob"));
         transactionalGraphService.context(tran2).rollback();
