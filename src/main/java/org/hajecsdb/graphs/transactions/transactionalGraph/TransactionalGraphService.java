@@ -2,20 +2,19 @@ package org.hajecsdb.graphs.transactions.transactionalGraph;
 
 import org.hajecsdb.graphs.IdGenerator;
 import org.hajecsdb.graphs.core.*;
+import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.core.impl.NodeImpl;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.exceptions.TransactionException;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TransactionalGraphService {
 
     private Transaction transaction;
     private TGraphImpl tGraph = new TGraphImpl();
-
+    private List<Transaction> supportedTransactions = new ArrayList<>();
     public TGraph context(Transaction transaction) throws TransactionException {
         if (transaction == null)
             throw new TransactionException("Not defined transaction!");
@@ -23,12 +22,26 @@ public class TransactionalGraphService {
         if (transaction.isPerformed())
             throw new TransactionException("Transaction was performed! [COMMITED OR ROLLBACKED]");
 
+        // create transaction works for each entities
+        if (!supportedTransactions.contains(transaction))
+            createTransactionWorkForEachPersistentEntity(transaction.getId());
+
         this.transaction = transaction;
         return tGraph;
     }
 
+    private synchronized void createTransactionWorkForEachPersistentEntity(long transactionId) {
+        tGraph.tNodes.stream()
+                .filter(tNode -> getAllPersistentNodes().contains(tNode.getOriginNode()))
+                .forEach(tNode -> tNode.createTransactionWork(transactionId));
+    }
+
     public Set<Node> getAllPersistentNodes() {
         return tGraph.tNodes.stream().filter(tNode -> tNode.isCommitted()).map(tNode -> tNode.getOriginNode()).collect(Collectors.toSet());
+    }
+
+    public Set<Relationship> getAllPersistentRelationships() {
+        return tGraph.tRelationships.stream().filter(tRelationship -> tRelationship.isCommitted()).map(tNode -> tNode.getOriginRelationship()).collect(Collectors.toSet());
     }
 
     public Optional<Node> getPersistentNodeById(long nodeId) {
@@ -66,7 +79,7 @@ public class TransactionalGraphService {
 
         @Override
         public Node setPropertyToNode(long nodeId, Property property) {
-            Optional<TNode> tNode = getTNodeById(nodeId);
+            Optional<TNode> tNode = getTNodeById(transaction.getId(), nodeId);
             if (tNode.isPresent()) {
                 tNode.get().setProperty(transaction.getId(), property);
                 return tNode.get().getWorkingNode(transaction.getId());
@@ -77,7 +90,11 @@ public class TransactionalGraphService {
 
         @Override
         public Optional<Node> getNodeById(long nodeId) {
-            return Optional.of(getTNodeById(nodeId).get().getWorkingNode(transaction.getId()));
+            Optional<TNode> tNode = getTNodeById(transaction.getId(), nodeId);
+            if (!tNode.isPresent() || tNode.get().isDeleted(transaction.getId()) == true)
+                return Optional.empty();
+
+            return Optional.of(getTNodeById(transaction.getId(), nodeId).get().getWorkingNode(transaction.getId()));
         }
 
         @Override
@@ -90,7 +107,7 @@ public class TransactionalGraphService {
 
         @Override
         public Node deleteNode(long nodeId) {
-            Optional<TNode> tNode = getTNodeById(nodeId);
+            Optional<TNode> tNode = getTNodeById(transaction.getId(), nodeId);
             if (tNode.isPresent()) {
                 tNode.get().deleteNode(transaction.getId());
                 return tNode.get().getOriginNode();
@@ -100,18 +117,19 @@ public class TransactionalGraphService {
         }
 
         @Override
-        public void deletePropertyFromNode(int nodeId, String propertyKey) {
-            Optional<TNode> tNode = getTNodeById(nodeId);
+        public void deletePropertyFromNode(long nodeId, String propertyKey) {
+            Optional<TNode> tNode = getTNodeById(transaction.getId(), nodeId);
             if (tNode.isPresent()) {
                 tNode.get().deleteProperty(transaction.getId(), propertyKey);
             } else
-                throw new NotFoundException("Relationship does not exist!");
+                throw new NotFoundException("Node does not exist!");
         }
 
         @Override
         public Relationship createRelationship(long startNodeId, long endNodeId, Label label) {
-            Optional<TNode> startTNode = getTNodeById(startNodeId);
-            Optional<TNode> endTNode = getTNodeById(endNodeId);
+
+            Optional<TNode> startTNode = getTNodeById(transaction.getId(), startNodeId);
+            Optional<TNode> endTNode = getTNodeById(transaction.getId(), endNodeId);
 
             if (!(startTNode.isPresent() && endTNode.isPresent()))
                 throw new NotFoundException("Cannot found one or both nodes!");
@@ -150,8 +168,8 @@ public class TransactionalGraphService {
             Optional<TRelationship> tRelationship = getTRelationshipById(id);
             if (tRelationship.isPresent()) {
                 Relationship deletedRelationship = tRelationship.get().deleteRelationship(transaction.getId());
-                getTNodeById(deletedRelationship.getStartNode().getId()).get().getWorkingNode(transaction.getId()).getRelationships().remove(deletedRelationship);
-                getTNodeById(deletedRelationship.getEndNode().getId()).get().getWorkingNode(transaction.getId()).getRelationships().remove(deletedRelationship);
+                getTNodeById(transaction.getId(), deletedRelationship.getStartNode().getId()).get().getWorkingNode(transaction.getId()).getRelationships().remove(deletedRelationship);
+                getTNodeById(transaction.getId(), deletedRelationship.getEndNode().getId()).get().getWorkingNode(transaction.getId()).getRelationships().remove(deletedRelationship);
                 return deletedRelationship;
             }
 
@@ -173,7 +191,7 @@ public class TransactionalGraphService {
                 throw new TransactionException("Transaction was performed!");
 
             // delete nodes if needed
-            Set<TNode> nodesReadyToDelete = tNodes.stream().filter(TNode::isDeleted).collect(Collectors.toSet());
+            Set<TNode> nodesReadyToDelete = tNodes.stream().filter(tNode -> tNode.isDeleted(transaction.getId())).collect(Collectors.toSet());
             tNodes.removeAll(nodesReadyToDelete);
 
             // COMMIT NODES
@@ -204,9 +222,9 @@ public class TransactionalGraphService {
             transaction.rollback();
         }
 
-        private Optional<TNode> getTNodeById(long nodeId) {
+        private Optional<TNode> getTNodeById(long transactionId, long nodeId) {
             return tNodes.stream()
-                    .filter(tNode -> tNode.getOriginNode().getId() == nodeId)
+                    .filter(tNode -> tNode.containsTransactionChanges(transactionId) && tNode.getOriginNode().getId() == nodeId)
                     .findFirst();
         }
 

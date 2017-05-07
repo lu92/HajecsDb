@@ -14,7 +14,6 @@ class TRelationship {
     Relationship originRelationship;
     private TNode startTNode;
     private TNode endTNode;
-    private Label label;
     private boolean committed;
     private boolean deleted;
     private List<TransactionWork> transactionWorkList = new ArrayList<>();
@@ -22,7 +21,6 @@ class TRelationship {
     public TRelationship(long transactionId, long relationshipId, TNode startTNode, TNode endTNode, Label label) {
         this.startTNode = startTNode;
         this.endTNode = endTNode;
-        this.label = label;
         this.committed = false;
         this.deleted = false;
         Relationship relationship = new RelationshipImpl(

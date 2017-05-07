@@ -116,6 +116,7 @@ public class NodeImpl implements Node {
         List<Property> properties = getAllProperties().getAllProperties().stream().map(Property::copy).collect(Collectors.toList());
         propertiesCopy.addAll(properties);
         copy.setProperties(propertiesCopy);
+        copy.getRelationships().addAll(this.getRelationships().stream().map(relationship -> relationship.copy()).collect(Collectors.toSet()));
         return copy;
     }
 

@@ -22,11 +22,23 @@ public class TNode {
         this.originNode = node;
         this.committed = false;
         this.deleted = false;
-        createTransactionWork(transactionId);
+        createOrGetTransactionWork(transactionId);
+    }
+
+    private TransactionWork createOrGetTransactionWork(long transactionId) {
+        if (!isTransactionWorkExists(transactionId))
+            createTransactionWork(transactionId);
+        return getTransactionWork(transactionId);
     }
 
     public Node getWorkingNode(long transactionId) {
-        return getTransactionWork(transactionId).getWorkingNode();
+        createOrGetTransactionWork(transactionId);
+
+        TransactionWork transactionWork = getTransactionWork(transactionId);
+        if (transactionWork.isDeleted())
+            return null;
+        return transactionWork.getWorkingNode();
+
     }
 
     public void createTransactionWork(long transactionId) {
@@ -66,9 +78,8 @@ public class TNode {
     }
 
     public Node setProperty(long transactionId, Property property) {
-        if (!isTransactionWorkExists(transactionId)) {
-            createTransactionWork(transactionId);
-        }
+        createOrGetTransactionWork(transactionId);
+
 
         Node workingNode = getWorkingNode(transactionId);
         if (!workingNode.hasProperty(property.getKey())) {
@@ -83,11 +94,9 @@ public class TNode {
     }
 
     public synchronized Node deleteNode(long transactionId) {
-        if (!isTransactionWorkExists(transactionId)) {
-            createTransactionWork(transactionId);
-        }
+        createOrGetTransactionWork(transactionId);
         TransactionWork transactionWork = getTransactionWork(transactionId);
-        this.deleted = true;
+        transactionWork.deleteNode();
         Node node = transactionWork.readNode();
         return node;
     }
@@ -118,9 +127,8 @@ public class TNode {
     }
 
     public void deleteProperty(long transactionId, String propertyKey) {
-        if (!isTransactionWorkExists(transactionId)) {
-            createTransactionWork(transactionId);
-        }
+        createOrGetTransactionWork(transactionId);
+
         Node workingNode = getWorkingNode(transactionId);
         if (workingNode.hasProperty(propertyKey)) {
             TransactionChange change = new TransactionChange(DELETE_NODES_PROPERTY, propertyKey);
@@ -128,5 +136,15 @@ public class TNode {
         } else
             throw new NotFoundException("Property '" + propertyKey + "' was not found!");
 
+    }
+
+    public boolean isDeleted(long transactionId) {
+        Optional<TransactionWork> transactionWorkOptional = transactionWorkList.stream()
+                .filter(transactionWork -> transactionWork.getTransactionId() == transactionId)
+                .findFirst();
+        if (!transactionWorkOptional.isPresent())
+            return false;
+
+        return transactionWorkOptional.get().isDeleted();
     }
 }

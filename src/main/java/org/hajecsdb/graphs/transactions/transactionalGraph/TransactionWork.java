@@ -8,17 +8,22 @@ import java.util.List;
 
 public class TransactionWork {
     private long transactionId;
+    private long entityId;
     private List<TransactionChange> transactionChanges = new ArrayList<>();
     private Node workingNode;
     private Relationship workingRelationship;
+    private boolean deleted;
 
     public TransactionWork(long transactionId, Node node) {
         this.transactionId = transactionId;
+        this.entityId = node.getId();
         this.workingNode = node;
+        this.deleted = false;
     }
 
     public TransactionWork(long transactionId, Relationship relationship) {
         this.transactionId = transactionId;
+        this.entityId = relationship.getId();
         this.workingRelationship = relationship;
     }
 
@@ -67,6 +72,10 @@ public class TransactionWork {
                 workingRelationship.getAllProperties().delete(transactionChange.getProperty().getKey());
                 workingRelationship.getAllProperties().add(transactionChange.getProperty());
                 break;
+
+            case DELETE_RELATIONSHIPS_PROPERTY:
+                workingRelationship.getAllProperties().delete(transactionChange.getPropertyKey());
+                break;
         }
     }
 
@@ -77,5 +86,31 @@ public class TransactionWork {
 
     public Relationship readRelationship() {
         return workingRelationship;
+    }
+
+    public void deleteNode() {
+        this.deleted = true;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final TransactionWork that = (TransactionWork) o;
+
+        if (transactionId != that.transactionId) return false;
+        return entityId == that.entityId;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (transactionId ^ (transactionId >>> 32));
+        result = 31 * result + (int) (entityId ^ (entityId >>> 32));
+        return result;
     }
 }
