@@ -1,10 +1,14 @@
 package org.hajecsdb.graphs.transactions.transactionalGraph;
 
+import org.hajecsdb.graphs.core.Entity;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Relationship;
+import org.hajecsdb.graphs.core.ResourceType;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hajecsdb.graphs.core.ResourceType.NODE;
 
 public class TransactionWork {
     private long transactionId;
@@ -36,49 +40,43 @@ public class TransactionWork {
         return transactionId;
     }
 
-    public Node getWorkingNode() {
-        return workingNode;
-    }
-
-    public Relationship getWorkingRelationship() {
-        return workingRelationship;
-    }
-
     // concerns only operation on node's properties
     private void apply(TransactionChange transactionChange) {
+        Entity entity = transactionChange.getResourceType() == NODE ? workingNode : workingRelationship;
+
         // in future Transaction Log will support this
         switch (transactionChange.getCrudType()) {
-            case CREATE_NODES_PROPERTY:
-                workingNode.getAllProperties().add(transactionChange.getProperty());
+            case CREATE:
+                entity.getAllProperties().add(transactionChange.getProperty());
                 break;
 
-            case READ_NODES_PROPERTY:
+            case READ:
                 break;
 
-            case UPDATE_NODES_PROPERTY:
-                workingNode.getAllProperties().delete(transactionChange.getProperty().getKey());
-                workingNode.getAllProperties().add(transactionChange.getProperty());
+            case UPDATE:
+                entity.getAllProperties().delete(transactionChange.getProperty().getKey());
+                entity.getAllProperties().add(transactionChange.getProperty());
                 break;
 
-            case DELETE_NODES_PROPERTY:
-                workingNode.getAllProperties().delete(transactionChange.getPropertyKey());
-                break;
-
-            case CREATE_RELATIONSHIPS_PROPERTY:
-                workingRelationship.getAllProperties().add(transactionChange.getProperty());
-                break;
-
-            case UPDATE_RELATIONSHIPS_PROPERTY:
-                workingRelationship.getAllProperties().delete(transactionChange.getProperty().getKey());
-                workingRelationship.getAllProperties().add(transactionChange.getProperty());
-                break;
-
-            case DELETE_RELATIONSHIPS_PROPERTY:
-                workingRelationship.getAllProperties().delete(transactionChange.getPropertyKey());
+            case DELETE:
+                entity.getAllProperties().delete(transactionChange.getPropertyKey());
                 break;
         }
     }
 
+
+    public Entity readEntity(ResourceType resourceType) {
+        switch (resourceType) {
+            case NODE:
+                return workingNode;
+
+            case RELATIONSHIP:
+                return workingRelationship;
+
+            default:
+                throw new IllegalArgumentException("Resource type is empty!");
+        }
+    }
 
     public Node readNode() {
         return workingNode;
@@ -88,7 +86,7 @@ public class TransactionWork {
         return workingRelationship;
     }
 
-    public void deleteNode() {
+    public void delete() {
         this.deleted = true;
     }
 

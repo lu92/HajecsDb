@@ -7,14 +7,14 @@ import java.util.Set;
 
 public interface TGraph {
     Node createNode(Label label, Properties properties);
-    Node setPropertyToNode(long nodeId, Property property);
-    Optional<Node> getNodeById(long id);
+    Optional<Node> getNodeById(long nodeId);
     Set<Node> getAllNodes();
-    Node deleteNode(long id);
+    Node deleteNode(long nodeId);
+    Node setPropertyToNode(long nodeId, Property property);
     void deletePropertyFromNode(long nodeId, String propertyKey);
     Relationship createRelationship(long startNodeId, long endNodeId, Label label);
+    Relationship deleteRelationship(long relationshipId);
     Relationship setPropertyToRelationship(long relationshipId, Property property);
-    Relationship deleteRelationship(long id);
     void deletePropertyFromRelationship(int relationshipId, String propertyKey);
     void commit();
     void rollback();
