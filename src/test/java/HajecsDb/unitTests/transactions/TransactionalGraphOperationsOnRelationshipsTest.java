@@ -43,10 +43,23 @@ public class TransactionalGraphOperationsOnRelationshipsTest {
 
         transactionalGraphService.context(transaction).commit();
 
+        assertThat(transactionalGraphService.isEntityLocked(alice)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(gina)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(bob)).isFalse();
+
         // when
         Transaction tran1 = session.beginTransaction();
         Relationship alice_knows_gina_relationship =
                 transactionalGraphService.context(tran1).createRelationship(alice.getId(), gina.getId(), new Label("KNOWS"));
+
+        assertThat(transactionalGraphService.context(tran1).getTNodeById(tran1.getId(), bob.getId()).get().containsTransactionChanges(tran1.getId())).isFalse();
+        assertThat(transactionalGraphService.context(tran1).getTNodeById(tran1.getId(), alice.getId()).get().containsTransactionChanges(tran1.getId())).isTrue();
+        assertThat(transactionalGraphService.context(tran1).getTNodeById(tran1.getId(), gina.getId()).get().containsTransactionChanges(tran1.getId())).isTrue();
+
+        assertThat(transactionalGraphService.isEntityLocked(alice)).isTrue();
+        assertThat(transactionalGraphService.isEntityLocked(gina)).isTrue();
+        assertThat(transactionalGraphService.isEntityLocked(bob)).isFalse();
+
 
         assertThat(alice_knows_gina_relationship.getId()).isEqualTo(4);
         assertThat(alice_knows_gina_relationship.getStartNode()).isEqualTo(alice);
@@ -87,6 +100,11 @@ public class TransactionalGraphOperationsOnRelationshipsTest {
 
         transactionalGraphService.context(transaction).commit();
 
+        assertThat(transactionalGraphService.isEntityLocked(alice)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(gina)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(bob)).isFalse();
+
+
         // when
         Transaction tran1 = session.beginTransaction();
         Relationship alice_knows_gina_relationship =
@@ -97,6 +115,8 @@ public class TransactionalGraphOperationsOnRelationshipsTest {
         assertThat(alice_knows_gina_relationship.getEndNode()).isEqualTo(gina);
         assertThat(alice_knows_gina_relationship.getLabel()).isEqualTo(new Label("KNOWS"));
         assertThat(alice_knows_gina_relationship.getDirection()).isEqualTo(Direction.OUTGOING);
+
+
 
         transactionalGraphService.context(tran1).rollback();
 

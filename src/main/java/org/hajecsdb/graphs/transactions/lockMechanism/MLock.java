@@ -1,6 +1,6 @@
 package org.hajecsdb.graphs.transactions.lockMechanism;
 
-public interface Lock {
+public interface MLock {
 
     LockType getType();
     long getTransactionId();

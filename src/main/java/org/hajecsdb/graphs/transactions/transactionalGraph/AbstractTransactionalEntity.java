@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hajecsdb.graphs.core.ResourceType.NODE;
+import static org.hajecsdb.graphs.core.ResourceType.RELATIONSHIP;
 import static org.hajecsdb.graphs.transactions.transactionalGraph.CRUDType.*;
 
 abstract class AbstractTransactionalEntity {
@@ -29,6 +31,8 @@ abstract class AbstractTransactionalEntity {
             createTransactionWork(transactionId);
         }
         TransactionWork transactionWork = getTransactionWork(transactionId);
+        CRUDType deleteType = resourceType == NODE ? DELETE_NODE : DELETE_RELATIONSHIP;
+        addTransactionChange(transactionId, new TransactionChange(resourceType, CREATE_RELATIONSHIP));
         transactionWork.delete();
     }
 
@@ -54,6 +58,11 @@ abstract class AbstractTransactionalEntity {
     }
 
     public boolean containsTransactionChanges(long transactionId) {
+        return this.transactionWorkList.stream()
+                .anyMatch(transactionWork -> transactionWork.getTransactionId() == transactionId && !transactionWork.isEmpty());
+    }
+
+    public boolean isTransactionChangesDefined(long transactionId) {
         return this.transactionWorkList.stream()
                 .anyMatch(transactionWork -> transactionWork.getTransactionId() == transactionId);
     }

@@ -18,4 +18,7 @@ public interface TGraph {
     void deletePropertyFromRelationship(int relationshipId, String propertyKey);
     void commit();
     void rollback();
+
+    // all methods below to delete in future
+    Optional<TNode> getTNodeById(long transactionId, long nodeId);
 }

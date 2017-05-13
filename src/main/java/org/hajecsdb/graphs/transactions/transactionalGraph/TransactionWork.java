@@ -111,4 +111,8 @@ public class TransactionWork {
         result = 31 * result + (int) (entityId ^ (entityId >>> 32));
         return result;
     }
+
+    public boolean isEmpty() {
+        return transactionChanges.isEmpty();
+    }
 }

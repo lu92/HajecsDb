@@ -27,9 +27,9 @@ public class LockingProtocolManager {
         transaction.getScope().getOperations().forEach(operation -> {
             List<Entity> entitiesRequiredToLock = entityLockRecognizer.determineEntities(graph, operation.getCypherQuery());
             for (Entity entity : entitiesRequiredToLock) {
-                if (operation.getLockType() == LockType.WRITE)
-                    lockManager.acquireWriteLock(entity);
-                else lockManager.acquireReadLock(entity);
+//                if (operation.getLockType() == LockType.WRITE)
+//                    lockManager.acquireWriteLock(entity);
+//                else lockManager.acquireReadLock(entity);
             }
         });
     }

@@ -7,6 +7,7 @@ import org.hajecsdb.graphs.core.Relationship;
 import org.hajecsdb.graphs.core.impl.RelationshipImpl;
 import org.hajecsdb.graphs.transactions.exceptions.TransactionException;
 
+import static org.hajecsdb.graphs.core.ResourceType.NODE;
 import static org.hajecsdb.graphs.core.ResourceType.RELATIONSHIP;
 
 class TRelationship extends AbstractTransactionalEntity {
@@ -34,6 +35,9 @@ class TRelationship extends AbstractTransactionalEntity {
 //            startTNode.createTransactionWork(transactionId);
 //        }
         ((Node) startTNode.getWorkingEntity(transactionId)).addRelationShip(relationshipCopy);
+//        TransactionChange appendedRelationshipChange = new TransactionChange(NODE, CRUDType.APPEND_RELATIONSHIP, relationshipCopy);
+//        startTNode.addTransactionChange(transactionId, appendedRelationshipChange);
+//        endTNode.addTransactionChange(transactionId, appendedRelationshipChange);
 
 //        if (!endTNode.containsTransactionChanges(transactionId)) {
 //            endTNode.createTransactionWork(transactionId);
