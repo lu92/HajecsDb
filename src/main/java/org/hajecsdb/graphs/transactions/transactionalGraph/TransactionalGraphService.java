@@ -182,6 +182,8 @@ public class TransactionalGraphService {
 
             tRelationship.createTransactionWork(transaction.getId());
 
+            lockManager.acquireWriteLock(transaction.getId(), tRelationship.getOriginRelationship());
+
             TransactionChange appendedRelationshipChange = new TransactionChange(NODE, CRUDType.APPEND_RELATIONSHIP, tRelationship.getOriginRelationship());
             startTNode.get().addTransactionChange(transaction.getId(), appendedRelationshipChange);
             endTNode.get().addTransactionChange(transaction.getId(), appendedRelationshipChange);
@@ -209,6 +211,7 @@ public class TransactionalGraphService {
                 ((Node) getTNodeById(transaction.getId(), deletedRelationship.getStartNode().getId()).get().getWorkingEntity(transaction.getId())).getRelationships().remove(deletedRelationship);
                 ((Node) getTNodeById(transaction.getId(), deletedRelationship.getEndNode().getId()).get().getWorkingEntity(transaction.getId())).getRelationships().remove(deletedRelationship);
 
+                lockManager.acquireWriteLock(transaction.getId(), deletedRelationship);
 
                 lockManager.acquireWriteLock(transaction.getId(), deletedRelationship.getStartNode());
                 getTNodeById(transaction.getId(), deletedRelationship.getStartNode().getId()).get().addTransactionChange(transaction.getId(), new TransactionChange(NODE, REMOVE_RELATIONSHIP));
@@ -282,8 +285,8 @@ public class TransactionalGraphService {
             transaction.commit();
             supportedTransactions.remove(transaction);
 //
-//            // unlock resources
-//            nodesReadyToCommit.forEach(tNode -> lockManager.releaseLock(transaction.getId(), tNode.getOriginNode()));
+            // unlock resources
+            relationshipsReadyToCommit.forEach(tRelationship -> lockManager.releaseLock(transaction.getId(), tRelationship.getOriginRelationship()));
         }
 
         @Override
@@ -291,9 +294,21 @@ public class TransactionalGraphService {
             Set<TNode> nodesReadyToRollback = tNodes.stream()
                     .filter(tNode -> tNode.containsTransactionChanges(transaction.getId())).collect(Collectors.toSet());
 
+            // ROLLBACK NODES
             nodesReadyToRollback.forEach(tNode -> tNode.rollbackTransaction(transaction.getId()));
             transaction.rollback();
             nodesReadyToRollback.forEach(tNode -> lockManager.releaseLock(transaction.getId(), tNode.getOriginNode()));
+
+            // ROLLBACK RELATIONSHIPS
+
+            Set<TRelationship> relationshipsReadyToRollback = tRelationships.stream()
+                    .filter(tRelationship -> tRelationship.containsTransactionChanges(transaction.getId()))
+                    .collect(Collectors.toSet());
+
+            relationshipsReadyToRollback.forEach(tRelationship -> tRelationship.rollbackTransaction(transaction.getId()));
+            relationshipsReadyToRollback.forEach(tRelationship -> lockManager.releaseLock(transaction.getId(), tRelationship.getOriginRelationship()));
+
+
             supportedTransactions.remove(transaction);
             System.out.println("Transaction " + transaction.getId() + " has been rollbacked!");
         }

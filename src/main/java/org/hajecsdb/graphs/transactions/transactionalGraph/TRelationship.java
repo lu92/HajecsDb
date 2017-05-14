@@ -53,6 +53,11 @@ class TRelationship extends AbstractTransactionalEntity {
         committed = true;
     }
 
+    public synchronized void rollbackTransaction(long transactionId) throws TransactionException {
+        TransactionWork transactionWork = getTransactionWork(transactionId);
+        this.transactionWorkList.remove(transactionWork);
+    }
+
     public Relationship getOriginRelationship() {
         return originRelationship;
     }

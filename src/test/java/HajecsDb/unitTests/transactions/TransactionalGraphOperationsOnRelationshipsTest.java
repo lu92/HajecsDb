@@ -80,6 +80,11 @@ public class TransactionalGraphOperationsOnRelationshipsTest {
         assertThat(transactionalGraphService.getPersistentNodeById(1).get().getDegree()).isEqualTo(1);
         assertThat(transactionalGraphService.getPersistentNodeById(2).get().getDegree()).isEqualTo(1);
         assertThat(transactionalGraphService.getPersistentNodeById(3).get().getDegree()).isEqualTo(0);
+
+        assertThat(transactionalGraphService.isEntityLocked(alice)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(gina)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(bob)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(alice_knows_gina_relationship)).isFalse();
     }
 
     @Test
@@ -130,6 +135,11 @@ public class TransactionalGraphOperationsOnRelationshipsTest {
         assertThat(nodeComparator.isSame(alice, transactionalGraphService.getPersistentNodeById(1).get())).isTrue();
         assertThat(nodeComparator.isSame(gina, transactionalGraphService.getPersistentNodeById(2).get())).isTrue();
         assertThat(nodeComparator.isSame(bob, transactionalGraphService.getPersistentNodeById(3).get())).isTrue();
+
+        assertThat(transactionalGraphService.isEntityLocked(alice)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(gina)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(bob)).isFalse();
+        assertThat(transactionalGraphService.isEntityLocked(alice_knows_gina_relationship)).isFalse();
     }
 
     @Test
