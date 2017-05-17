@@ -1,13 +1,18 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
 
-import org.hajecsdb.graphs.core.*;
+import org.hajecsdb.graphs.core.Label;
+import org.hajecsdb.graphs.core.Node;
+import org.hajecsdb.graphs.core.Properties;
+import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,7 +29,7 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
 
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
+            public Result perform(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
                 Pattern pattern = Pattern.compile(getExpressionOfClauseRegex());
                 Matcher matcher = pattern.matcher(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
                 if (matcher.find()) {
@@ -32,14 +37,16 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                     Label label = new Label(matcher.group(2));
                     String parametersBody = matcher.group(4);
                     List<Property> parameters = parameterExtractor.extractParameters(parametersBody);
-                    createNode(graph, result, label, parameters);
+                    createNode(graph, transaction, result, label, parameters);
                     commandProcessing.getQueryContext().insert(variableName, result.copy());
                 }
                 return result;
             }
 
-            void createNode(Graph graph, Result result, Label label, List<Property> parameters) {
-                Node node = createNode(graph, label, parameters);
+            void createNode(TransactionalGraphService graph, Transaction transaction, Result result, Label label, List<Property> parameters) {
+                Properties properties = new Properties();
+                properties.addAll(parameters);
+                Node node = graph.context(transaction).createNode(label, properties);
                 int index = result.getResults().size();
                 ResultRow resultRow = new ResultRow();
                 result.setCompleted(true);
@@ -47,17 +54,6 @@ public class CreateNodeClauseBuilder extends ClauseBuilder {
                 resultRow.setNode(node);
                 result.getResults().put(index, resultRow);
             }
-
-            private Node createNode(Graph graph, Label label, List<Property> parameters) {
-                if (parameters.isEmpty()) {
-                    return graph.createNode(label);
-                } else {
-                    Properties properties = new Properties();
-                    properties.addAll(parameters);
-                    return graph.createNode(label, properties);
-                }
-            }
-
         };
     }
 

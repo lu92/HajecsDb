@@ -1,17 +1,18 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
 import org.hajecsdb.graphs.core.Direction;
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
-import org.hajecsdb.graphs.core.Relationship;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.cypher.clauses.helpers.parameterExtractor.SubQueryData;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,18 +29,18 @@ public class MatchRelationshipClauseBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
+            public Result perform(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
 
                 SubQueryData subQueryData = parameterExtractor.fetchData(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
 
                 List<Node> nodes = null;
                 if (subQueryData.getLeftNode().getLabel().isPresent()) {
-                    nodes = graph.getAllNodes().stream()
+                    nodes = graph.context(transaction).getAllNodes().stream()
                             .filter(node -> node.getLabel().equals(subQueryData.getLeftNode().getLabel().get()))
                             .collect(Collectors.toList());
                 } else {
                     nodes = new ArrayList<>();
-                    nodes.addAll(graph.getAllNodes());
+                    nodes.addAll(graph.context(transaction).getAllNodes());
                 }
 
 
@@ -77,29 +78,47 @@ public class MatchRelationshipClauseBuilder extends ClauseBuilder {
                     case BOTH:
 //                        System.out.println("BOTH");
                         return nodes.stream()
-                                .map(node -> node.getRelationships())
+                                .map(node -> node.getRelationships().stream()
+                                            .map(relationship -> Arrays.asList(relationship, relationship.copy().reverse()))
+                                            .flatMap(relationships -> relationships.stream())
+                                            .filter(relationship -> relationship.getStartNode().getId() == node.getId())
+                                            .collect(Collectors.toSet()))
                                 .flatMap(relationships -> relationships.stream())
-                                .map(Relationship::getEndNode)
+                                .map(relationship -> relationship.getEndNode())
                                 .distinct()
                                 .collect(Collectors.toList());
 
+//                    case OUTGOING:
+////                        System.out.println("OUTGOING");
+//                        return nodes.stream()
+//                                .map(node -> node.getRelationships())
+//                                .flatMap(relationships -> relationships.stream())
+//                                .filter(relationship -> relationship.getDirection() == Direction.OUTGOING)
+//                                .map(Relationship::getEndNode)
+//                                .distinct()
+//                                .collect(Collectors.toList());
+
                     case OUTGOING:
-//                        System.out.println("OUTGOING");
+//                        System.out.println("BOTH");
                         return nodes.stream()
-                                .map(node -> node.getRelationships())
+                                .map(node -> node.getRelationships().stream()
+                                            .filter(relationship -> relationship.getStartNode().getId() == node.getId())
+                                            .collect(Collectors.toSet()))
                                 .flatMap(relationships -> relationships.stream())
                                 .filter(relationship -> relationship.getDirection() == Direction.OUTGOING)
-                                .map(Relationship::getEndNode)
+                                .map(relationship -> relationship.getEndNode())
                                 .distinct()
                                 .collect(Collectors.toList());
 
                     case INCOMING:
 //                        System.out.println("INCOMING");
                         return nodes.stream()
-                                .map(node -> node.getRelationships())
+                                .map(node -> node.getRelationships().stream()
+                                        .filter(relationship -> relationship.getEndNode().getId() == node.getId())
+                                        .collect(Collectors.toSet()))
                                 .flatMap(relationships -> relationships.stream())
-                                .filter(relationship -> relationship.getDirection() == Direction.INCOMING)
-                                .map(Relationship::getEndNode)
+                                .filter(relationship -> relationship.getDirection() == Direction.OUTGOING)
+                                .map(relationship -> relationship.getStartNode())
                                 .distinct()
                                 .collect(Collectors.toList());
 

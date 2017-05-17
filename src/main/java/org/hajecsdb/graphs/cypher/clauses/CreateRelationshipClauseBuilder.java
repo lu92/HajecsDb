@@ -1,6 +1,5 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Relationship;
 import org.hajecsdb.graphs.cypher.Result;
@@ -10,6 +9,8 @@ import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.cypher.clauses.helpers.parameterExtractor.SubQueryData;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -25,7 +26,7 @@ public class CreateRelationshipClauseBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
+            public Result perform(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
                 Pattern pattern = Pattern.compile(getExpressionOfClauseRegex());
                 Matcher matcher = pattern.matcher(commandProcessing.getClauseInvocationStack().peek().getSubQuery());
                 if (matcher.find()) {
@@ -38,7 +39,7 @@ public class CreateRelationshipClauseBuilder extends ClauseBuilder {
                             Node leftNode = entry.getValue().getNode();
                             for (Map.Entry<Integer, ResultRow> entry2 : resultOfRightNodes.getResults().entrySet()) {
                                 Node rightNode = entry2.getValue().getNode();
-                                Relationship relationship = graph.createRelationship(leftNode, rightNode, subQueryData.getRelationship().getLabel().get());
+                                Relationship relationship = graph.context(transaction).createRelationship(leftNode.getId(), rightNode.getId(), subQueryData.getRelationship().getLabel().get());
                                 int index = result.getResults().size();
                                 ResultRow resultRow = new ResultRow();
                                 result.setCompleted(true);

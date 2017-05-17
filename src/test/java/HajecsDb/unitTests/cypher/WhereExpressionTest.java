@@ -1,13 +1,14 @@
 package HajecsDb.unitTests.cypher;
 
 import HajecsDb.unitTests.utils.NodeComparator;
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Properties;
 import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
-import org.hajecsdb.graphs.core.impl.GraphImpl;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.TransactionManager;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -19,19 +20,20 @@ import static org.hajecsdb.graphs.cypher.clauses.helpers.ContentType.NODE;
 @RunWith(MockitoJUnitRunner.class)
 public class WhereExpressionTest {
 
-    private Graph graph;
     private CypherExecutor cypherExecutor = new CypherExecutor();
     private NodeComparator nodeComparator = new NodeComparator();
+    private TransactionManager transactionManager = new TransactionManager();
 
     @Test
-    public void test() {
+    public void matchByAgeInEmptyDbTest() {
 
         // given
         String command = "MATCH (n) WHERE n.age = 25";
-        graph = new GraphImpl("pathDir", "graphDir");
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -44,17 +46,19 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE n.name = 'first'";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("name", "first", STRING));
-        graph.createNode(new Label("Person"), new Properties().add("name", "second", STRING));
-        graph.createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(1l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -68,21 +72,24 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE n.age = 25";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(1l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(graph.getNodeById(2l).get());
+        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -101,21 +108,23 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE n.age > 25";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(1l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(graph.getNodeById(2l).get());
+        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -134,21 +143,24 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE n.age >= 25";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 24l, LONG));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 26l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 24l, LONG));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(1l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(graph.getNodeById(2l).get());
+        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
+
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -167,22 +179,24 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE n.age >= 25 AND n.age <= 30";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("age", 24l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("age", 31l, LONG));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 24l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 31l, LONG));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(2l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(graph.getNodeById(3l).get());
+        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -201,22 +215,24 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE n.name = 'Victor' OR n.name = 'Amelia'";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("name", "Amelia", STRING));
-        graph.createNode(new Label("Person"), new Properties().add("name", "Henry", STRING));
-        graph.createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
-        graph.createNode(new Label("Person"), new Properties().add("name", "Victor", STRING));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "Amelia", STRING));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "Henry", STRING));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 30l, LONG));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "Victor", STRING));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(1l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(graph.getNodeById(4l).get());
+        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(4l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -235,17 +251,19 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n) WHERE id(n) = 3";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
-        graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
-        graph.createNode(new Label("Person"), new Properties().add("age", 30, INT));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25, INT));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25, INT));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 30, INT));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(3l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -259,17 +277,19 @@ public class WhereExpressionTest {
 
         // given
         String command = "MATCH (n: Person) WHERE id(n) = 3";
-        graph = new GraphImpl("pathDir", "graphDir");
-        graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
-        graph.createNode(new Label("Person"), new Properties().add("age", 25, INT));
-        graph.createNode(new Label("Person"), new Properties().add("age", 30, INT));
+        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
+        Transaction transaction = transactionManager.createTransaction();
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25, INT));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 25, INT));
+        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("age", 30, INT));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(graph.getNodeById(3l).get());
+        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(graph, command);
+        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        transactionalGraphService.context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();

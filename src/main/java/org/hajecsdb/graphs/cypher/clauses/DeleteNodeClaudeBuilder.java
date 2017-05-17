@@ -1,13 +1,14 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.Map;
 
@@ -21,12 +22,12 @@ public class DeleteNodeClaudeBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
+            public Result perform(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
                 int deletedNodes = 0;
                 for (Map.Entry<Integer, ResultRow> entry : result.getResults().entrySet()) {
                     ResultRow resultRow = entry.getValue();
                     if (resultRow.getContentType() == ContentType.NODE) {
-                        graph.deleteNode(entry.getValue().getNode().getId());
+                        graph.context(transaction).deleteNode(entry.getValue().getNode().getId());
                         deletedNodes++;
                     }
                 }

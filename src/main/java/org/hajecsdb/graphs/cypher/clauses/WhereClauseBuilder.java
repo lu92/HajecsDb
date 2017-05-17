@@ -1,6 +1,5 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.core.PropertyType;
@@ -9,12 +8,13 @@ import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
 import org.hajecsdb.graphs.cypher.clauses.DFA.CommandProcessing;
 import org.hajecsdb.graphs.cypher.clauses.DFA.DfaAction;
-import org.hajecsdb.graphs.cypher.clauses.DFA.State;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.ArithmeticOperator;
 import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.Equation;
 import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.EquationResolver;
 import org.hajecsdb.graphs.cypher.clauses.helpers.equationResolver.LogicalOperator;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +45,7 @@ public class WhereClauseBuilder extends ClauseBuilder {
             }
 
             @Override
-            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
+            public Result perform(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
                 ClauseInvocation clauseInvocation = commandProcessing.getClauseInvocationStack().peek();
                 if (determineExpressionOfSubQuery(clauseInvocation.getSubQuery())) {
                     return performClauseWithIdFunction(result, commandProcessing);

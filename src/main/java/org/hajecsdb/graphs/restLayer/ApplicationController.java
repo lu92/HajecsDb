@@ -6,6 +6,7 @@ import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.restLayer.dto.Command;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import org.hajecsdb.graphs.restLayer.dto.SessionDto;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class ApplicationController {
     private CypherExecutor cypherExecutor;
 
     private GraphImpl graph = new GraphImpl("/home", "test");
+    private TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
     private InternalBinaryGraphOperationScheduler internalBinaryGraphOperationScheduler = new InternalBinaryGraphOperationScheduler();
 
     @RequestMapping(method = RequestMethod.GET, path = "/Session")
@@ -40,7 +42,7 @@ public class ApplicationController {
     @RequestMapping(method = RequestMethod.POST, path = "/Cypher")
     @ResponseBody
     public ResultDto execute(@RequestBody Command command) {
-        Result result = cypherExecutor.execute(graph, command.getCommand());
+        Result result = cypherExecutor.execute(transactionalGraphService, null, command.getCommand());
         internalBinaryGraphOperationScheduler.add(command.getCommand(), result);
         return entityConverter.toResult(result);
     }

@@ -1,9 +1,10 @@
 package org.hajecsdb.graphs.cypher.clauses.DFA;
 
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,15 +25,15 @@ public class State {
         this.description = description;
     }
 
-    public Result invoke(Graph graph, Result result, CommandProcessing commandProcessing) {
+    public Result invoke(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
         ClauseInvocation currentClause = commandProcessing.getClauseInvocationStack().peek();
         Transition transition = getClauseTransition(currentClause);
-        result = transition.performAction(graph, result, commandProcessing);
+        result = transition.performAction(graph, transaction, result, commandProcessing);
         if (commandProcessing.getClauseInvocationStack().isEmpty()) {
             System.out.println("end of processing command!");
             return result;
         } else {
-            transition.getNextState().invoke(graph, result, commandProcessing);
+            transition.getNextState().invoke(graph, transaction, result, commandProcessing);
         }
         return result;
     }

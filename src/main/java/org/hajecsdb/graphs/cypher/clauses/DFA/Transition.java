@@ -1,7 +1,8 @@
 package org.hajecsdb.graphs.cypher.clauses.DFA;
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.cypher.Result;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.function.Predicate;
 
@@ -24,11 +25,11 @@ public class Transition {
         return matchedPredicate.test(clauseInvocation);
     }
 
-    public Result performAction(Graph graph, Result result, CommandProcessing commandProcessing) {
+    public Result performAction(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
         ClauseInvocation clauseInvocation = commandProcessing.getClauseInvocationStack().peek();
         if (clauseInvocation.getClause() == nextState.getClauseEnum()) {
             System.out.println("[" + nextState.getClauseEnum() + "] clause verified!");
-            Result updatedResult = action.perform(graph, result, commandProcessing);
+            Result updatedResult = action.perform(graph, transaction, result, commandProcessing);
             commandProcessing.getClauseInvocationStack().pop();
             System.out.println("[" + nextState.getClauseEnum() + "] performed!");
             return updatedResult;

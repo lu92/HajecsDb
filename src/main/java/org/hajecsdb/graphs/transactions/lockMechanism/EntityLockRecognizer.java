@@ -1,13 +1,14 @@
 package org.hajecsdb.graphs.transactions.lockMechanism;
 
 import org.hajecsdb.graphs.core.Entity;
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Property;
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
 import org.hajecsdb.graphs.cypher.clauses.DFA.ClausesSeparator;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 import org.hajecsdb.graphs.cypher.clauses.helpers.parameterExtractor.ParameterExtractor;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class EntityLockRecognizer {
     private ClausesSeparator clausesSeparator = new ClausesSeparator();
 
 
-    public List<Entity> determineEntities(Graph graph, String cypherQuery) {
+    public List<Entity> determineEntities(TransactionalGraphService graph, Transaction transaction, String cypherQuery) {
 
         List<Entity> entitiesRequiredToBlock = new ArrayList<>();
 
@@ -40,7 +41,7 @@ public class EntityLockRecognizer {
                 String parametersBody = matcher.group(3);
                 List<Property> parameters = parameterExtractor.extractParameters(parametersBody);
 
-                return graph.getAllNodes().stream()
+                return graph.context(transaction).getAllNodes().stream()
                         .filter(node -> node.getLabel().equals(label))
                         .collect(Collectors.toList());
             }

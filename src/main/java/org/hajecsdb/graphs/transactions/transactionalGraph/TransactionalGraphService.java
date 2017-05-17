@@ -110,7 +110,7 @@ public class TransactionalGraphService {
         @Override
         public Set<Node> getAllNodes() {
             return tNodes.stream()
-                    .filter(tNode -> tNode.containsTransactionChanges(transaction.getId()))
+                    .filter(tNode -> tNode.isTransactionChangesDefined(transaction.getId()))
                     .map(tNode -> (Node) tNode.getWorkingEntity(transaction.getId()))
                     .collect(Collectors.toSet());
         }

@@ -1,6 +1,5 @@
 package org.hajecsdb.graphs.cypher.clauses;
 
-import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.Property;
@@ -8,6 +7,8 @@ import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.DFA.*;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -26,7 +27,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
     public DfaAction clauseAction() {
         return new DfaAction() {
             @Override
-            public Result perform(Graph graph, Result result, CommandProcessing commandProcessing) {
+            public Result perform(TransactionalGraphService graph, Transaction transaction, Result result, CommandProcessing commandProcessing) {
                 Pattern pattern = Pattern.compile(getExpressionOfClauseRegex());
                 ClauseInvocation clauseInvocation = commandProcessing.getClauseInvocationStack().peek();
                 Matcher matcher = pattern.matcher(clauseInvocation.getSubQuery());
@@ -35,7 +36,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
                     Label label = new Label(matcher.group(2));
                     String parametersBody = matcher.group(3);
                     List<Property> parameters = parameterExtractor.extractParameters(parametersBody);
-                    matchNode(graph, result, label, parameters);
+                    matchNode(graph, transaction, result, label, parameters);
                     if (!variableName.isEmpty()) {
                         commandProcessing.getQueryContext().insert(variableName, result.copy());
                     }
@@ -44,14 +45,14 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
                 return result;
             }
 
-            void matchNode(Graph graph, Result result, Label label, List<Property> parameters) {
+            void matchNode(TransactionalGraphService graph, Transaction transaction, Result result, Label label, List<Property> parameters) {
                 result.getResults().clear();
                 List<Node> filteredNodes = null;
 
                 if (label.getName().isEmpty()) {
-                    filteredNodes = graph.getAllNodes().stream().collect(Collectors.toList());
+                    filteredNodes = graph.context(transaction).getAllNodes().stream().collect(Collectors.toList());
                 } else {
-                    filteredNodes = graph.getAllNodes().stream()
+                    filteredNodes = graph.context(transaction).getAllNodes().stream()
                             .filter(node -> node.getLabel().equals(label))
                             .collect(Collectors.toList());
                 }
