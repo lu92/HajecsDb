@@ -10,6 +10,7 @@ import org.hajecsdb.graphs.transactions.lockMechanism.LockManager;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.hajecsdb.graphs.core.ResourceType.NODE;
@@ -67,6 +68,20 @@ public class TransactionalGraphService {
         return tGraph.tRelationships.stream()
                 .filter(tRelationship -> tRelationship.isCommitted() && tRelationship.getOriginRelationship().getId() == relationshipId)
                 .map(TRelationship::getOriginRelationship).findFirst();
+    }
+
+    public Optional<Relationship> findPersistentRelationship(long beginNodeId, long endNodeId, Label label) {
+        Optional<Node> beginNodeById = getPersistentNodeById(beginNodeId);
+        Optional<Node> secondNodeById = getPersistentNodeById(endNodeId);
+
+        Predicate<Relationship> find = relationship -> relationship.getStartNode().getId() == beginNodeId
+                && relationship.getEndNode().getId() == endNodeId && relationship.getLabel().equals(label)
+                && relationship.getDirection() == Direction.OUTGOING;
+
+        if (beginNodeById.isPresent() && secondNodeById.isPresent()) {
+            return beginNodeById.get().getRelationships().stream().filter(find).findFirst();
+        } else
+            throw new IllegalArgumentException("One or both of nodes don't exist!");
     }
 
     public boolean isEntityLocked(Entity entity) {

@@ -1,5 +1,6 @@
 package HajecsDb.unitTests.cypher;
 
+import org.hajecsdb.graphs.core.Label;
 import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
@@ -74,10 +75,10 @@ public class MatchRelationshipTest {
 
         assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(7);
         assertThat(transactionalGraphService.getAllPersistentRelationships()).hasSize(4);
-//        assertThat(graph.findRelationship(3, 1, new Label("KNOW"))).isNotNull();
-//        assertThat(graph.findRelationship(1, 6, new Label("KNOW"))).isNotNull();
-//        assertThat(graph.findRelationship(2, 1, new Label("LIKES"))).isNotNull();
-//        assertThat(graph.findRelationship(2, 5, new Label("LIKES"))).isNotNull();
+        assertThat(transactionalGraphService.findPersistentRelationship(3, 1, new Label("KNOW")).isPresent()).isTrue();
+        assertThat(transactionalGraphService.findPersistentRelationship(1, 6, new Label("KNOW")).isPresent()).isTrue();
+        assertThat(transactionalGraphService.findPersistentRelationship(2, 1, new Label("LIKES")).isPresent()).isTrue();
+        assertThat(transactionalGraphService.findPersistentRelationship(2, 5, new Label("LIKES")).isPresent()).isTrue();
     }
 
     @Test
