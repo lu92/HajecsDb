@@ -33,18 +33,20 @@ public class SetClauseBuilder extends ClauseBuilder {
                     String property = matcher.group(2);
                     String value = matcher.group(3);
                     Optional<Property> propertyOptional = transformToProperty(property, value);
-                    setOrUpdate(result, propertyOptional.get());
+                    setOrUpdate(graph, transaction, result, propertyOptional.get());
                 }
                 return result;
             }
 
-            private void setOrUpdate(Result result, Property property) {
+            private void setOrUpdate(TransactionalGraphService graph, Transaction transaction,  Result result, Property property) {
                 for (Map.Entry<Integer, ResultRow> entry : result.getResults().entrySet()) {
                     Node node = entry.getValue().getNode();
-                    if (node.hasProperty(property.getKey())) {
-                        node.removeProperty(property.getKey());
+                    if (graph.context(transaction).getNodeById(node.getId()).get().hasProperty(property.getKey())) {
+//                        node.removeProperty(property.getKey());
+                        graph.context(transaction).deletePropertyFromNode(node.getId(), property.getKey());
                     }
                     node.getAllProperties().add(property);
+                    graph.context(transaction).setPropertyToNode(node.getId(), property);
                 }
                 ResultRow resultRow = new ResultRow();
                 resultRow.setContentType(ContentType.STRING);

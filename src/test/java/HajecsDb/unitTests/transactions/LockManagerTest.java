@@ -5,10 +5,10 @@ import org.fest.assertions.Assertions;
 import org.hajecsdb.graphs.core.Graph;
 import org.hajecsdb.graphs.core.Node;
 import org.hajecsdb.graphs.core.impl.GraphImpl;
-import org.hajecsdb.graphs.transactions.lockMechanism.RWMLock;
 import org.hajecsdb.graphs.transactions.lockMechanism.LockManager;
 import org.hajecsdb.graphs.transactions.lockMechanism.LockNotFoundException;
 import org.hajecsdb.graphs.transactions.lockMechanism.LockUnit;
+import org.hajecsdb.graphs.transactions.lockMechanism.ReadWriteLock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -36,9 +36,9 @@ public class LockManagerTest {
         lockManager.acquireReadLock(1, node3);
 
         // then
-        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 1))).isEqualTo(new RWMLock(1, READ));
-        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 2))).isEqualTo(new RWMLock(1, READ));
-        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 3))).isEqualTo(new RWMLock(1, READ));
+        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 1))).isEqualTo(new ReadWriteLock(1, READ));
+        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 2))).isEqualTo(new ReadWriteLock(1, READ));
+        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 3))).isEqualTo(new ReadWriteLock(1, READ));
     }
 
     @Test
@@ -58,9 +58,9 @@ public class LockManagerTest {
         lockManager.acquireWriteLock(transactionId, node3);
 
         // then
-        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 1))).isEqualTo(new RWMLock(transactionId, WRITE));
-        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 2))).isEqualTo(new RWMLock(transactionId, WRITE));
-        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 3))).isEqualTo(new RWMLock(transactionId, WRITE));
+        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 1))).isEqualTo(new ReadWriteLock(transactionId, WRITE));
+        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 2))).isEqualTo(new ReadWriteLock(transactionId, WRITE));
+        Assertions.assertThat(lockManager.getLock(new LockUnit(NODE, 3))).isEqualTo(new ReadWriteLock(transactionId, WRITE));
     }
 
     @Test
