@@ -80,7 +80,7 @@ public class CypherRestTest {
         // when
         MockHttpServletResponse response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("CREATE (n: Person)"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","CREATE (n: Person)"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();
@@ -119,7 +119,7 @@ public class CypherRestTest {
         for (int i=0; i<3; i++) {
             MockHttpServletResponse response = mockMvc.perform(post("/Cypher")
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(TestUtils.convertObjectToJsonText(new Command("CREATE (n: Person)"))))
+                    .content(TestUtils.convertObjectToJsonText(new Command("sessionId","CREATE (n: Person)"))))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn().getResponse();
@@ -144,7 +144,7 @@ public class CypherRestTest {
 
         MockHttpServletResponse response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("CREATE (n: Person)"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","CREATE (n: Person)"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();
@@ -159,7 +159,7 @@ public class CypherRestTest {
         // when
         response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("MATCH (n: Person) DELETE n"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","MATCH (n: Person) DELETE n"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();
@@ -183,7 +183,7 @@ public class CypherRestTest {
 
         MockHttpServletResponse response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("CREATE (n: Person)"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","CREATE (n: Person)"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();
@@ -198,7 +198,7 @@ public class CypherRestTest {
         // when
         response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("MATCH (n: Person) SET n.name = 'Kate'"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","MATCH (n: Person) SET n.name = 'Kate'"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();
@@ -222,7 +222,7 @@ public class CypherRestTest {
 
         MockHttpServletResponse response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("CREATE (n: Person)"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","CREATE (n: Person)"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();
@@ -237,7 +237,7 @@ public class CypherRestTest {
         // when
         response = mockMvc.perform(post("/Cypher")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(TestUtils.convertObjectToJsonText(new Command("MATCH (n: Person) REMOVE n.name"))))
+                .content(TestUtils.convertObjectToJsonText(new Command("sessionId","MATCH (n: Person) REMOVE n.name"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andReturn().getResponse();

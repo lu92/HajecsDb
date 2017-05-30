@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public final class Command {
+    private String sessionId;
     private String command;
 }

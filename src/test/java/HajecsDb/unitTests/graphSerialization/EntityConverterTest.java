@@ -191,7 +191,8 @@ public class EntityConverterTest {
                 resultRow.setDoubleValue((Double) content);
                 break;
         }
-        result.getResults().put(0, resultRow);
+        int index = result.getResults().size();
+        result.getResults().put(index, resultRow);
         return result;
     }
 }

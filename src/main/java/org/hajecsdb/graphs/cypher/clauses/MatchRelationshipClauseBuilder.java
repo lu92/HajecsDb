@@ -88,12 +88,12 @@ public class MatchRelationshipClauseBuilder extends ClauseBuilder {
                                 .distinct()
                                 .collect(Collectors.toList());
 
-//                    case OUTGOING:
-////                        System.out.println("OUTGOING");
+//                    case PLACE_TO_TRANSITION:
+////                        System.out.println("PLACE_TO_TRANSITION");
 //                        return nodes.stream()
 //                                .map(node -> node.getRelationships())
 //                                .flatMap(relationships -> relationships.stream())
-//                                .filter(relationship -> relationship.getDirection() == Direction.OUTGOING)
+//                                .filter(relationship -> relationship.getDirection() == Direction.PLACE_TO_TRANSITION)
 //                                .map(Relationship::getEndNode)
 //                                .distinct()
 //                                .collect(Collectors.toList());

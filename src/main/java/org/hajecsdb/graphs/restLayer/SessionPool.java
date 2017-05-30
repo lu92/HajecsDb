@@ -3,6 +3,7 @@ package org.hajecsdb.graphs.restLayer;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -33,5 +34,9 @@ public class SessionPool {
 
     public synchronized boolean isSessionOpen(String sessionId) {
         return sessionPool.contains(new Session(this, sessionId));
+    }
+
+    public synchronized Optional<Session> getSession(String sessionId) {
+        return sessionPool.stream().filter(session -> session.getSessionId().equals(sessionId)).findFirst();
     }
 }
