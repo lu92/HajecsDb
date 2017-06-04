@@ -18,7 +18,7 @@ public class MockedCommunicationProtocol implements CommunicationProtocol {
 
     @Override
     public void sendMessage(Message message) {
-        System.out.println(LocalDateTime.now() + "\t" + "send message to: " + message.getHostAddress() + "[" + message.getDecision() + "]");
+        System.out.println(LocalDateTime.now() + "\t" + "send message to: " + message.getHostAddress() + "[" + message.getSignal() + "]");
         for (Voter voter : participantsOfCommunication) {
             if (voter.getHostAddress().equals(message.getHostAddress())) {
                 voter.receiveMessage(message);

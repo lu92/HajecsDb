@@ -14,15 +14,11 @@ public class Transition {
     private List<Arc> inputArcList = new ArrayList<>();
     private List<Arc> outputArcList = new ArrayList<>();
     private @Getter CommunicationProtocol communicationProtocol;
+    private List<Long> disabled = new ArrayList<>();
 
     public Transition(String description, Job job) {
         this.description = description;
         this.job = job;
-    }
-
-    public void fire() {
-//        job.perform();
-
     }
 
     @Override

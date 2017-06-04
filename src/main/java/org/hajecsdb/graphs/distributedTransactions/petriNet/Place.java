@@ -1,7 +1,6 @@
 package org.hajecsdb.graphs.distributedTransactions.petriNet;
 
 import lombok.Data;
-import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,50 +36,60 @@ public class Place {
         return !tokenList.isEmpty();
     }
 
-    public void fireTransitions(CommunicationProtocol communicationProtocol, Token concreteToken) {
+    public void fireTransitions(PetriNet petriNet, Token concreteToken) {
 
-        Set<Transition> fireableTransitions = getActiveTransitions();
+        List<Transition> fireableTransitions = getActiveTransitions();
 
         Optional<Transition> chosenTransition = chooseTransition(fireableTransitions, concreteToken);
 
         if (chosenTransition.isPresent()) {
-            chosenTransition.get().getJob().perform(communicationProtocol, concreteToken);
+//            chosenTransition.get().getJob().perform(communicationProtocol, concreteToken);
             chosenTransition.get().getOutputArcList().stream()
                     .map(arc -> arc.getPlace()).forEach(nextPlace -> {
 
                 System.out.println("(" + this.description + ")->[" + chosenTransition.get().getDescription() + "]->(" + nextPlace.getDescription() + ") fired");
 
                 nextPlace.getTokenList().add(concreteToken);
-//                chosenTransition.get().getCommunicationProtocol().
             });
-//            tokenList.remove(concreteToken);
             tokenList.clear();
+            chosenTransition.get().getJob().perform(petriNet, concreteToken);
         }
     }
 
-    private Optional<Transition> chooseTransition(Set<Transition> fireableTransitions, Token token) {
+    private synchronized Optional<Transition> chooseTransition(List<Transition> fireableTransitions, Token token) {
         if (fireableTransitions.isEmpty())
             return Optional.empty();
         if (fireableTransitions.size() == 1) {
-            return Optional.of(fireableTransitions.iterator().next());
+            return Optional.of(fireableTransitions.get(0));
         } else {
-            throw new IllegalStateException("Not implemented decision!");
+
+            Set<Transition> disabledTransitions = fireableTransitions.stream()
+                    .filter(transition -> transition.getDisabled().contains(token.getDistributedTransactionId()))
+                    .collect(Collectors.toSet());
+
+            List<Transition> res = new ArrayList<>();
+            res.addAll(fireableTransitions);
+            res.removeAll(disabledTransitions);
+            if (res.size() > 1)
+                throw new IllegalStateException("Not implemented decision!");
+
+            return Optional.of(res.get(0));
         }
     }
 
-    private Set<Transition> getActiveTransitions() {
+    private List<Transition> getActiveTransitions() {
         int numberOfTokens = tokenList.size();
         return outputArcSet.stream()
                 .filter(arc -> arc.getArcDirection() == ArcDirection.PLACE_TO_TRANSITION && arc.getWeight() == numberOfTokens)
                 .map(Arc::getTransition)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    public void choseTransition(Transition transition) {
-        Optional<Arc> arcOptional = this.getOutputArcSet().stream().filter(arc -> !arc.getTransition().equals(transition)).findFirst();
-        if (arcOptional.isPresent()) {
-            getOutputArcSet().remove(arcOptional.get());
-        } else if (outputArcSet.size() > 1)
-            throw new IllegalStateException("Cannot find arc to transition[" + transition.getDescription() + "]");
+    public void disableTransition(long distributedTransactionId, String transitionDescription) {
+        Arc outgoingArc = getOutputArcSet().stream()
+                .filter(arc -> arc.getTransition().getDescription().equalsIgnoreCase(transitionDescription))
+                .findFirst().get();
+        outgoingArc.getTransition().getDisabled().add(distributedTransactionId);
+        System.out.println(transitionDescription + " is disabled!");
     }
 }

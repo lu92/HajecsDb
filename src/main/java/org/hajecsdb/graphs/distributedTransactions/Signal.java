@@ -1,6 +1,6 @@
 package org.hajecsdb.graphs.distributedTransactions;
 
-public enum Decision {
+public enum Signal {
 
     // Coordinator's possible decisions
     PREPARE,

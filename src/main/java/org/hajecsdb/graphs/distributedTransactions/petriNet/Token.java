@@ -2,16 +2,13 @@ package org.hajecsdb.graphs.distributedTransactions.petriNet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hajecsdb.graphs.distributedTransactions.HostAddress;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 public class Token {
     private long distributedTransactionId;
-    private HostAddress coordinatorHostAddress;
-    private List<HostAddress> participantHostAddressList;
+//    private HostAddress coordinatorHostAddress;
+//    private List<HostAddress> participantHostAddressList;
 
     @Override
     public boolean equals(Object o) {

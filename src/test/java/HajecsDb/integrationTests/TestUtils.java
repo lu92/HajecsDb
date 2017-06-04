@@ -2,7 +2,9 @@ package HajecsDb.integrationTests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hajecsdb.graphs.restLayer.dto.Command;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
+import org.hajecsdb.graphs.restLayer.dto.SessionDto;
 import org.hamcrest.Matcher;
 import org.hamcrest.number.BigDecimalCloseTo;
 import org.springframework.http.MediaType;
@@ -37,6 +39,16 @@ public class TestUtils {
     public static ResultDto castToResult(String jsonInString) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(jsonInString, ResultDto.class);
+    }
+
+    public static Command castToCommand(String jsonInString) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(jsonInString, Command.class);
+    }
+
+    public static SessionDto castToSession(String jsonInString) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(jsonInString, SessionDto.class);
     }
 
     public static List<Integer> LocalDateTime2JSonFigure(LocalDateTime ldt)

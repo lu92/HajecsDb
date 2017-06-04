@@ -8,5 +8,5 @@ import lombok.Data;
 public class Message {
     private long distributedTransactionId;
     private HostAddress hostAddress;
-    private Decision decision;
+    private Signal signal;
 }

@@ -2,6 +2,8 @@ package org.hajecsdb.graphs.distributedTransactions.petriNet;
 
 import lombok.Data;
 import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
+import org.hajecsdb.graphs.distributedTransactions.Coordinator;
+import org.hajecsdb.graphs.distributedTransactions.Participant;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -15,11 +17,19 @@ public class PetriNet {
     private Set<Transition> transitions = new HashSet<>();
     private CommunicationProtocol communicationProtocol;
 
+    private Coordinator coordinator;
+    private Participant participant;
+
     private Set<Place> coordinatorFlowPlaces = new HashSet<>();
     private Set<Place> participantFlowPlaces = new HashSet<>();
 
-    public void push(Token token) {
+    public void pushInCoordinatorFlow(Token token) {
         beginPlace.getTokenList().add(token);
+    }
+
+    public void pushInParticipantFlow(Token token) {
+        Place participantInitPlace = getPlace("P5-INITIAL").get();
+        participantInitPlace.getTokenList().add(token);
     }
 
     public Set<String> getNamesOfActivePlaces() {
@@ -36,10 +46,19 @@ public class PetriNet {
     }
 
     public void fireTransitions(Token token) {
-        getActivePlaces().stream().forEach(place -> place.fireTransitions(communicationProtocol, token));
+        getActivePlaces().stream().forEach(place -> place.fireTransitions(this, token));
     }
 
-    public void choseConcreteTransition(Place place) {
+    public void fireTransitionsInCoordinatorFlow(Token token) {
+        getActivePlaces().stream()
+                .filter(place -> coordinatorFlowPlaces.contains(place))
+                .forEach(place -> place.fireTransitions(this, token));
+    }
+
+    public void fireTransitionsInParticipantFlow(Token token) {
+        getActivePlaces().stream()
+                .filter(place -> participantFlowPlaces.contains(place))
+                .forEach(place -> place.fireTransitions(this, token));
     }
 
     public Optional<Place> getPlace(String description) {
