@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
+
 public class Coordinator extends Voter {
 
     private Queue<Message> receivedMessages = new LinkedList<>();
@@ -31,55 +33,116 @@ public class Coordinator extends Voter {
 
     @Override
     public void receiveMessage(Message message) {
+        long distributedTransactionId = message.getDistributedTransactionId();
         System.out.println(LocalDateTime.now() + "\t" + hostAddress + " received: " + message);
         receivedMessages.add(message);
 
-        if (isWaitingState(message.getDistributedTransactionId())) {
-            System.out.println("WAITING");
-            if (receivedMessages.size() == this.numberOfParticipantsOfDistributedTransaction) {
-                Place P1_wait = petriNet.getPlace("P1-WAIT").get();
-                P1_wait.getTokenList().add(new Token(message.getDistributedTransactionId()));
-                if (allParticipantsAreReady()) {
-                    // disable T4 transition
-                    P1_wait.disableTransition(message.getDistributedTransactionId(), "T4");
-                } else {
-                    // disable T3 transition
-                    P1_wait.disableTransition(message.getDistributedTransactionId(), "T3");
+        switch(message.getSignal()) {
+
+            case VOTE_COMMIT:
+                if (isWaitingState(distributedTransactionId)) {
+                    System.out.println("WAITING");
+                    if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
+                        Place P1_wait = petriNet.getPlace("P1-WAIT").get();
+                        P1_wait.getTokenList().add(new Token(distributedTransactionId));
+                        if (allParticipantsAreReady(distributedTransactionId)) {
+                            // disable T4 transition
+                            P1_wait.disableTransition(distributedTransactionId, "T4");
+                        } else {
+                            // disable T3 transition
+                            P1_wait.disableTransition(distributedTransactionId, "T3");
+                        }
+
+                        // remove from receivedMessage all messages which has received transaction id
+                        // and VOTE_COMMIT OR VOTE ABORT SIGNAL
+
+                        List<Message> messagesToDelete = receivedMessages.stream()
+                                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId
+                                        && (receivedMessage.getSignal() == VOTE_COMMIT || receivedMessage.getSignal() == VOTE_ABORT))
+                                .collect(Collectors.toList());
+
+                        receivedMessages.removeAll(messagesToDelete);
+                    }
                 }
-            }
-        }
-        if (message.getSignal() == Signal.PREPARE_TO_COMMIT) {
-            Place P3_pre_commit = petriNet.getPlace("P3-PRE-COMMIT").get();
-            P3_pre_commit.getTokenList().add(new Token(message.getDistributedTransactionId()));
-        }
-        if (message.getSignal() == Signal.READY_TO_COMMIT) {
-            Place P3_pre_commit = petriNet.getPlace("P3-PRE-COMMIT").get();
-            P3_pre_commit.getTokenList().add(new Token(message.getDistributedTransactionId()));
-        }
-        if (message.getSignal() == Signal.ACK) {
-            receivedMessages.add(message);
-            Place P4_commit = petriNet.getPlace("P4-COMMIT").get();
-            P4_commit.getTokenList().add(new Token(message.getDistributedTransactionId()));
-            if (allParticipantsCommittedTransaction(message)) {
-                System.out.println("DISTRIBUTED TRANSACTION [" + message.getDistributedTransactionId() + "] HAS BEEN COMMITTED!");
-            }
+                break;
 
-            // clear messages related with committed distributed transaction
-            List<Message> messagesToDelete = getReceivedMessages().stream()
-                    .filter(receiveMessage -> receiveMessage.getDistributedTransactionId() == message.getDistributedTransactionId())
+            case VOTE_ABORT:
+                if (isWaitingState(distributedTransactionId)) {
+                    System.out.println("WAITING");
+                    if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
+                        Place P1_wait = petriNet.getPlace("P1-WAIT").get();
+                        P1_wait.getTokenList().add(new Token(distributedTransactionId));
+                        if (allParticipantsAreReady(distributedTransactionId)) {
+                            // disable T4 transition
+                            P1_wait.disableTransition(distributedTransactionId, "T4");
+                        } else {
+                            // disable T3 transition
+                            P1_wait.disableTransition(distributedTransactionId, "T3");
+                        }
+
+                        // remove from receivedMessage all messages which has received transaction id
+                        // and VOTE_COMMIT OR VOTE ABORT SIGNAL
+
+                        List<Message> messagesToDelete = receivedMessages.stream()
+                                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId
+                                        && (receivedMessage.getSignal() == VOTE_COMMIT || receivedMessage.getSignal() == VOTE_ABORT))
+                                .collect(Collectors.toList());
+
+                        receivedMessages.removeAll(messagesToDelete);
+                        deleteMessagesRelatedWithTransaction(distributedTransactionId);
+                    }
+                }
+                break;
+
+            case READY_TO_COMMIT:
+                Place P3_pre_commit = petriNet.getPlace("P3-PRE-COMMIT").get();
+                P3_pre_commit.getTokenList().add(new Token(distributedTransactionId));
+                break;
+
+            case ACK:
+                receivedMessages.add(message);
+                Place P4_commit = petriNet.getPlace("P4-COMMIT").get();
+                P4_commit.getTokenList().add(new Token(distributedTransactionId));
+                if (allParticipantsCommittedTransaction(distributedTransactionId)) {
+                    System.out.println("DISTRIBUTED TRANSACTION [" + distributedTransactionId + "] HAS BEEN COMMITTED!");
+                }
+                deleteMessagesRelatedWithTransaction(distributedTransactionId);
+                break;
+        }
+    }
+
+    private void deleteMessagesRelatedWithTransaction(long distributedTransactionId) {
+        // clear messages related with committed distributed transaction
+        List<Message> messagesToDelete = getReceivedMessages().stream()
+                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId)
+                .collect(Collectors.toList());
+        receivedMessages.removeAll(messagesToDelete);
+        System.out.println("COORDINATOR HAS REMOVED MESSAGES RELATED WITH [" + distributedTransactionId + "] DISTRIBUTED TRANSACTION");
+
+        petriNet.getPlaces().stream().forEach(place -> {
+            List<Token> tokenList = place.getTokenList().stream()
+                    .filter(token -> token.getDistributedTransactionId() == distributedTransactionId)
                     .collect(Collectors.toList());
-            receivedMessages.removeAll(messagesToDelete);
-            System.out.println("COORDINATOR HAS REMOVED MESSAGES RELATED WITH [" + message.getDistributedTransactionId() + "] DISTRIBUTED TRANSACTION");
-        }
+            place.getTokenList().removeAll(tokenList);
+        });
     }
 
-    private boolean allParticipantsAreReady() {
-        return receivedMessages.stream().allMatch(receivedMessage -> receivedMessage.getSignal() == Signal.VOTE_COMMIT);
+    private boolean eachParticipantHasVotedCommitOrAbort(long distributedTransactionId) {
+        return getReceivedMessages().stream()
+                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId)
+                .filter(receivedMessage -> receivedMessage.getSignal() == VOTE_COMMIT || receivedMessage.getSignal() == VOTE_ABORT)
+                .count() == this.numberOfParticipantsOfDistributedTransaction;
     }
 
-    private boolean allParticipantsCommittedTransaction(Message message) {
+    private boolean allParticipantsAreReady(long distributedTransactionId) {
         return receivedMessages.stream()
-                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == message.getDistributedTransactionId() && receivedMessage.getSignal() == Signal.ACK)
+                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId)
+                .allMatch(receivedMessage -> receivedMessage.getSignal() == VOTE_COMMIT);
+    }
+
+    private boolean allParticipantsCommittedTransaction(long distributedTransactionId) {
+        return receivedMessages.stream()
+                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId && receivedMessage.getSignal() == ACK)
                 .count() == numberOfParticipantsOfDistributedTransaction;
     }
 

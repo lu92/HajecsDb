@@ -72,7 +72,7 @@ public class ApplicationController {
                 restCommunicationProtocol,
                 new HostAddress("127.0.0.1", 8000));
 
-        participant.abortDistributedTransaction(true);
+        participant.abortDistributedTransaction(false);
 
         threePhaseCommitPetriNet.setCoordinator(coordinator);
         threePhaseCommitPetriNet.setParticipant(participant);
@@ -153,11 +153,10 @@ public class ApplicationController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/abortTransaction")
     @ResponseBody
-    public String abortTransactionByParticipant(AbortTransactionDto abortTransaction) {
+    public String abortTransactionByParticipant(@RequestBody AbortTransactionDto abortTransaction) {
         participant.abortDistributedTransaction(abortTransaction.isAbort());
         return "Distributed Transaction [" + abortTransaction.getDistributedTransactionId() + "] will be aborted by Participant[" + port + "]";
     }
-
 
 
     @RequestMapping(method = RequestMethod.POST, path = "/3pc/receive")
