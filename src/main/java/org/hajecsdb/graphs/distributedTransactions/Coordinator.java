@@ -41,8 +41,9 @@ public class Coordinator extends Voter {
 
             case VOTE_COMMIT:
                 if (isWaitingState(distributedTransactionId)) {
-                    System.out.println("WAITING");
+                    System.out.println("RECEIVED VOTE COMMIT");
                     if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
+                        System.out.println("ALL PARTICIPANTS VOTED");
                         Place P1_wait = petriNet.getPlace("P1-WAIT").get();
                         P1_wait.getTokenList().add(new Token(distributedTransactionId));
                         if (allParticipantsAreReady(distributedTransactionId)) {
@@ -95,20 +96,29 @@ public class Coordinator extends Voter {
                 break;
 
             case READY_TO_COMMIT:
-                Place P3_pre_commit = petriNet.getPlace("P3-PRE-COMMIT").get();
-                P3_pre_commit.getTokenList().add(new Token(distributedTransactionId));
+                if (allParticipantsArePreparedToCommit(distributedTransactionId)) {
+                    Place P3_pre_commit = petriNet.getPlace("P3-PRE-COMMIT").get();
+                    P3_pre_commit.getTokenList().add(new Token(distributedTransactionId));
+                    System.out.println("ALL PARTICIPANTS SENDED READY-TO-COMMIT");
+                }
                 break;
 
             case ACK:
-                receivedMessages.add(message);
-                Place P4_commit = petriNet.getPlace("P4-COMMIT").get();
-                P4_commit.getTokenList().add(new Token(distributedTransactionId));
                 if (allParticipantsCommittedTransaction(distributedTransactionId)) {
+                    Place P4_commit = petriNet.getPlace("P4-COMMIT").get();
+                    P4_commit.getTokenList().add(new Token(distributedTransactionId));
                     System.out.println("DISTRIBUTED TRANSACTION [" + distributedTransactionId + "] HAS BEEN COMMITTED!");
+                    deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 }
-                deleteMessagesRelatedWithTransaction(distributedTransactionId);
+//                deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 break;
         }
+    }
+
+    private boolean allParticipantsArePreparedToCommit(long distributedTransactionId) {
+        return receivedMessages.stream()
+                .filter(receivedMessage -> receivedMessage.getDistributedTransactionId() == distributedTransactionId && receivedMessage.getSignal() == READY_TO_COMMIT)
+                .count() == numberOfParticipantsOfDistributedTransaction;
     }
 
     private void deleteMessagesRelatedWithTransaction(long distributedTransactionId) {

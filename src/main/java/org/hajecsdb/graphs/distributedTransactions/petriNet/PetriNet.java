@@ -5,9 +5,7 @@ import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
 import org.hajecsdb.graphs.distributedTransactions.Coordinator;
 import org.hajecsdb.graphs.distributedTransactions.Participant;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -18,7 +16,7 @@ public class PetriNet {
     private CommunicationProtocol communicationProtocol;
 
     private Coordinator coordinator;
-    private Participant participant;
+    private List<Participant> participantList = new ArrayList<>();
 
     private Set<Place> coordinatorFlowPlaces = new HashSet<>();
     private Set<Place> participantFlowPlaces = new HashSet<>();

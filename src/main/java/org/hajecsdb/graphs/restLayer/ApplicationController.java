@@ -18,9 +18,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class ApplicationController {
@@ -58,24 +56,39 @@ public class ApplicationController {
 
     private Coordinator coordinator;
 
-    private Participant participant;
+    private List<Participant> participantList;
 
     public ApplicationController() {
         coordinator = new Coordinator(
                 threePhaseCommitPetriNet,
                 restCommunicationProtocol,
                 new HostAddress("127.0.0.1", 7000),
-                1);
+                2);
 
-        participant = new Participant(
+        Participant participant1 = new Participant(
                 threePhaseCommitPetriNet,
                 restCommunicationProtocol,
                 new HostAddress("127.0.0.1", 8000));
 
-        participant.abortDistributedTransaction(false);
+        participant1.abortDistributedTransaction(false);
+
+        Participant participant2 = new Participant(
+                threePhaseCommitPetriNet,
+                restCommunicationProtocol,
+                new HostAddress("127.0.0.1", 9000));
+
+        participant2.abortDistributedTransaction(false);
+
+        participantList = Arrays.asList(participant1, participant2);
 
         threePhaseCommitPetriNet.setCoordinator(coordinator);
-        threePhaseCommitPetriNet.setParticipant(participant);
+        threePhaseCommitPetriNet.setParticipantList(participantList);
+    }
+
+    private Participant getParticipant() {
+        return participantList.stream()
+                .filter(participant -> participant.getHostAddress().getPort() == port)
+                .findFirst().get();
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/Session")
@@ -154,7 +167,7 @@ public class ApplicationController {
     @RequestMapping(method = RequestMethod.POST, path = "/abortTransaction")
     @ResponseBody
     public String abortTransactionByParticipant(@RequestBody AbortTransactionDto abortTransaction) {
-        participant.abortDistributedTransaction(abortTransaction.isAbort());
+        getParticipant().abortDistributedTransaction(abortTransaction.isAbort());
         return "Distributed Transaction [" + abortTransaction.getDistributedTransactionId() + "] will be aborted by Participant[" + port + "]";
     }
 
@@ -194,7 +207,7 @@ public class ApplicationController {
                         break;
                 }
 
-                participant.receiveMessage(message);
+                getParticipant().receiveMessage(message);
                 threePhaseCommitPetriNet.fireTransitionsInParticipantFlow(new Token(message.getDistributedTransactionId()));
                 break;
         }
