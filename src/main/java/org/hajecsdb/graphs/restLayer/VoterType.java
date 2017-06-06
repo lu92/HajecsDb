@@ -1,6 +1,6 @@
 package org.hajecsdb.graphs.restLayer;
 
-public enum VoterRole {
+public enum VoterType {
     COORDINATOR,
     PARTICIPANT
 }

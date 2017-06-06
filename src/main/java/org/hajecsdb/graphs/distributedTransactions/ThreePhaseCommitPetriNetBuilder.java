@@ -5,6 +5,8 @@ import org.hajecsdb.graphs.distributedTransactions.petriNet.*;
 import java.util.List;
 
 import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
+import static org.hajecsdb.graphs.restLayer.VoterType.COORDINATOR;
+import static org.hajecsdb.graphs.restLayer.VoterType.PARTICIPANT;
 
 public class ThreePhaseCommitPetriNetBuilder {
 
@@ -33,16 +35,16 @@ public class ThreePhaseCommitPetriNetBuilder {
         };
 
         // Coordinator part
-        Place P0_INITIAL = petriNetBuilder.place("P0-INITIAL", defaultChoseTransition);
-        Place P1_WAIT = petriNetBuilder.place("P1-WAIT", new ChoseTransition() {
+        Place P0_INITIAL = petriNetBuilder.place("P0-INITIAL", COORDINATOR, defaultChoseTransition);
+        Place P1_WAIT = petriNetBuilder.place("P1-WAIT", COORDINATOR, new ChoseTransition() {
             @Override
             public Transition chose(List<Transition> transitionOptions) {
                 return null;
             }
         });
-        Place P2_ABORT = petriNetBuilder.place("P2-ABORT");
-        Place P3_PRE_COMMIT = petriNetBuilder.place("P3-PRE-COMMIT");
-        Place P4_COMMIT = petriNetBuilder.place("P4-COMMIT");
+        Place P2_ABORT = petriNetBuilder.place("P2-ABORT", COORDINATOR);
+        Place P3_PRE_COMMIT = petriNetBuilder.place("P3-PRE-COMMIT", COORDINATOR);
+        Place P4_COMMIT = petriNetBuilder.place("P4-COMMIT", COORDINATOR);
 
 
         petriNetBuilder.addPlaceToCoordinatorFlow(P0_INITIAL);
@@ -114,16 +116,16 @@ public class ThreePhaseCommitPetriNetBuilder {
 
 
         // Participant part
-        Place P5_INITIAL = petriNetBuilder.place("P5-INITIAL", new ChoseTransition() {
+        Place P5_INITIAL = petriNetBuilder.place("P5-INITIAL", PARTICIPANT, new ChoseTransition() {
             @Override
             public Transition chose(List<Transition> transitionOptions) {
                 return null;
             }
         });
-        Place P6_ABORT = petriNetBuilder.place("P6-ABORT");
-        Place P7_READY = petriNetBuilder.place("P7-READY");
-        Place P8_PRE_COMMIT = petriNetBuilder.place("P8-PRE-COMMIT");
-        Place P9_COMMIT = petriNetBuilder.place("P9-COMMIT");
+        Place P6_ABORT = petriNetBuilder.place("P6-ABORT", PARTICIPANT);
+        Place P7_READY = petriNetBuilder.place("P7-READY", PARTICIPANT);
+        Place P8_PRE_COMMIT = petriNetBuilder.place("P8-PRE-COMMIT", PARTICIPANT);
+        Place P9_COMMIT = petriNetBuilder.place("P9-COMMIT", PARTICIPANT);
 
 
         petriNetBuilder.addPlaceToParticipantFlow(P5_INITIAL);

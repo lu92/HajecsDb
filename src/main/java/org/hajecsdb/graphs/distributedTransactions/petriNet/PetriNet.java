@@ -27,7 +27,9 @@ public class PetriNet {
 
     public void pushInParticipantFlow(Token token) {
         Place participantInitPlace = getPlace("P5-INITIAL").get();
-        participantInitPlace.getTokenList().add(token);
+        if (!participantInitPlace.getTokenList().contains(token)) {
+            participantInitPlace.getTokenList().add(token);
+        }
     }
 
     public Set<String> getNamesOfActivePlaces() {
@@ -41,10 +43,6 @@ public class PetriNet {
         return places.stream()
                 .filter(place -> place.hasTokens())
                 .collect(Collectors.toSet());
-    }
-
-    public void fireTransitions(Token token) {
-        getActivePlaces().stream().forEach(place -> place.fireTransitions(this, token));
     }
 
     public void fireTransitionsInCoordinatorFlow(Token token) {
@@ -63,7 +61,7 @@ public class PetriNet {
         return places.stream().filter(place -> place.getDescription().equalsIgnoreCase(description)).findFirst();
     }
 
-    public Optional<Transition> getTransition(String description) {
-        return transitions.stream().filter(transition -> transition.getDescription().equalsIgnoreCase(description)).findFirst();
-    }
+//    public Optional<Transition> getTransition(String description) {
+//        return transitions.stream().filter(transition -> transition.getDescription().equalsIgnoreCase(description)).findFirst();
+//    }
 }

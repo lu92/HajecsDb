@@ -1,6 +1,7 @@
 package org.hajecsdb.graphs.distributedTransactions.petriNet;
 
 import lombok.Data;
+import org.hajecsdb.graphs.restLayer.VoterType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,9 +13,10 @@ public class Place {
     private Set<Arc> inputArcSet = new HashSet<>();
     private Set<Arc> outputArcSet = new HashSet<>();
     private ChoseTransition choseTransition;
-
-    public Place(String description) {
+    private VoterType voterType;
+    public Place(String description, VoterType voterType) {
         this.description = description;
+        this.voterType = voterType;
     }
 
     @Override
@@ -49,7 +51,9 @@ public class Place {
 
                 System.out.println("(" + this.description + ")->[" + chosenTransition.get().getDescription() + "]->(" + nextPlace.getDescription() + ") fired");
 
-                nextPlace.getTokenList().add(concreteToken);
+                if (this.voterType == nextPlace.voterType) {
+                    nextPlace.getTokenList().add(concreteToken);
+                }
             });
             tokenList.clear();
             chosenTransition.get().getJob().perform(petriNet, concreteToken);

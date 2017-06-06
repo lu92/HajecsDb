@@ -1,6 +1,7 @@
 package org.hajecsdb.graphs.distributedTransactions.petriNet;
 
 import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
+import org.hajecsdb.graphs.restLayer.VoterType;
 
 public class PetriNetBuilder {
 
@@ -14,14 +15,14 @@ public class PetriNetBuilder {
         petriNet.setCommunicationProtocol(communicationProtocol);
     }
 
-    public Place place(String description) {
-        Place createdPlace = new Place(description);
+    public Place place(String description, VoterType voterType) {
+        Place createdPlace = new Place(description, voterType);
         petriNet.getPlaces().add(createdPlace);
         return createdPlace;
     }
 
-    public Place place(String description, ChoseTransition choseTransition) {
-        Place createdPlace = new Place(description);
+    public Place place(String description, VoterType voterType, ChoseTransition choseTransition) {
+        Place createdPlace = new Place(description, voterType);
         createdPlace.setChoseTransition(choseTransition);
         petriNet.getPlaces().add(createdPlace);
         return createdPlace;

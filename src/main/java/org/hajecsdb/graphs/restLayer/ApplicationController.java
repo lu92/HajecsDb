@@ -7,18 +7,18 @@ import org.hajecsdb.graphs.distributedTransactions.*;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Place;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
-import org.hajecsdb.graphs.restLayer.config.VoterConfig;
 import org.hajecsdb.graphs.restLayer.dto.*;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
 
 @RestController
 public class ApplicationController {
@@ -32,11 +32,11 @@ public class ApplicationController {
     @Autowired
     private CypherExecutor cypherExecutor;
 
-    @Autowired
-    private Environment environment;
+//    @Autowired
+//    private Environment environment;
 
-    @Autowired(required = false)
-    private VoterConfig voterConfig;
+//    @Autowired(required = false)
+//    private VoterConfig voterConfig;
 
     @Value("${server.port}")
     private int port;
@@ -65,6 +65,13 @@ public class ApplicationController {
                 new HostAddress("127.0.0.1", 7000),
                 2);
 
+        Participant participant0 = new Participant(
+                threePhaseCommitPetriNet,
+                restCommunicationProtocol,
+                new HostAddress("127.0.0.1", 7000));
+
+        participant0.abortDistributedTransaction(true);
+
         Participant participant1 = new Participant(
                 threePhaseCommitPetriNet,
                 restCommunicationProtocol,
@@ -77,9 +84,9 @@ public class ApplicationController {
                 restCommunicationProtocol,
                 new HostAddress("127.0.0.1", 9000));
 
-        participant2.abortDistributedTransaction(false);
+        participant2.abortDistributedTransaction(true);
 
-        participantList = Arrays.asList(participant1, participant2);
+        participantList = Arrays.asList(participant0, participant1, participant2);
 
         threePhaseCommitPetriNet.setCoordinator(coordinator);
         threePhaseCommitPetriNet.setParticipantList(participantList);
@@ -176,7 +183,9 @@ public class ApplicationController {
     @ResponseBody
     public void messageReceived(@RequestBody Message message) {
 
-        String profile = environment.getActiveProfiles()[0];
+//        String profile = environment.getActiveProfiles()[0];
+        String profile = getProfile(message.getSignal());
+
 
         switch (profile.toUpperCase()) {
             case "COORDINATOR":
@@ -211,6 +220,22 @@ public class ApplicationController {
                 threePhaseCommitPetriNet.fireTransitionsInParticipantFlow(new Token(message.getDistributedTransactionId()));
                 break;
         }
+    }
+
+    private String getProfile(Signal signal) {
+        List<Signal> coordinatorSignals = Arrays.asList(PREPARE,
+                GLOBAL_ABORT,
+                PREPARE_TO_COMMIT,
+                GLOBAL_COMMIT);
+
+        List<Signal> participantSignals = Arrays.asList(VOTE_ABORT,
+                VOTE_COMMIT,
+                READY_TO_COMMIT,
+                ACK);
+
+        if (coordinatorSignals.contains(signal))
+            return "participant";
+        return "coordinator";
     }
 
 

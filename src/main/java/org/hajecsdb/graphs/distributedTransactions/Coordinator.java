@@ -69,8 +69,9 @@ public class Coordinator extends Voter {
 
             case VOTE_ABORT:
                 if (isWaitingState(distributedTransactionId)) {
-                    System.out.println("WAITING");
+                    System.out.println("RECEIVED VOTE COMMIT");
                     if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
+                        System.out.println("ALL PARTICIPANTS VOTED");
                         Place P1_wait = petriNet.getPlace("P1-WAIT").get();
                         P1_wait.getTokenList().add(new Token(distributedTransactionId));
                         if (allParticipantsAreReady(distributedTransactionId)) {
@@ -90,7 +91,6 @@ public class Coordinator extends Voter {
                                 .collect(Collectors.toList());
 
                         receivedMessages.removeAll(messagesToDelete);
-                        deleteMessagesRelatedWithTransaction(distributedTransactionId);
                     }
                 }
                 break;
