@@ -1,8 +1,10 @@
 package org.hajecsdb.graphs.distributedTransactions;
 
+import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Place;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
+import org.hajecsdb.graphs.transactions.Transaction;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -10,15 +12,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Participant extends Voter {
 
-    private boolean abortDistributedTransaction;
+public class Participant extends Voter {
     private HostAddress coordinatorHostAddress;
     private Map<Long, Boolean> transactionsToAbort = new HashMap<>();
+    private Map<Long, Transaction> openedTransactions = new HashMap<>();
+    private CypherExecutor cypherExecutor;
 
-    public Participant(PetriNet petriNet, CommunicationProtocol communicationProtocol, HostAddress hostAddress, HostAddress coordinatorHostAddress) {
+    public Participant(PetriNet petriNet, CommunicationProtocol communicationProtocol, HostAddress hostAddress, HostAddress coordinatorHostAddress, CypherExecutor cypherExecutor) {
         super(petriNet, communicationProtocol, hostAddress);
         this.coordinatorHostAddress = coordinatorHostAddress;
+        this.cypherExecutor = cypherExecutor;
     }
 
     @Override
@@ -31,22 +35,31 @@ public class Participant extends Voter {
         System.out.println(LocalDateTime.now() + "\t" + hostAddress + " received: " + message);
         switch (message.getSignal()) {
             case PREPARE:
-                Token token = new Token(message.getDistributedTransactionId());
+                Token token = new Token(message.getDistributedTransactionId(), message.getCommand());
                 petriNet.pushInParticipantFlow(token);
                 break;
 
             case PREPARE_TO_COMMIT:
                 Place P7_ready = petriNet.getPlace("P7-READY").get();
-                P7_ready.getTokenList().add(new Token(message.getDistributedTransactionId()));
+                P7_ready.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommand()));
                 System.out.println("RECEIVED PREPARE_TO_COMMIT");
+
+//                cypherExecutor.execute(null, message.getCommand());
+
                 break;
 
             case GLOBAL_COMMIT:
 //                Place P7_ready_2 = petriNet.getPlace("P7-READY").get();
 //                P7_ready_2.getTokenList().add(new Token(message.getDistributedTransactionId()));
                 Place P7_ready_2 = petriNet.getPlace("P8-PRE-COMMIT").get();
-                P7_ready_2.getTokenList().add(new Token(message.getDistributedTransactionId()));
+                P7_ready_2.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommand()));
+
+//                Session session = sessionPool.createSession();
+//                session.setTransactionManager(transactionManager);
+//                Transaction transaction = session.beginTransaction();
+//                cypherExecutor.getTransactionalGraphService().context(transaction).commit();
                 System.out.println("RECEIVED GLOBAL_COMMIT");
+
 
 //                petriNet.getPlaces().stream().forEach(place -> {
 //                    List<Token> tokenList = place.getTokenList().stream()
@@ -85,7 +98,6 @@ public class Participant extends Voter {
 
     public void abortDistributedTransaction(long distributedTransactionId, boolean decision) {
         transactionsToAbort.put(distributedTransactionId, decision);
-        this.abortDistributedTransaction = true;
     }
 
 

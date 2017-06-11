@@ -15,13 +15,13 @@ public class LockingProtocolManager {
     private EntityLockRecognizer entityLockRecognizer = new EntityLockRecognizer();
     private CypherExecutor cypherExecutor = new CypherExecutor();
 
-    public void provideLockedResources(TransactionalGraphService graph, Transaction transaction) {
-        growingPhase(graph, transaction);
-        transaction.getScope().getOperations()
-                .forEach(operation -> cypherExecutor.execute(graph, transaction, operation.getCypherQuery()));
-        transaction.commit();
-        shrinkingPhase();
-    }
+//    public void provideLockedResources(TransactionalGraphService graph, Transaction transaction) {
+//        growingPhase(graph, transaction);
+//        transaction.getScope().getOperations()
+//                .forEach(operation -> cypherExecutor.execute(graph, transaction, operation.getCypherQuery()));
+//        transaction.commit();
+//        shrinkingPhase();
+//    }
 
     public void growingPhase(TransactionalGraphService graph, Transaction transaction) {
         transaction.getScope().getOperations().forEach(operation -> {

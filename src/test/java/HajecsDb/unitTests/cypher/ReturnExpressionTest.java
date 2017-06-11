@@ -6,7 +6,6 @@ import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
-import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -23,12 +22,11 @@ public class ReturnExpressionTest {
     public void expectedIntValueFromNode() {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n.age";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -45,12 +43,11 @@ public class ReturnExpressionTest {
     public void expectedStringValueFromNode() {
         // given
         String command = "CREATE (n: Person {name: 'Robert'}) RETURN n.name";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -67,12 +64,11 @@ public class ReturnExpressionTest {
     public void expectedDoubleValueFromNode() {
         // given
         String command = "CREATE (n: Person {salary: 3000.00}) RETURN n.salary";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         // then
         ResultRow expectedResultRow = new ResultRow();
@@ -89,12 +85,11 @@ public class ReturnExpressionTest {
     public void expectedNullValueFromNode() {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n.missingProperty";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         // then
         assertThat(result.isCompleted()).isTrue();
@@ -108,17 +103,16 @@ public class ReturnExpressionTest {
     public void expectedNodeValue() {
         // given
         String command = "CREATE (n: Person {age: 25}) RETURN n";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         // then
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.NODE);
-        expectedResultRow.setNode(transactionalGraphService.getPersistentNodeById(1).get());
+        expectedResultRow.setNode(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get());
 
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo(command);
@@ -130,20 +124,19 @@ public class ReturnExpressionTest {
     public void expectedRelationshipValue() {
         // given
         String command = "MATCH (f {name : 'first'}) MATCH (s {name : 'second'}) CREATE (f)-[r:CONNECTED]->(s) RETURN r";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        cypherExecutor.execute(transactionalGraphService, transaction, "CREATE (n: Person {name: 'first'})");
-        cypherExecutor.execute(transactionalGraphService, transaction, "CREATE (n: Person {name: 'second'})");
+        cypherExecutor.execute(transaction, "CREATE (n: Person {name: 'first'})");
+        cypherExecutor.execute(transaction, "CREATE (n: Person {name: 'second'})");
 
         //when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         // then
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(ContentType.RELATIONSHIP);
-        expectedResultRow1.setRelationship(transactionalGraphService.getPersistentRelationshipById(3).get());
+        expectedResultRow1.setRelationship(cypherExecutor.getTransactionalGraphService().getPersistentRelationshipById(3).get());
 
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo(command);

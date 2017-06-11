@@ -43,7 +43,7 @@ public class Coordinator extends Voter {
                     if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
                         System.out.println("ALL PARTICIPANTS VOTED");
                         Place P1_wait = petriNet.getPlace("P1-WAIT").get();
-                        P1_wait.getTokenList().add(new Token(distributedTransactionId));
+                        P1_wait.getTokenList().add(new Token(distributedTransactionId, message.getCommand()));
                         if (allParticipantsAreReady(distributedTransactionId)) {
                             // disable T4 transition
                             P1_wait.disableTransition(distributedTransactionId, "T4");
@@ -72,7 +72,7 @@ public class Coordinator extends Voter {
                     if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
                         System.out.println("ALL PARTICIPANTS VOTED");
                         Place P1_wait = petriNet.getPlace("P1-WAIT").get();
-                        P1_wait.getTokenList().add(new Token(distributedTransactionId));
+                        P1_wait.getTokenList().add(new Token(distributedTransactionId, message.getCommand()));
                         if (allParticipantsAreReady(distributedTransactionId)) {
                             System.out.println("ALL PARTICIPANT ARE READY TO COMMIT!");
                             // disable T4 transition
@@ -99,7 +99,7 @@ public class Coordinator extends Voter {
             case READY_TO_COMMIT:
                 if (allParticipantsArePreparedToCommit(distributedTransactionId)) {
                     Place P3_pre_commit = petriNet.getPlace("P3-PRE-COMMIT").get();
-                    P3_pre_commit.getTokenList().add(new Token(distributedTransactionId));
+                    P3_pre_commit.getTokenList().add(new Token(distributedTransactionId, message.getCommand()));
                     System.out.println("ALL PARTICIPANTS SENDED READY-TO-COMMIT");
                 }
                 break;
@@ -107,10 +107,11 @@ public class Coordinator extends Voter {
             case ACK:
                 if (allParticipantsCommittedTransaction(distributedTransactionId)) {
                     Place P4_commit = petriNet.getPlace("P4-COMMIT").get();
-                    P4_commit.getTokenList().add(new Token(distributedTransactionId));
+                    P4_commit.getTokenList().add(new Token(distributedTransactionId, message.getCommand()));
                     System.out.println("DISTRIBUTED TRANSACTION [" + distributedTransactionId + "] HAS BEEN COMMITTED!");
                     deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 }
+//                message.get
 //                deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 break;
         }

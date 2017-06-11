@@ -10,7 +10,6 @@ import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
-import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -29,7 +28,6 @@ public class SetPropertyTest {
     public void updateNamePropertyOfEmptyGraph() {
         // given
         String command = "MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         ResultRow expectedResultRow = new ResultRow();
@@ -37,10 +35,10 @@ public class SetPropertyTest {
         expectedResultRow.setMessage("Properties set: 0");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        Result result = cypherExecutor.execute(transaction, command);
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).isEmpty();
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).isEmpty();
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'");
         assertThat(result.getResults()).hasSize(1);
@@ -53,23 +51,22 @@ public class SetPropertyTest {
     public void updateNamePropertyOfSingleNode() {
         // given
         String command = "MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("name", "Selene", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("name", "Selene", STRING));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties set: 1");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(1);
 
-        Node fetchedNode = transactionalGraphService.getPersistentNodeById(1).get();
+        Node fetchedNode = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get();
         assertThat(fetchedNode.getAllProperties().size()).isEqualTo(3);
         assertThat(fetchedNode.getProperty("id").get()).isEqualTo(new Property("id", LONG, 1l));
         assertThat(fetchedNode.getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
@@ -85,37 +82,36 @@ public class SetPropertyTest {
     public void updateNamePropertyOfTwoFromThreeNodes() {
         // given
         String command = "MATCH (n) WHERE n.name = 'Selene' SET n.name = 'Kate'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("name", "Selene", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("name", "Selene", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("name", "Amelia", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("name", "Selene", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("name", "Selene", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("name", "Amelia", STRING));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties set: 2");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(3);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(3);
 
-        Node fetchedNode1 = transactionalGraphService.getPersistentNodeById(1).get();
+        Node fetchedNode1 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get();
         assertThat(fetchedNode1.getAllProperties().size()).isEqualTo(3);
         assertThat(fetchedNode1.getProperty("id").get()).isEqualTo(new Property("id", LONG, 1l));
         assertThat(fetchedNode1.getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
         assertThat(fetchedNode1.getProperty("name").get()).isEqualTo(new Property("name", STRING, "Kate"));
 
-        Node fetchedNode2 = transactionalGraphService.getPersistentNodeById(2).get();
+        Node fetchedNode2 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(2).get();
         assertThat(fetchedNode2.getAllProperties().size()).isEqualTo(3);
         assertThat(fetchedNode2.getProperty("id").get()).isEqualTo(new Property("id", LONG, 2l));
         assertThat(fetchedNode2.getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
         assertThat(fetchedNode2.getProperty("name").get()).isEqualTo(new Property("name", STRING, "Kate"));
 
-        Node fetchedNode3 = transactionalGraphService.getPersistentNodeById(3).get();
+        Node fetchedNode3 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(3).get();
         assertThat(fetchedNode3.getAllProperties().size()).isEqualTo(3);
         assertThat(fetchedNode3.getProperty("id").get()).isEqualTo(new Property("id", LONG, 3l));
         assertThat(fetchedNode3.getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
@@ -132,7 +128,6 @@ public class SetPropertyTest {
     public void setLastnamePropertyOnEmptyGraph() {
         // given
         String command = "MATCH (n) WHERE n.name = 'Andres' SET n.lastname = 'Taylor'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         ResultRow expectedResultRow = new ResultRow();
@@ -140,10 +135,10 @@ public class SetPropertyTest {
         expectedResultRow.setMessage("Properties set: 0");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).isEmpty();
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).isEmpty();
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n) WHERE n.name = 'Andres' SET n.lastname = 'Taylor'");
         assertThat(result.getResults()).hasSize(1);
@@ -155,23 +150,22 @@ public class SetPropertyTest {
     public void setLastnamePropertyOnSingleNode() {
         // given
         String command = "MATCH (n) WHERE n.name = 'Andres' SET n.lastname = 'Taylor'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("name", "Andres", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("name", "Andres", STRING));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties set: 1");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(1);
 
 
-        Node fetchedNode = transactionalGraphService.getPersistentNodeById(1).get();
+        Node fetchedNode = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get();
         assertThat(fetchedNode.getAllProperties().size()).isEqualTo(4);
         assertThat((Long) fetchedNode.getProperty("id").get().getValue()).isEqualTo(1l);
         assertThat((String) fetchedNode.getProperty("label").get().getValue()).isEqualTo("");
@@ -188,39 +182,38 @@ public class SetPropertyTest {
     public void setLastnamePropertyOnThreeNode() {
         // given
         String command = "MATCH (n) SET n.lastname = 'Taylor'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("name", "Andres", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("age", 25l, LONG));
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("university", "UJ", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("name", "Andres", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("age", 25l, LONG));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("university", "UJ", STRING));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties set: 3");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(3);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(3);
 
-        Node fetchedNode1 = transactionalGraphService.getPersistentNodeById(1).get();
+        Node fetchedNode1 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get();
         assertThat(fetchedNode1.getAllProperties().size()).isEqualTo(4);
         assertThat((Long) fetchedNode1.getProperty("id").get().getValue()).isEqualTo(1l);
         assertThat((String) fetchedNode1.getProperty("label").get().getValue()).isEqualTo("");
         assertThat((String) fetchedNode1.getProperty("name").get().getValue()).isEqualTo("Andres");
         assertThat((String) fetchedNode1.getProperty("lastname").get().getValue()).isEqualTo("Taylor");
 
-        Node fetchedNode2 = transactionalGraphService.getPersistentNodeById(2).get();
+        Node fetchedNode2 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(2).get();
         assertThat(fetchedNode2.getAllProperties().size()).isEqualTo(4);
         assertThat((Long) fetchedNode2.getProperty("id").get().getValue()).isEqualTo(2l);
         assertThat((String) fetchedNode2.getProperty("label").get().getValue()).isEqualTo("");
         assertThat((Long) fetchedNode2.getProperty("age").get().getValue()).isEqualTo(25l);
         assertThat((String) fetchedNode2.getProperty("lastname").get().getValue()).isEqualTo("Taylor");
 
-        Node fetchedNode3 = transactionalGraphService.getPersistentNodeById(3).get();
+        Node fetchedNode3 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(3).get();
         assertThat(fetchedNode3.getAllProperties().size()).isEqualTo(4);
         assertThat((Long) fetchedNode3.getProperty("id").get().getValue()).isEqualTo(3l);
         assertThat((String) fetchedNode3.getProperty("label").get().getValue()).isEqualTo("");

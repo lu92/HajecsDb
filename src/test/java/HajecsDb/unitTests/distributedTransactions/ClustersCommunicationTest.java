@@ -19,39 +19,40 @@ import static org.fest.assertions.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ClustersCommunicationTest {
 
+    private int distributedTransactionId = 100;
+    private String command = "Cyper Query";
+    
     @Test
     public void coordinatorAndParticipantClusterWithCommitTest() {
-
         MockedCommunicationProtocol mockedCommunicationProtocol = new MockedCommunicationProtocol();
 
         HostAddress coordinatorHostAddress = new HostAddress("127.0.0.1", 7000);
         HostAddress participant1HostAddress = new HostAddress("127.0.0.1", 7000);
         HostAddress participant2HostAddress = new HostAddress("127.0.0.1", 8000);
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress), mockedCommunicationProtocol);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress), mockedCommunicationProtocol, null);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol, null);
 
         mockedCommunicationProtocol.addCluster(coordinatorCluster);
         mockedCommunicationProtocol.addCluster(participant2Cluster);
-
-        int distributedTransactionId = 100;
-        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, "Cypher Query");
+        
+        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, command);
 
         coordinatorCluster.exec(distributedTransactionCommand);
 
         assertThat(mockedCommunicationProtocol.getMessageQueue()).containsOnly(
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE_TO_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE_TO_COMMIT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.READY_TO_COMMIT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.READY_TO_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.ACK),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.ACK)
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE_TO_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE_TO_COMMIT),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.READY_TO_COMMIT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.READY_TO_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.GLOBAL_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.GLOBAL_COMMIT),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.ACK),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.ACK)
         );
     }
 
@@ -65,45 +66,42 @@ public class ClustersCommunicationTest {
         HostAddress participant2HostAddress = new HostAddress("127.0.0.1", 8000);
         HostAddress participant3HostAddress = new HostAddress("127.0.0.1", 9000);
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress, participant3HostAddress), mockedCommunicationProtocol);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
-        ParticipantCluster participant3Cluster = new ParticipantCluster(participant3HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress, participant3HostAddress), mockedCommunicationProtocol, null);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol, null);
+        ParticipantCluster participant3Cluster = new ParticipantCluster(participant3HostAddress, coordinatorHostAddress, mockedCommunicationProtocol, null);
 
         mockedCommunicationProtocol.addCluster(coordinatorCluster);
         mockedCommunicationProtocol.addCluster(participant2Cluster);
         mockedCommunicationProtocol.addCluster(participant3Cluster);
 
-        int distributedTransactionId = 100;
-        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, "Cypher Query");
+        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, command);
 
         coordinatorCluster.exec(distributedTransactionCommand);
 
         assertThat(mockedCommunicationProtocol.getMessageQueue()).containsOnly(
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE_TO_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE_TO_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, Signal.PREPARE_TO_COMMIT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.READY_TO_COMMIT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.READY_TO_COMMIT),
-                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, Signal.READY_TO_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.ACK),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.ACK),
-                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, Signal.ACK)
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE_TO_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE_TO_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, command, null, Signal.PREPARE_TO_COMMIT),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.READY_TO_COMMIT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.READY_TO_COMMIT),
+                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, command, null, Signal.READY_TO_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.GLOBAL_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.GLOBAL_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, command, null, Signal.GLOBAL_COMMIT),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.ACK),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.ACK),
+                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, command, null, Signal.ACK)
         );
     }
 
     @Test
     public void coordinatorAndParticipantClusterParticipant2AbortTest() {
-
-        long distributedTransactionId = 100;
         MockedCommunicationProtocol mockedCommunicationProtocol = new MockedCommunicationProtocol();
 
         HostAddress coordinatorHostAddress = new HostAddress("127.0.0.1", 7000);
@@ -111,32 +109,30 @@ public class ClustersCommunicationTest {
         HostAddress participant2HostAddress = new HostAddress("127.0.0.1", 8000);
 
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress), mockedCommunicationProtocol);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress), mockedCommunicationProtocol, null);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol, null);
         participant2Cluster.abortDistributedTransaction(distributedTransactionId, true);
 
         mockedCommunicationProtocol.addCluster(coordinatorCluster);
         mockedCommunicationProtocol.addCluster(participant2Cluster);
 
-        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, "Cypher Query");
+        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, command);
 
         coordinatorCluster.exec(distributedTransactionCommand);
 
         assertThat(mockedCommunicationProtocol.getMessageQueue().size()).isEqualTo(6);
         assertThat(mockedCommunicationProtocol.getMessageQueue()).containsOnly(
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.VOTE_ABORT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.GLOBAL_ABORT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.ACK)
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_ABORT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.GLOBAL_ABORT),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.ACK)
         );
     }
 
     @Test
     public void coordinatorAndParticipantClusterParticipant1AbortTest() {
-
-        long distributedTransactionId = 100;
         MockedCommunicationProtocol mockedCommunicationProtocol = new MockedCommunicationProtocol();
 
         HostAddress coordinatorHostAddress = new HostAddress("127.0.0.1", 7000);
@@ -144,33 +140,31 @@ public class ClustersCommunicationTest {
         HostAddress participant2HostAddress = new HostAddress("127.0.0.1", 8000);
 
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress), mockedCommunicationProtocol);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress), mockedCommunicationProtocol, null);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol, null);
         coordinatorCluster.abortDistributedTransaction(distributedTransactionId, true);
 
         mockedCommunicationProtocol.addCluster(coordinatorCluster);
         mockedCommunicationProtocol.addCluster(participant2Cluster);
 
-        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, "Cypher Query");
+        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, command);
 
         coordinatorCluster.exec(distributedTransactionCommand);
 
         assertThat(mockedCommunicationProtocol.getMessageQueue().size()).isEqualTo(6);
         assertThat(mockedCommunicationProtocol.getMessageQueue()).containsOnly(
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.VOTE_ABORT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.VOTE_COMMIT),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.GLOBAL_ABORT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.ACK)
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_ABORT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_COMMIT),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.GLOBAL_ABORT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.ACK)
         );
     }
 
 
     @Test
     public void coordinatorAndTwoParticipantClusterEachAbortTest() {
-
-        int distributedTransactionId = 100;
         MockedCommunicationProtocol mockedCommunicationProtocol = new MockedCommunicationProtocol();
 
         HostAddress coordinatorHostAddress = new HostAddress("127.0.0.1", 7000);
@@ -178,9 +172,9 @@ public class ClustersCommunicationTest {
         HostAddress participant2HostAddress = new HostAddress("127.0.0.1", 8000);
         HostAddress participant3HostAddress = new HostAddress("127.0.0.1", 9000);
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress, participant3HostAddress), mockedCommunicationProtocol);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
-        ParticipantCluster participant3Cluster = new ParticipantCluster(participant3HostAddress, coordinatorHostAddress, mockedCommunicationProtocol);
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(coordinatorHostAddress, Arrays.asList(participant2HostAddress, participant3HostAddress), mockedCommunicationProtocol, null);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(participant2HostAddress, coordinatorHostAddress, mockedCommunicationProtocol,null);
+        ParticipantCluster participant3Cluster = new ParticipantCluster(participant3HostAddress, coordinatorHostAddress, mockedCommunicationProtocol,null);
 
         coordinatorCluster.abortDistributedTransaction(distributedTransactionId, true);
         participant2Cluster.abortDistributedTransaction(distributedTransactionId, true);
@@ -190,17 +184,17 @@ public class ClustersCommunicationTest {
         mockedCommunicationProtocol.addCluster(participant2Cluster);
         mockedCommunicationProtocol.addCluster(participant3Cluster);
 
-        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, "Cypher Query");
+        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, command);
 
         coordinatorCluster.exec(distributedTransactionCommand);
 
         assertThat(mockedCommunicationProtocol.getMessageQueue()).containsOnly(
-                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, Signal.PREPARE),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, Signal.VOTE_ABORT),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, Signal.VOTE_ABORT),
-                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, Signal.VOTE_ABORT)
+                new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, command, null, Signal.PREPARE),
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_ABORT),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_ABORT),
+                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, command, null, Signal.VOTE_ABORT)
         );
     }
 
@@ -209,8 +203,8 @@ public class ClustersCommunicationTest {
 
         // given
         CommunicationProtocol communicationProtocolMock = Mockito.mock(CommunicationProtocol.class);
-        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(100, "Cypher Query");
-        ParticipantCluster participantCluster = new ParticipantCluster(new HostAddress("127.0.0.1", 8000), null, communicationProtocolMock);
+        DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(100, command);
+        ParticipantCluster participantCluster = new ParticipantCluster(new HostAddress("127.0.0.1", 8000), null, communicationProtocolMock, null);
 
         try {
             // when

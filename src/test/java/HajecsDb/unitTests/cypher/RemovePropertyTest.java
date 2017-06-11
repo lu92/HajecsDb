@@ -7,7 +7,6 @@ import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
-import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -28,22 +27,21 @@ public class RemovePropertyTest {
     public void removeSinglePropertyFromNodeTest() {
         // given
         String command = "MATCH (n) REMOVE n.age";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("age", 40l, LONG));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("age", 40l, LONG));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties removed: 1");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
-        Optional<Node> persistentNode = transactionalGraphService.getPersistentNodeById(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(1);
+        Optional<Node> persistentNode = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1);
         assertThat(persistentNode.isPresent()).isTrue();
         assertThat(persistentNode.get().getAllProperties().size()).isEqualTo(2);
         assertThat(persistentNode.get().getAllProperties().getProperty("id").get()).isEqualTo(new Property("id", LONG, 1l));
@@ -59,36 +57,35 @@ public class RemovePropertyTest {
     public void removeSinglePropertyFromThreeNodeTest() {
         // given
         String command = "MATCH (n) REMOVE n.age";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("age", 40l, LONG));
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("age", 30l, LONG));
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("age", 20l, LONG));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("age", 40l, LONG));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("age", 30l, LONG));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("age", 20l, LONG));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties removed: 3");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(3);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(3);
 
-        Optional<Node> persistentNode1 = transactionalGraphService.getPersistentNodeById(1);
+        Optional<Node> persistentNode1 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1);
         assertThat(persistentNode1.get().getAllProperties().size()).isEqualTo(2);
         assertThat(persistentNode1.get().getAllProperties().getProperty("id").get()).isEqualTo(new Property("id", LONG, 1l));
         assertThat(persistentNode1.get().getAllProperties().getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
 
 
-        Optional<Node> persistentNode2 = transactionalGraphService.getPersistentNodeById(2);
+        Optional<Node> persistentNode2 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(2);
         assertThat(persistentNode2.get().getAllProperties().size()).isEqualTo(2);
         assertThat(persistentNode2.get().getAllProperties().getProperty("id").get()).isEqualTo(new Property("id", LONG, 2l));
         assertThat(persistentNode2.get().getAllProperties().getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
 
-        Optional<Node> persistentNode3 = transactionalGraphService.getPersistentNodeById(3);
+        Optional<Node> persistentNode3 = cypherExecutor.getTransactionalGraphService().getPersistentNodeById(3);
         assertThat(persistentNode3.get().getAllProperties().size()).isEqualTo(2);
         assertThat(persistentNode3.get().getAllProperties().getProperty("id").get()).isEqualTo(new Property("id", LONG, 3l));
         assertThat(persistentNode3.get().getAllProperties().getProperty("label").get()).isEqualTo(new Property("label", STRING, ""));
@@ -104,23 +101,22 @@ public class RemovePropertyTest {
     public void removeLabelFromNodeTest() {
         // given
         String command = "MATCH (n: Person) REMOVE n:Person";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), null);
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), null);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Labels removed: 1");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().getProperty("label").isPresent()).isFalse();
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().getProperty("label").isPresent()).isFalse();
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n: Person) REMOVE n:Person");
         assertThat(result.getResults()).hasSize(1);
@@ -132,29 +128,28 @@ public class RemovePropertyTest {
     public void removeLabelFromThreeNodesTest() {
         // given
         String command = "MATCH (n: Person) REMOVE n:Person";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), null);
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), null);
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), null);
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), null);
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), null);
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), null);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Labels removed: 3");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(3);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().getProperty("label").isPresent()).isFalse();
-        assertThat(transactionalGraphService.getPersistentNodeById(2).get().getAllProperties().size()).isEqualTo(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(2).get().getAllProperties().getProperty("label").isPresent()).isFalse();
-        assertThat(transactionalGraphService.getPersistentNodeById(3).get().getAllProperties().size()).isEqualTo(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(3).get().getAllProperties().getProperty("label").isPresent()).isFalse();
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(3);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().getProperty("label").isPresent()).isFalse();
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(2).get().getAllProperties().size()).isEqualTo(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(2).get().getAllProperties().getProperty("label").isPresent()).isFalse();
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(3).get().getAllProperties().size()).isEqualTo(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(3).get().getAllProperties().getProperty("label").isPresent()).isFalse();
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n: Person) REMOVE n:Person");
         assertThat(result.getResults()).hasSize(1);
@@ -166,23 +161,22 @@ public class RemovePropertyTest {
     public void removeNotExistedPropertyFromNodeTest() {
         // given
         String command = "MATCH (n) REMOVE n.fakeProperty";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), null);
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), null);
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties removed: 0");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(2);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().getProperty("fakeProperty").isPresent()).isFalse();
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(2);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().getProperty("fakeProperty").isPresent()).isFalse();
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n) REMOVE n.fakeProperty");
         assertThat(result.getResults()).hasSize(1);
@@ -194,23 +188,22 @@ public class RemovePropertyTest {
     public void removeSinglePropertyFromMatchedNodeTest() {
         // given
         String command = "MATCH (n) WHERE n.age > 25 REMOVE n.age";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label(""), new Properties().add("age", 40l, PropertyType.LONG));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label(""), new Properties().add("age", 40l, PropertyType.LONG));
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(ContentType.STRING);
         expectedResultRow.setMessage("Properties removed: 1");
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
-        assertThat(transactionalGraphService.getAllPersistentNodes()).hasSize(1);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(2);
-        assertThat(transactionalGraphService.getPersistentNodeById(1).get().getAllProperties().getProperty("id").get().getValue()).isEqualTo(1l);
+        assertThat(cypherExecutor.getTransactionalGraphService().getAllPersistentNodes()).hasSize(1);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().size()).isEqualTo(2);
+        assertThat(cypherExecutor.getTransactionalGraphService().getPersistentNodeById(1).get().getAllProperties().getProperty("id").get().getValue()).isEqualTo(1l);
 
         assertThat(result.isCompleted()).isTrue();
         assertThat(result.getCommand()).isEqualTo("MATCH (n) WHERE n.age > 25 REMOVE n.age");

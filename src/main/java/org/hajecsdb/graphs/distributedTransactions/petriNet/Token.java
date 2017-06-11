@@ -7,8 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Token {
     private long distributedTransactionId;
-//    private HostAddress coordinatorHostAddress;
-//    private List<HostAddress> participantHostAddressList;
+    private String command;
 
     @Override
     public boolean equals(Object o) {

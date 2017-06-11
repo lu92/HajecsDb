@@ -4,13 +4,11 @@ import lombok.Getter;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
 
 public abstract class Voter {
-//    protected long distributedTransactionId;
     protected PetriNet petriNet;
     protected CommunicationProtocol communicationProtocol;
     protected  @Getter HostAddress hostAddress;
 
     public Voter(PetriNet petriNet, CommunicationProtocol communicationProtocol, HostAddress hostAddress) {
-//        this.distributedTransactionId = distributedTransactionId;
         this.petriNet = petriNet;
         this.communicationProtocol = communicationProtocol;
         this.hostAddress = hostAddress;

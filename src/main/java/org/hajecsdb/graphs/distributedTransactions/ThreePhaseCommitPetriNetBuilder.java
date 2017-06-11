@@ -48,7 +48,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T0 2) message to Cohorts (prepare)");
 
             petriNet.getParticipantList().stream().forEach(participantHostAddress -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, PREPARE);
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, token.getCommand(), null, PREPARE);
                 communicationProtocol.sendMessage(voteRQ);
             });
         });
@@ -64,7 +64,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             toset.removeAll(participantsWhichAbortTransaction);
 
             toset.stream().forEach(participantHostAddress -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, GLOBAL_ABORT);
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, token.getCommand(), null, GLOBAL_ABORT);
                 communicationProtocol.sendMessage(voteRQ);
             });
         });
@@ -74,7 +74,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T3 2) message to Cohorts (prepare-to-commit)");
 
             petriNet.getParticipantList().stream().forEach(participantHostAddress -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, PREPARE_TO_COMMIT);
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, token.getCommand(), null, PREPARE_TO_COMMIT);
                 communicationProtocol.sendMessage(voteRQ);
             });
         });
@@ -84,7 +84,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T7 2) message to Cohorts (global-commit)");
 
             petriNet.getParticipantList().stream().forEach(participantHostAddress -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, GLOBAL_COMMIT);
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, token.getCommand(), null, GLOBAL_COMMIT);
                 communicationProtocol.sendMessage(voteRQ);
             });
 
@@ -116,7 +116,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T1 1) write to log (abort)");
             System.out.println("T1 2) message to Coordinator (vote-abort)");
 
-            Message voteAbort = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), VOTE_ABORT);
+            Message voteAbort = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), null, VOTE_ABORT);
             communicationProtocol.sendMessage(voteAbort);
         });
 
@@ -124,7 +124,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T2 1) write to log (ready)");
             System.out.println("T2 2) message to Coordinator (vote-commit)");
 
-            Message voteCommit = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), VOTE_COMMIT);
+            Message voteCommit = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), null, VOTE_COMMIT);
             communicationProtocol.sendMessage(voteCommit);
         });
 
@@ -132,7 +132,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T5 1) write to log (abort)");
             System.out.println("T5 2) potwierdzenie do Coordinator");
 
-            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), ACK);
+            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), null, ACK);
             communicationProtocol.sendMessage(ack);
         });
 
@@ -140,7 +140,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T6 1) write to log (prepare-to-commit)");
             System.out.println("T6 2) message to Coordinator (ready-to-commit)");
 
-            Message readyToCommit = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), READY_TO_COMMIT);
+            Message readyToCommit = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), null, READY_TO_COMMIT);
             communicationProtocol.sendMessage(readyToCommit);
         });
 
@@ -148,7 +148,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T8 1) write to log (commit)");
             System.out.println("T8 2) potwierdzenie do Coordinator");
 
-            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), ACK);
+            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), null, ACK);
             communicationProtocol.sendMessage(ack);
 
             petriNet.getPlaces().stream().forEach(place -> {

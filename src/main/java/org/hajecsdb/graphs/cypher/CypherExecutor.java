@@ -14,19 +14,25 @@ import java.util.Stack;
 public final class CypherExecutor {
     private CypherDfaBuilder cypherDfaBuilder;
     private ClausesSeparator clausesSeparator;
+    private TransactionalGraphService transactionalGraphService;
 
     public CypherExecutor() {
         this.cypherDfaBuilder = new CypherDfaBuilder();
         this.clausesSeparator = new ClausesSeparator();
         this.cypherDfaBuilder.buildClauses();
+        this.transactionalGraphService = new TransactionalGraphService();
     }
 
-    public Result execute(TransactionalGraphService graph, Transaction transaction, String command) {
+    public Result execute(Transaction transaction, String command) {
         DFA dfa = cypherDfaBuilder.getDfa();
         Stack<ClauseInvocation> clauseInvocationStack = clausesSeparator.splitByClauses(command);
         CommandProcessing commandProcessing = new CommandProcessing(command);
         commandProcessing.setClauseInvocationStack(clauseInvocationStack);
-        Result result = dfa.parse(graph, transaction, commandProcessing);
+        Result result = dfa.parse(transactionalGraphService, transaction, commandProcessing);
         return result;
+    }
+
+    public TransactionalGraphService getTransactionalGraphService() {
+        return transactionalGraphService;
     }
 }

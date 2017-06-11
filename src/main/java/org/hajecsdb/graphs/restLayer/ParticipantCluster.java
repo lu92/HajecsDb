@@ -1,5 +1,6 @@
 package org.hajecsdb.graphs.restLayer;
 
+import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
 import org.hajecsdb.graphs.distributedTransactions.HostAddress;
 import org.hajecsdb.graphs.distributedTransactions.Message;
@@ -14,10 +15,10 @@ public class ParticipantCluster extends AbstractCluster {
     private PetriNet petriNet;
     private Participant participant;
 
-    public ParticipantCluster(HostAddress hostAddress, HostAddress coordinatorHostAddress, CommunicationProtocol communicationProtocol) {
+    public ParticipantCluster(HostAddress hostAddress, HostAddress coordinatorHostAddress, CommunicationProtocol communicationProtocol, CypherExecutor cypherExecutor) {
         super(hostAddress, communicationProtocol);
         petriNet = create3pcPetriNet();
-        participant = new Participant(petriNet, communicationProtocol, hostAddress, coordinatorHostAddress);
+        participant = new Participant(petriNet, communicationProtocol, hostAddress, coordinatorHostAddress, cypherExecutor);
         petriNet.setCoordinatorHostAddress(coordinatorHostAddress);
         petriNet.setSourceHostAddress(hostAddress);
     }
@@ -25,7 +26,7 @@ public class ParticipantCluster extends AbstractCluster {
     @Override
     public void receiveMessage(Message message) {
         participant.receiveMessage(message);
-        Token token = new Token(message.getDistributedTransactionId());
+        Token token = new Token(message.getDistributedTransactionId(), message.getCommand());
         petriNet.fireTransitionsInParticipantFlow(token);
     }
 

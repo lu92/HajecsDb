@@ -9,7 +9,6 @@ import org.hajecsdb.graphs.restLayer.config.VoterConfig;
 import org.hajecsdb.graphs.restLayer.dto.*;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
-import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
@@ -37,8 +36,6 @@ public class ApplicationController {
 
     @Autowired(required = false)
     private VoterConfig voterConfig;
-
-    private TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
 
     private TransactionManager transactionManager = new TransactionManager();
 
@@ -85,7 +82,7 @@ public class ApplicationController {
 
                 case "COMMIT":
                     if (session.get().hasOpenedTransaction()) {
-                        transactionalGraphService.context(session.get().getTransaction()).commit();
+                        cypherExecutor.getTransactionalGraphService().context(session.get().getTransaction()).commit();
                         session.get().clearTransaction();
                         return createMessage(command.getCommand(), "Transaction has been committed!");
                     } else {
@@ -99,7 +96,7 @@ public class ApplicationController {
                     return null;
 
                 default:
-                    Result result = cypherExecutor.execute(transactionalGraphService, session.get().getTransaction(), command.getCommand());
+                    Result result = cypherExecutor.execute(session.get().getTransaction(), command.getCommand());
                     return entityConverter.toResult(result);
             }
         }
@@ -148,15 +145,15 @@ public class ApplicationController {
         session.setTransactionManager(transactionManager);
         Transaction transaction = session.beginTransaction();
         for (String command : script.getCommands()) {
-            Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+            Result result = cypherExecutor.execute(transaction, command);
             if (!result.isCompleted()) {
-                transactionalGraphService.context(transaction).rollback();
+                cypherExecutor.getTransactionalGraphService().context(transaction).rollback();
                 ResultDto rollbackedScript = createMessage(command, "Script has been rollbacked!");
                 return rollbackedScript;
             }
         }
 
-        transactionalGraphService.context(transaction).commit();
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
         return createMessage("", "Script has been perfomed and committed!");
     }
 
@@ -174,11 +171,15 @@ public class ApplicationController {
     private void initCluster() {
         if (cluster == null) {
             if (environment.getActiveProfiles()[0].equals("coordinator")) {
-                cluster = new CoordinatorCluster(new HostAddress("127.0.0.1", getPort()), voterConfig.getHosts(), restCommunicationProtocol);
+                cluster = new CoordinatorCluster(new HostAddress(getLocalAdress(), getPort()), voterConfig.getHosts(), restCommunicationProtocol, cypherExecutor);
             } else {
-                cluster = new ParticipantCluster(new HostAddress("127.0.0.1", getPort()), voterConfig.getHosts().get(0), restCommunicationProtocol);
+                cluster = new ParticipantCluster(new HostAddress(getLocalAdress(), getPort()), voterConfig.getHosts().get(0), restCommunicationProtocol, cypherExecutor);
             }
         }
+    }
+
+    private String getLocalAdress() {
+        return "127.0.0.1";
     }
 
     private int getPort() {

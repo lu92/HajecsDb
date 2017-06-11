@@ -7,7 +7,6 @@ import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.ResultRow;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
-import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -28,12 +27,11 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n)";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -46,12 +44,11 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n: Person)";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -64,19 +61,18 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n: Person)";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), null);
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), null);
 
 
         ResultRow expectedResultRow = new ResultRow();
         expectedResultRow.setContentType(NODE);
-        expectedResultRow.setNode(transactionalGraphService.context(transaction).getNodeById(1).get());
+        expectedResultRow.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(1).get());
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -90,28 +86,27 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n: Person)";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
+        expectedResultRow1.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(1l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
+        expectedResultRow2.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(2l).get());
 
         ResultRow expectedResultRow3 = new ResultRow();
         expectedResultRow3.setContentType(NODE);
-        expectedResultRow3.setNode(transactionalGraphService.context(transaction).getNodeById(3l).get());
+        expectedResultRow3.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -127,28 +122,27 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n)";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
+        expectedResultRow1.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(1l).get());
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
+        expectedResultRow2.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(2l).get());
 
         ResultRow expectedResultRow3 = new ResultRow();
         expectedResultRow3.setContentType(NODE);
-        expectedResultRow3.setNode(transactionalGraphService.context(transaction).getNodeById(3l).get());
+        expectedResultRow3.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(3l).get());
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
-        transactionalGraphService.context(transaction).commit();
+        Result result = cypherExecutor.execute(transaction, command);
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -164,19 +158,18 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n) MATCH (n: Person) WHERE n.name = 'first'";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "second", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
 
         ResultRow expectedResultRow1 = new ResultRow();
         expectedResultRow1.setContentType(NODE);
-        expectedResultRow1.setNode(transactionalGraphService.context(transaction).getNodeById(1l).get());
+        expectedResultRow1.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(1l).get());
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        Result result = cypherExecutor.execute(transaction, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -190,19 +183,18 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n:Person {name: 'Adam'})";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "Adam", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "Adam", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
+        expectedResultRow2.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        Result result = cypherExecutor.execute(transaction, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();
@@ -215,19 +207,18 @@ public class MatchNodeTest {
 
         // given
         String command = "MATCH (n:Person {name: 'Adam', age: 25})";
-        TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
         Transaction transaction = transactionManager.createTransaction();
 
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "Adam", STRING).add("age", 25, INT));
-        transactionalGraphService.context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "first", STRING));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "Adam", STRING).add("age", 25, INT));
+        cypherExecutor.getTransactionalGraphService().context(transaction).createNode(new Label("Person"), new Properties().add("name", "third", STRING));
 
         ResultRow expectedResultRow2 = new ResultRow();
         expectedResultRow2.setContentType(NODE);
-        expectedResultRow2.setNode(transactionalGraphService.context(transaction).getNodeById(2l).get());
+        expectedResultRow2.setNode(cypherExecutor.getTransactionalGraphService().context(transaction).getNodeById(2l).get());
 
         // when
-        Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+        Result result = cypherExecutor.execute(transaction, command);
 
         //then
         assertThat(result.isCompleted()).isTrue();

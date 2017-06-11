@@ -7,7 +7,6 @@ import org.hajecsdb.graphs.restLayer.dto.Command;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import org.hajecsdb.graphs.restLayer.dto.ResultRowDto;
 import org.hajecsdb.graphs.restLayer.dto.SessionDto;
-import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +16,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -51,7 +49,7 @@ public class CypherRestTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(webCtx).build();
 
         // reset graph's id counter
-        TransactionalGraphService graph = (TransactionalGraphService) ReflectionTestUtils.getField(applicationController, "transactionalGraphService");
+//        TransactionalGraphService graph = (TransactionalGraphService) ReflectionTestUtils.getField(applicationController, "transactionalGraphService");
 //        IdGenerator tGraph = (IdGenerator) ReflectionTestUtils.getField(graph, "idGenerator");
 //        IdGenerator idGenerator = (IdGenerator) ReflectionTestUtils.getField(graph, "idGenerator");
 //        ReflectionTestUtils.setField(idGenerator, "lastGeneratedIndex", 0);
