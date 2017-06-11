@@ -11,29 +11,29 @@ import java.util.List;
 import static org.hajecsdb.graphs.restLayer.VoterType.COORDINATOR;
 
 public class CoordinatorCluster extends AbstractCluster {
-
-//    private PetriNet petriNet;
     private Coordinator coordinator;
     private Participant participant;
 
-    public CoordinatorCluster(HostAddress hostAddress, List<HostAddress> participantHostAddressList, CommunicationProtocol communicationProtocol, int numberOfParticipantsOfDistributedTransaction) {
+    public CoordinatorCluster(HostAddress hostAddress, List<HostAddress> participantHostAddressList, CommunicationProtocol communicationProtocol) {
         super(COORDINATOR, hostAddress, communicationProtocol);
         petriNet = create3pcPetriNet();
+        List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, participantHostAddressList);
+        int numberOfParticipantsOfDistributedTransaction = actualParticipantList.size();
+
         coordinator = new Coordinator(petriNet, communicationProtocol, hostAddress, numberOfParticipantsOfDistributedTransaction);
         participant = new Participant(petriNet, communicationProtocol, hostAddress, hostAddress);
 
+        petriNet.setCoordinatorHostAddress(coordinator.getHostAddress());
+        petriNet.setParticipantList(actualParticipantList);
+    }
 
+    private List<HostAddress> getParticipantHostAddresses(HostAddress hostAddress, List<HostAddress> participantHostAddressList) {
         List<HostAddress> actualParticipantList = new LinkedList<>();
         actualParticipantList.addAll(participantHostAddressList);
         if (!actualParticipantList.contains(hostAddress)) {
             actualParticipantList.add(hostAddress);
         }
-
-        if (actualParticipantList.size() != numberOfParticipantsOfDistributedTransaction)
-            throw new IllegalStateException("INVALID CONFIG OF COORDINATOR!");
-
-        petriNet.setCoordinatorHostAddress(coordinator.getHostAddress());
-        petriNet.setParticipantList(actualParticipantList);
+        return actualParticipantList;
     }
 
     @Override

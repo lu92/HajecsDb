@@ -11,7 +11,6 @@ import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
@@ -38,9 +37,6 @@ public class ApplicationController {
 
     @Autowired(required = false)
     private VoterConfig voterConfig;
-
-    @Value("${server.port}")
-    private int port;
 
     private TransactionalGraphService transactionalGraphService = new TransactionalGraphService();
 
@@ -128,7 +124,7 @@ public class ApplicationController {
     @ResponseBody
     public String abortTransactionByParticipant(@RequestBody AbortTransactionDto abortTransaction) {
         cluster.abortDistributedTransaction(abortTransaction.getDistributedTransactionId(), abortTransaction.isAbort());
-        return "Distributed Transaction [" + abortTransaction.getDistributedTransactionId() + "] will be aborted by Participant[" + port + "]";
+        return "Distributed Transaction [" + abortTransaction.getDistributedTransactionId() + "] will be aborted by Participant[" + getPort() + "]";
     }
 
 
@@ -160,12 +156,16 @@ public class ApplicationController {
     private void initCluster() {
         if (cluster == null) {
             if (environment.getActiveProfiles()[0].equals("coordinator")) {
-                cluster = new CoordinatorCluster(new HostAddress("127.0.0.1", port), voterConfig.getHosts(),
-                        restCommunicationProtocol, 3);
+                cluster = new CoordinatorCluster(new HostAddress("127.0.0.1", getPort()), voterConfig.getHosts(), restCommunicationProtocol);
             } else {
-                cluster = new ParticipantCluster(new HostAddress("127.0.0.1", port), voterConfig.getHosts().get(0), restCommunicationProtocol);
+                cluster = new ParticipantCluster(new HostAddress("127.0.0.1", getPort()), voterConfig.getHosts().get(0), restCommunicationProtocol);
             }
         }
+    }
+
+    private int getPort() {
+        String property = environment.getProperty("local.server.port");
+        return Integer.valueOf(property);
     }
 
 }
