@@ -5,6 +5,7 @@ import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.distributedTransactions.HostAddress;
 import org.hajecsdb.graphs.distributedTransactions.Message;
+import org.hajecsdb.graphs.restLayer.config.VoterConfig;
 import org.hajecsdb.graphs.restLayer.dto.*;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
@@ -15,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,8 +36,8 @@ public class ApplicationController {
     @Autowired
     private Environment environment;
 
-//    @Autowired(required = false)
-//    private VoterConfig voterConfig;
+    @Autowired(required = false)
+    private VoterConfig voterConfig;
 
     @Value("${server.port}")
     private int port;
@@ -160,11 +160,10 @@ public class ApplicationController {
     private void initCluster() {
         if (cluster == null) {
             if (environment.getActiveProfiles()[0].equals("coordinator")) {
-                cluster = new CoordinatorCluster(new HostAddress("127.0.0.1", 7000),
-                        Arrays.asList(new HostAddress("127.0.0.1", 8000), new HostAddress("127.0.0.1", 9000)),
+                cluster = new CoordinatorCluster(new HostAddress("127.0.0.1", port), voterConfig.getHosts(),
                         restCommunicationProtocol, 3);
             } else {
-                cluster = new ParticipantCluster(new HostAddress("127.0.0.1", port), new HostAddress("127.0.0.1", 7000), restCommunicationProtocol);
+                cluster = new ParticipantCluster(new HostAddress("127.0.0.1", port), voterConfig.getHosts().get(0), restCommunicationProtocol);
             }
         }
     }

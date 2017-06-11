@@ -24,8 +24,13 @@ public class CoordinatorCluster extends AbstractCluster {
 
 
         List<HostAddress> actualParticipantList = new LinkedList<>();
-        actualParticipantList.add(hostAddress);
         actualParticipantList.addAll(participantHostAddressList);
+        if (!actualParticipantList.contains(hostAddress)) {
+            actualParticipantList.add(hostAddress);
+        }
+
+        if (actualParticipantList.size() != numberOfParticipantsOfDistributedTransaction)
+            throw new IllegalStateException("INVALID CONFIG OF COORDINATOR!");
 
         petriNet.setCoordinatorHostAddress(coordinator.getHostAddress());
         petriNet.setParticipantList(actualParticipantList);

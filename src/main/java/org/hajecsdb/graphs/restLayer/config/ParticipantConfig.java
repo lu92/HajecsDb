@@ -3,6 +3,7 @@ package org.hajecsdb.graphs.restLayer.config;
 import org.hajecsdb.graphs.distributedTransactions.HostAddress;
 import org.hajecsdb.graphs.restLayer.VoterType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
@@ -10,14 +11,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-//@Profile("participant")
-@PropertySource("participant.properties")
+@Profile("participant")
+@PropertySource(value = "classpath:participant.properties")
 class ParticipantConfig implements VoterConfig {
 
-    @Value("${coordinator.host}")
+    @Value("${coordinatorHostAddress.host}")
     private String coordinatorHost;
 
-    @Value("${coordinator.port}")
+    @Value("${coordinatorHostAddress.port}")
     private int coordinatorPort;
 
     @Override
