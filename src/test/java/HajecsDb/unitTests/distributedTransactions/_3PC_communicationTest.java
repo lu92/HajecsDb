@@ -23,16 +23,16 @@ public class _3PC_communicationTest {
 //                .communicationProtocol(communicationProtocol)
 //                .build();
 //
-//        Coordinator coordinator = new Coordinator(threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001),1);
+//        Coordinator coordinatorHostAddress = new Coordinator(threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001),1);
 //        Participant participant = new Participant(threePhaseCommitPetriNet, communicationProtocol, new HostAddress("192.168.1.101", 1002));
 //
 //        participant.abortDistributedTransaction(true);
 //
-//        communicationProtocol.addParticipant(coordinator);
+//        communicationProtocol.addParticipant(coordinatorHostAddress);
 //        communicationProtocol.addParticipant(participant);
 //
-//        threePhaseCommitPetriNet.setCoordinator(coordinator);
-//        threePhaseCommitPetriNet.setParticipant(participant);
+//        threePhaseCommitPetriNet.setCoordinatorHostAddress(coordinatorHostAddress);
+//        threePhaseCommitPetriNet.setParticipantList(Arrays.asList(participant));
 //
 //        Token token = new Token(distributedTransactionId);
 //
@@ -43,8 +43,10 @@ public class _3PC_communicationTest {
 //        assertThat(threePhaseCommitPetriNet.getPlace("P0-INITIAL").get().getTokenList()).hasSize(1);
 //
 //
+//        threePhaseCommitPetriNet.pushInParticipantFlow(token);
 //        System.out.println("FIRE");
-//        threePhaseCommitPetriNet.fireTransitions(token);
+//        threePhaseCommitPetriNet.fireTransitionsInCoordinatorFlow(token);
+////        threePhaseCommitPetriNet.fireTransitionsInParticipantFlow(token);
 //        activePlaces = threePhaseCommitPetriNet.getNamesOfActivePlaces();
 //        assertThat(activePlaces).containsOnly("P1-WAIT", "P5-INITIAL");
 //        assertThat(threePhaseCommitPetriNet.getPlace("P1-WAIT").get().getTokenList()).hasSize(1);
@@ -52,14 +54,14 @@ public class _3PC_communicationTest {
 //
 //
 //        System.out.println("FIRE");
-//        threePhaseCommitPetriNet.fireTransitions(token);
+//        threePhaseCommitPetriNet.fireTransitionsInCoordinatorFlow(token);
 //        activePlaces = threePhaseCommitPetriNet.getNamesOfActivePlaces();
 //        assertThat(activePlaces).containsOnly("P1-WAIT", "P6-ABORT");
 //        assertThat(threePhaseCommitPetriNet.getPlace("P1-WAIT").get().getTokenList()).hasSize(2);
 //        assertThat(threePhaseCommitPetriNet.getPlace("P6-ABORT").get().getTokenList()).hasSize(1);
 //
 //        System.out.println("FIRE");
-//        threePhaseCommitPetriNet.fireTransitions(token);
+//        threePhaseCommitPetriNet.fireTransitionsInCoordinatorFlow(token);
 //        activePlaces = threePhaseCommitPetriNet.getNamesOfActivePlaces();
 //        assertThat(activePlaces).containsOnly("P2-ABORT", "P6-ABORT", "P7-READY");
 //        assertThat(threePhaseCommitPetriNet.getPlace("P2-ABORT").get().getTokenList()).hasSize(1);
@@ -67,7 +69,7 @@ public class _3PC_communicationTest {
 //        assertThat(threePhaseCommitPetriNet.getPlace("P7-READY").get().getTokenList()).hasSize(1);
 //
 //        System.out.println("FIRE");
-//        threePhaseCommitPetriNet.fireTransitions(token);
+//        threePhaseCommitPetriNet.fireTransitionsInCoordinatorFlow(token);
 //        activePlaces = threePhaseCommitPetriNet.getNamesOfActivePlaces();
 //        assertThat(activePlaces).containsOnly("P2-ABORT", "P6-ABORT");
 //        assertThat(threePhaseCommitPetriNet.getPlace("P2-ABORT").get().getTokenList()).hasSize(2);
@@ -86,13 +88,13 @@ public class _3PC_communicationTest {
 //                .communicationProtocol(communicationProtocol)
 //                .build();
 //
-//        Coordinator coordinator = new Coordinator(threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001),1);
+//        Coordinator coordinatorHostAddress = new Coordinator(threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001),1);
 //        Participant participant = new Participant(threePhaseCommitPetriNet, communicationProtocol, new HostAddress("192.168.1.101", 1002));
 //
-//        communicationProtocol.addParticipant(coordinator);
+//        communicationProtocol.addParticipant(coordinatorHostAddress);
 //        communicationProtocol.addParticipant(participant);
 //
-//        threePhaseCommitPetriNet.setCoordinator(coordinator);
+//        threePhaseCommitPetriNet.setCoordinatorHostAddress(coordinatorHostAddress);
 //        threePhaseCommitPetriNet.setParticipant(participant);
 //
 //        Token token = new Token(distributedTransactionId);
@@ -136,17 +138,17 @@ public class _3PC_communicationTest {
 //                .communicationProtocol(communicationProtocol)
 //                .build();
 //
-//        Coordinator coordinator = new Coordinator(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001), 1);
+//        Coordinator coordinatorHostAddress = new Coordinator(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001), 1);
 //        Participant participant1 = new Participant(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("192.168.1.101", 1002));
 //        Participant participant2 = new Participant(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("192.168.1.102", 1002));
 //
 //        participant1.abortDistributedTransaction(true);
 //
-//        communicationProtocol.addParticipant(coordinator);
+//        communicationProtocol.addParticipant(coordinatorHostAddress);
 //        communicationProtocol.addParticipant(participant1);
 //        communicationProtocol.addParticipant(participant2);
 //
-//        Token token = new Token(distributedTransactionId, coordinator.getHostAddress(), Arrays.asList(participant1.getHostAddress(),participant2.getHostAddress()));
+//        Token token = new Token(distributedTransactionId, coordinatorHostAddress.getHostAddress(), Arrays.asList(participant1.getHostAddress(),participant2.getHostAddress()));
 //
 //        threePhaseCommitPetriNet.pushInCoordinatorFlow(token);
 //
@@ -186,15 +188,15 @@ public class _3PC_communicationTest {
 //                .communicationProtocol(communicationProtocol)
 //                .build();
 //
-//        Coordinator coordinator = new Coordinator(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001),2);
+//        Coordinator coordinatorHostAddress = new Coordinator(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("127.0.0.1", 1001),2);
 //        Participant participant1 = new Participant(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("192.168.1.101", 1002));
 //        Participant participant2 = new Participant(distributedTransactionId, threePhaseCommitPetriNet, communicationProtocol, new HostAddress("192.168.1.101", 1002));
 //
-//        communicationProtocol.addParticipant(coordinator);
+//        communicationProtocol.addParticipant(coordinatorHostAddress);
 //        communicationProtocol.addParticipant(participant1);
 //        communicationProtocol.addParticipant(participant2);
 //
-//        Token token = new Token(distributedTransactionId, coordinator.getHostAddress(), Arrays.asList(participant1.getHostAddress(), participant2.getHostAddress()));
+//        Token token = new Token(distributedTransactionId, coordinatorHostAddress.getHostAddress(), Arrays.asList(participant1.getHostAddress(), participant2.getHostAddress()));
 //
 //
 //        threePhaseCommitPetriNet.pushInCoordinatorFlow(token);

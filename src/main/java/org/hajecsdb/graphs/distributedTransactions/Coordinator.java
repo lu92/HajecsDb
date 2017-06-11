@@ -5,9 +5,7 @@ import org.hajecsdb.graphs.distributedTransactions.petriNet.Place;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
 
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
@@ -69,15 +67,18 @@ public class Coordinator extends Voter {
 
             case VOTE_ABORT:
                 if (isWaitingState(distributedTransactionId)) {
-                    System.out.println("RECEIVED VOTE COMMIT");
+                    System.out.println("RECEIVED VOTE ABORT");
+                    rememberParticipantWhoAbortedTransaction(distributedTransactionId, message.getSourceHostAddress());
                     if (eachParticipantHasVotedCommitOrAbort(distributedTransactionId)) {
                         System.out.println("ALL PARTICIPANTS VOTED");
                         Place P1_wait = petriNet.getPlace("P1-WAIT").get();
                         P1_wait.getTokenList().add(new Token(distributedTransactionId));
                         if (allParticipantsAreReady(distributedTransactionId)) {
+                            System.out.println("ALL PARTICIPANT ARE READY TO COMMIT!");
                             // disable T4 transition
                             P1_wait.disableTransition(distributedTransactionId, "T4");
                         } else {
+                            System.out.println("NOT ALL PARTICIPANT ARE READY TO COMMIT!");
                             // disable T3 transition
                             P1_wait.disableTransition(distributedTransactionId, "T3");
                         }
@@ -113,6 +114,15 @@ public class Coordinator extends Voter {
 //                deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 break;
         }
+    }
+
+    private void rememberParticipantWhoAbortedTransaction(long distributedTransactionId, HostAddress participantHostAddress) {
+        if (!petriNet.getParticipantsWhichAbortTransaction().containsKey(distributedTransactionId)) {
+            petriNet.getParticipantsWhichAbortTransaction().put(distributedTransactionId, new HashSet<>());
+        }
+        Set<HostAddress> hostAddresses = petriNet.getParticipantsWhichAbortTransaction().get(distributedTransactionId);
+        hostAddresses.add(participantHostAddress);
+        petriNet.getParticipantsWhichAbortTransaction().put(distributedTransactionId, hostAddresses);
     }
 
     private boolean allParticipantsArePreparedToCommit(long distributedTransactionId) {

@@ -42,10 +42,9 @@ public class Place {
 
         List<Transition> fireableTransitions = getActiveTransitions();
 
-        Optional<Transition> chosenTransition = chooseTransition(fireableTransitions, concreteToken);
+        Optional<Transition> chosenTransition = chooseTransition(fireableTransitions, concreteToken.getDistributedTransactionId());
 
         if (chosenTransition.isPresent()) {
-//            chosenTransition.get().getJob().perform(communicationProtocol, concreteToken);
             chosenTransition.get().getOutputArcList().stream()
                     .map(arc -> arc.getPlace()).forEach(nextPlace -> {
 
@@ -60,7 +59,7 @@ public class Place {
         }
     }
 
-    private synchronized Optional<Transition> chooseTransition(List<Transition> fireableTransitions, Token token) {
+    private synchronized Optional<Transition> chooseTransition(List<Transition> fireableTransitions, long distributedTransactionId) {
         if (fireableTransitions.isEmpty())
             return Optional.empty();
         if (fireableTransitions.size() == 1) {
@@ -68,14 +67,17 @@ public class Place {
         } else {
 
             Set<Transition> disabledTransitions = fireableTransitions.stream()
-                    .filter(transition -> transition.getDisabled().contains(token.getDistributedTransactionId()))
+                    .filter(transition -> transition.getDisabled().contains(distributedTransactionId))
                     .collect(Collectors.toSet());
 
             List<Transition> res = new ArrayList<>();
             res.addAll(fireableTransitions);
             res.removeAll(disabledTransitions);
             if (res.size() > 1)
-                throw new IllegalStateException("Not implemented decision!");
+                throw new IllegalStateException("Place[" + description + "] Not implemented decision!");
+
+            if (res.isEmpty())
+                throw new IllegalStateException("Place[" + description + "] Has any implemented decision!");
 
             return Optional.of(res.get(0));
         }
@@ -95,5 +97,10 @@ public class Place {
                 .findFirst().get();
         outgoingArc.getTransition().getDisabled().add(distributedTransactionId);
         System.out.println(transitionDescription + " is disabled!");
+    }
+
+    public void enableAllTransitions() {
+        getOutputArcSet().stream()
+                .forEach(arc -> arc.getTransition().getDisabled().clear());
     }
 }

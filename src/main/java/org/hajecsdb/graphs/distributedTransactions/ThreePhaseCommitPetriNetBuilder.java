@@ -2,7 +2,10 @@ package org.hajecsdb.graphs.distributedTransactions;
 
 import org.hajecsdb.graphs.distributedTransactions.petriNet.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
 import static org.hajecsdb.graphs.restLayer.VoterType.COORDINATOR;
@@ -11,37 +14,24 @@ import static org.hajecsdb.graphs.restLayer.VoterType.PARTICIPANT;
 public class ThreePhaseCommitPetriNetBuilder {
 
     private CommunicationProtocol communicationProtocol;
+    private HostAddress sourceHostAddress;
 
     public ThreePhaseCommitPetriNetBuilder communicationProtocol(CommunicationProtocol communicationProtocol) {
         this.communicationProtocol = communicationProtocol;
         return this;
     }
 
+    public ThreePhaseCommitPetriNetBuilder sourceHostAddress(HostAddress hostAddress) {
+        this.sourceHostAddress = hostAddress;
+        return this;
+    }
+
     public PetriNet build() {
         PetriNetBuilder petriNetBuilder = new PetriNetBuilder();
 
-        ChoseTransition defaultChoseTransition = new ChoseTransition() {
-            @Override
-            public Transition chose(List<Transition> transitionOptions) {
-                if (transitionOptions.isEmpty())
-                    throw new IllegalArgumentException("There is none choise between transitions!");
-
-                if (transitionOptions.size() == 1) {
-                    return transitionOptions.get(0);
-                } else {
-                    throw new IllegalStateException("Not implemented decision!");
-                }
-            }
-        };
-
         // Coordinator part
-        Place P0_INITIAL = petriNetBuilder.place("P0-INITIAL", COORDINATOR, defaultChoseTransition);
-        Place P1_WAIT = petriNetBuilder.place("P1-WAIT", COORDINATOR, new ChoseTransition() {
-            @Override
-            public Transition chose(List<Transition> transitionOptions) {
-                return null;
-            }
-        });
+        Place P0_INITIAL = petriNetBuilder.place("P0-INITIAL", COORDINATOR);
+        Place P1_WAIT = petriNetBuilder.place("P1-WAIT", COORDINATOR);
         Place P2_ABORT = petriNetBuilder.place("P2-ABORT", COORDINATOR);
         Place P3_PRE_COMMIT = petriNetBuilder.place("P3-PRE-COMMIT", COORDINATOR);
         Place P4_COMMIT = petriNetBuilder.place("P4-COMMIT", COORDINATOR);
@@ -57,61 +47,49 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T0 1) write to log (begin_commit)");
             System.out.println("T0 2) message to Cohorts (prepare)");
 
-            petriNet.getParticipantList().stream().forEach(participant -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), participant.getHostAddress(), PREPARE);
-                petriNet.getCoordinator().sendMessage(voteRQ);
+            petriNet.getParticipantList().stream().forEach(participantHostAddress -> {
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, PREPARE);
+                communicationProtocol.sendMessage(voteRQ);
             });
-
-
-//            token.getParticipantHostAddressList().stream().forEach(participantHostAddress -> {
-//                Message voteRQ = new Message(token.getDistributedTransactionId(), participantHostAddress, PREPARE);
-//                communicationProtocol.sendMessage(voteRQ);
-//            });
         });
 
         Transition T4 = petriNetBuilder.transition("T4", (petriNet, token) -> {
             System.out.println("T4 1) write to log (abort)");
             System.out.println("T4 2)  message to Cohorts (global-abort)");
 
-            petriNet.getParticipantList().stream().forEach(participant -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), participant.getHostAddress(), GLOBAL_ABORT);
+            Set<HostAddress> participantsWhichAbortTransaction = petriNet.getParticipantsWhichAbortTransaction().get(token.getDistributedTransactionId());
+
+            Set<HostAddress> toset = new HashSet<HostAddress>();
+            toset.addAll(petriNet.getParticipantList());
+            toset.removeAll(participantsWhichAbortTransaction);
+
+            toset.stream().forEach(participantHostAddress -> {
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, GLOBAL_ABORT);
                 communicationProtocol.sendMessage(voteRQ);
             });
-
-//            token.getParticipantHostAddressList().stream().forEach(participantHostAddress -> {
-//                Message voteRQ = new Message(token.getDistributedTransactionId(), participantHostAddress, GLOBAL_ABORT);
-//                communicationProtocol.sendMessage(voteRQ);
-//            });
         });
 
         Transition T3 = petriNetBuilder.transition("T3", (petriNet, token) -> {
             System.out.println("T3 1) write to log (prepare-to-commit)");
             System.out.println("T3 2) message to Cohorts (prepare-to-commit)");
 
-            petriNet.getParticipantList().stream().forEach(participant -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), participant.getHostAddress(), PREPARE_TO_COMMIT);
+            petriNet.getParticipantList().stream().forEach(participantHostAddress -> {
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, PREPARE_TO_COMMIT);
                 communicationProtocol.sendMessage(voteRQ);
             });
-
-//            token.getParticipantHostAddressList().stream().forEach(participantHostAddress -> {
-//                Message voteRQ = new Message(token.getDistributedTransactionId(), participantHostAddress, PREPARE_TO_COMMIT);
-//                communicationProtocol.sendMessage(voteRQ);
-//            });
         });
 
         Transition T7 = petriNetBuilder.transition("T7", (petriNet, token) -> {
             System.out.println("T7 1) write to log (commit)");
             System.out.println("T7 2) message to Cohorts (global-commit)");
 
-            petriNet.getParticipantList().stream().forEach(participant -> {
-                Message voteRQ = new Message(token.getDistributedTransactionId(), participant.getHostAddress(), GLOBAL_COMMIT);
+            petriNet.getParticipantList().stream().forEach(participantHostAddress -> {
+                Message voteRQ = new Message(token.getDistributedTransactionId(), sourceHostAddress, participantHostAddress, GLOBAL_COMMIT);
                 communicationProtocol.sendMessage(voteRQ);
             });
 
-//            token.getParticipantHostAddressList().stream().forEach(participantHostAddress -> {
-//                Message voteRQ = new Message(token.getDistributedTransactionId(), participantHostAddress, GLOBAL_COMMIT);
-//                communicationProtocol.sendMessage(voteRQ);
-//            });
+            petriNet.getPlace("P1-WAIT").get().enableAllTransitions();
+
         });
 
 
@@ -138,55 +116,49 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T1 1) write to log (abort)");
             System.out.println("T1 2) message to Coordinator (vote-abort)");
 
-            Message voteAbort = new Message(token.getDistributedTransactionId(), petriNet.getCoordinator().getHostAddress(), VOTE_ABORT);
+            Message voteAbort = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), VOTE_ABORT);
             communicationProtocol.sendMessage(voteAbort);
-
-//            Message voteAbort = new Message(token.getDistributedTransactionId(), token.getCoordinatorHostAddress(), VOTE_ABORT);
-//            communicationProtocol.sendMessage(voteAbort);
         });
 
         Transition T2 = petriNetBuilder.transition("T2", (petriNet, token) -> {
             System.out.println("T2 1) write to log (ready)");
             System.out.println("T2 2) message to Coordinator (vote-commit)");
 
-            Message voteCommit = new Message(token.getDistributedTransactionId(), petriNet.getCoordinator().getHostAddress(), VOTE_COMMIT);
+            Message voteCommit = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), VOTE_COMMIT);
             communicationProtocol.sendMessage(voteCommit);
-
-//            Message voteCommit = new Message(token.getDistributedTransactionId(), token.getCoordinatorHostAddress(), VOTE_COMMIT);
-//            communicationProtocol.sendMessage(voteCommit);
         });
 
         Transition T5 = petriNetBuilder.transition("T5", (petriNet, token) -> {
             System.out.println("T5 1) write to log (abort)");
             System.out.println("T5 2) potwierdzenie do Coordinator");
 
-            Message ack = new Message(token.getDistributedTransactionId(), petriNet.getCoordinator().getHostAddress(), ACK);
+            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), ACK);
             communicationProtocol.sendMessage(ack);
-
-//            Message ack = new Message(token.getDistributedTransactionId(), token.getCoordinatorHostAddress(), ACK);
-//            communicationProtocol.sendMessage(ack);
         });
 
         Transition T6 = petriNetBuilder.transition("T6", (petriNet, token) -> {
             System.out.println("T6 1) write to log (prepare-to-commit)");
             System.out.println("T6 2) message to Coordinator (ready-to-commit)");
 
-            Message readyToCommit = new Message(token.getDistributedTransactionId(), petriNet.getCoordinator().getHostAddress(), READY_TO_COMMIT);
+            Message readyToCommit = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), READY_TO_COMMIT);
             communicationProtocol.sendMessage(readyToCommit);
-
-//            Message readyToCommit = new Message(token.getDistributedTransactionId(), token.getCoordinatorHostAddress(), READY_TO_COMMIT);
-//            communicationProtocol.sendMessage(readyToCommit);
         });
 
         Transition T8 = petriNetBuilder.transition("T8", (petriNet, token) -> {
             System.out.println("T8 1) write to log (commit)");
             System.out.println("T8 2) potwierdzenie do Coordinator");
 
-            Message ack = new Message(token.getDistributedTransactionId(), petriNet.getCoordinator().getHostAddress(), ACK);
+            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), ACK);
             communicationProtocol.sendMessage(ack);
 
-//            Message ack = new Message(token.getDistributedTransactionId(), token.getCoordinatorHostAddress(), ACK);
-//            communicationProtocol.sendMessage(ack);
+            petriNet.getPlaces().stream().forEach(place -> {
+                List<Token> tokenList = place.getTokenList().stream()
+                        .filter(token2 -> token2.getDistributedTransactionId() == token.getDistributedTransactionId())
+                        .collect(Collectors.toList());
+                place.getTokenList().removeAll(tokenList);
+            });
+
+            petriNet.getPlace("P5-INITIAL").get().enableAllTransitions();
         });
 
 

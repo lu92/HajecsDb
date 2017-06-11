@@ -7,6 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Message {
     private long distributedTransactionId;
+    private HostAddress sourceHostAddress;
     private HostAddress hostAddress;
     private Signal signal;
 }

@@ -2,5 +2,9 @@ package org.hajecsdb.graphs.restLayer;
 
 public enum VoterType {
     COORDINATOR,
-    PARTICIPANT
+    PARTICIPANT;
+
+    public VoterType getOppositeType() {
+        return this == COORDINATOR ? PARTICIPANT : COORDINATOR;
+    }
 }

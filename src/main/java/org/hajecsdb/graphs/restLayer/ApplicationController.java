@@ -3,24 +3,25 @@ package org.hajecsdb.graphs.restLayer;
 import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
-import org.hajecsdb.graphs.distributedTransactions.*;
-import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
-import org.hajecsdb.graphs.distributedTransactions.petriNet.Place;
-import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
+import org.hajecsdb.graphs.distributedTransactions.HostAddress;
+import org.hajecsdb.graphs.distributedTransactions.Message;
 import org.hajecsdb.graphs.restLayer.dto.*;
 import org.hajecsdb.graphs.transactions.Transaction;
 import org.hajecsdb.graphs.transactions.TransactionManager;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
+@Import(ClusterConfiguration.class)
 public class ApplicationController {
 
     @Autowired
@@ -32,8 +33,8 @@ public class ApplicationController {
     @Autowired
     private CypherExecutor cypherExecutor;
 
-//    @Autowired
-//    private Environment environment;
+    @Autowired
+    private Environment environment;
 
 //    @Autowired(required = false)
 //    private VoterConfig voterConfig;
@@ -47,56 +48,7 @@ public class ApplicationController {
 
     private RestCommunicationProtocol restCommunicationProtocol = new RestCommunicationProtocol();
 
-    private ThreePhaseCommitPetriNetBuilder threePhaseCommitPetriNetBuilder =
-            new ThreePhaseCommitPetriNetBuilder();
-
-    private PetriNet threePhaseCommitPetriNet = threePhaseCommitPetriNetBuilder
-            .communicationProtocol(restCommunicationProtocol)
-            .build();
-
-    private Coordinator coordinator;
-
-    private List<Participant> participantList;
-
-    public ApplicationController() {
-        coordinator = new Coordinator(
-                threePhaseCommitPetriNet,
-                restCommunicationProtocol,
-                new HostAddress("127.0.0.1", 7000),
-                2);
-
-        Participant participant0 = new Participant(
-                threePhaseCommitPetriNet,
-                restCommunicationProtocol,
-                new HostAddress("127.0.0.1", 7000));
-
-        participant0.abortDistributedTransaction(true);
-
-        Participant participant1 = new Participant(
-                threePhaseCommitPetriNet,
-                restCommunicationProtocol,
-                new HostAddress("127.0.0.1", 8000));
-
-        participant1.abortDistributedTransaction(false);
-
-        Participant participant2 = new Participant(
-                threePhaseCommitPetriNet,
-                restCommunicationProtocol,
-                new HostAddress("127.0.0.1", 9000));
-
-        participant2.abortDistributedTransaction(true);
-
-        participantList = Arrays.asList(participant0, participant1, participant2);
-
-        threePhaseCommitPetriNet.setCoordinator(coordinator);
-        threePhaseCommitPetriNet.setParticipantList(participantList);
-    }
-
-    private Participant getParticipant() {
-        return participantList.stream()
-                .filter(participant -> participant.getHostAddress().getPort() == port)
-                .findFirst().get();
-    }
+    private AbstractCluster cluster;
 
     @RequestMapping(method = RequestMethod.GET, path = "/Session")
     @ResponseBody
@@ -166,15 +118,16 @@ public class ApplicationController {
     @RequestMapping(method = RequestMethod.GET, path = "/clear")
     @ResponseBody
     public String clearPetriNet() {
-        threePhaseCommitPetriNet.getPlaces().stream().forEach(place -> place.getTokenList().clear());
-        threePhaseCommitPetriNet.getCoordinator().getReceivedMessages().clear();
+//        threePhaseCommitPetriNet.getPlaces().stream().forEach(place -> place.getTokenList().clear());
+//        threePhaseCommitPetriNet.getCoordinatorHostAddress().getReceivedMessages().clear();
+        cluster.clearPetriNet();
         return "Petri Net is clear!";
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/abortTransaction")
     @ResponseBody
     public String abortTransactionByParticipant(@RequestBody AbortTransactionDto abortTransaction) {
-        getParticipant().abortDistributedTransaction(abortTransaction.isAbort());
+        cluster.abortDistributedTransaction(abortTransaction.getDistributedTransactionId(), abortTransaction.isAbort());
         return "Distributed Transaction [" + abortTransaction.getDistributedTransactionId() + "] will be aborted by Participant[" + port + "]";
     }
 
@@ -182,69 +135,15 @@ public class ApplicationController {
     @RequestMapping(method = RequestMethod.POST, path = "/3pc/receive")
     @ResponseBody
     public void messageReceived(@RequestBody Message message) {
-
-//        String profile = environment.getActiveProfiles()[0];
-        String profile = getProfile(message.getSignal());
-
-
-        switch (profile.toUpperCase()) {
-            case "COORDINATOR":
-                System.out.println(LocalDateTime.now() + "\tCOORDINATOR RECEIVED " + message);
-                coordinator.receiveMessage(message);
-                threePhaseCommitPetriNet.fireTransitionsInCoordinatorFlow(new Token(message.getDistributedTransactionId()));
-                break;
-
-            case "PARTICIPANT":
-                System.out.println(LocalDateTime.now() + "\tPARTICIPANT RECEIVED " + message);
-
-                switch (message.getSignal()) {
-                    case PREPARE:
-                        Token token = new Token(message.getDistributedTransactionId());
-                        threePhaseCommitPetriNet.pushInParticipantFlow(token);
-                        break;
-
-                    case PREPARE_TO_COMMIT:
-                        Place P7_ready = threePhaseCommitPetriNet.getPlace("P7-READY").get();
-                        P7_ready.getTokenList().add(new Token(message.getDistributedTransactionId()));
-                        System.out.println("RECEIVED PREPARE_TO_COMMIT");
-                        break;
-
-                    case GLOBAL_COMMIT:
-                        Place P8_pre_commit = threePhaseCommitPetriNet.getPlace("P8-PRE-COMMIT").get();
-                        P8_pre_commit.getTokenList().add(new Token(message.getDistributedTransactionId()));
-                        System.out.println("RECEIVED GLOBAL_COMMIT");
-                        break;
-                }
-
-                getParticipant().receiveMessage(message);
-                threePhaseCommitPetriNet.fireTransitionsInParticipantFlow(new Token(message.getDistributedTransactionId()));
-                break;
-        }
+        initCluster();
+        cluster.receiveMessage(message);
     }
-
-    private String getProfile(Signal signal) {
-        List<Signal> coordinatorSignals = Arrays.asList(PREPARE,
-                GLOBAL_ABORT,
-                PREPARE_TO_COMMIT,
-                GLOBAL_COMMIT);
-
-        List<Signal> participantSignals = Arrays.asList(VOTE_ABORT,
-                VOTE_COMMIT,
-                READY_TO_COMMIT,
-                ACK);
-
-        if (coordinatorSignals.contains(signal))
-            return "participant";
-        return "coordinator";
-    }
-
 
     @RequestMapping(method = RequestMethod.POST, path = "/distributedTransaction")
     @ResponseBody
     public void exec(@RequestBody DistributedTransactionCommand command) {
-        Token token = new Token(command.getDistributedTransactionId());
-        threePhaseCommitPetriNet.pushInCoordinatorFlow(token);
-        threePhaseCommitPetriNet.fireTransitionsInCoordinatorFlow(token);
+        initCluster();
+        cluster.exec(command);
     }
 
 
@@ -256,6 +155,18 @@ public class ApplicationController {
         content.put(0, answer);
         resultDto.setContent(content);
         return resultDto;
+    }
+
+    private void initCluster() {
+        if (cluster == null) {
+            if (environment.getActiveProfiles()[0].equals("coordinator")) {
+                cluster = new CoordinatorCluster(new HostAddress("127.0.0.1", 7000),
+                        Arrays.asList(new HostAddress("127.0.0.1", 8000), new HostAddress("127.0.0.1", 9000)),
+                        restCommunicationProtocol, 3);
+            } else {
+                cluster = new ParticipantCluster(new HostAddress("127.0.0.1", port), new HostAddress("127.0.0.1", 7000), restCommunicationProtocol);
+            }
+        }
     }
 
 }
