@@ -10,13 +10,11 @@ import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 
 public abstract class AbstractCluster {
 
-    private VoterType voterType;
     private HostAddress hostAddress;
     private CommunicationProtocol communicationProtocol;
     protected PetriNet petriNet;
 
-    public AbstractCluster(VoterType voterType, HostAddress hostAddress, CommunicationProtocol communicationProtocol) {
-        this.voterType = voterType;
+    public AbstractCluster(HostAddress hostAddress, CommunicationProtocol communicationProtocol) {
         this.hostAddress = hostAddress;
         this.communicationProtocol = communicationProtocol;
     }

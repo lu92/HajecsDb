@@ -8,14 +8,12 @@ import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.hajecsdb.graphs.restLayer.VoterType.COORDINATOR;
-
 public class CoordinatorCluster extends AbstractCluster {
     private Coordinator coordinator;
     private Participant participant;
 
     public CoordinatorCluster(HostAddress hostAddress, List<HostAddress> participantHostAddressList, CommunicationProtocol communicationProtocol) {
-        super(COORDINATOR, hostAddress, communicationProtocol);
+        super(hostAddress, communicationProtocol);
         petriNet = create3pcPetriNet();
         List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, participantHostAddressList);
         int numberOfParticipantsOfDistributedTransaction = actualParticipantList.size();

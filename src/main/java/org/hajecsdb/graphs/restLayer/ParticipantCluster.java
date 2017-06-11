@@ -9,15 +9,13 @@ import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
 import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 
-import static org.hajecsdb.graphs.restLayer.VoterType.PARTICIPANT;
-
 public class ParticipantCluster extends AbstractCluster {
 
     private PetriNet petriNet;
     private Participant participant;
 
     public ParticipantCluster(HostAddress hostAddress, HostAddress coordinatorHostAddress, CommunicationProtocol communicationProtocol) {
-        super(PARTICIPANT, hostAddress, communicationProtocol);
+        super(hostAddress, communicationProtocol);
         petriNet = create3pcPetriNet();
         participant = new Participant(petriNet, communicationProtocol, hostAddress, coordinatorHostAddress);
         petriNet.setCoordinatorHostAddress(coordinatorHostAddress);

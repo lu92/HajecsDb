@@ -114,8 +114,6 @@ public class ApplicationController {
     @RequestMapping(method = RequestMethod.GET, path = "/clear")
     @ResponseBody
     public String clearPetriNet() {
-//        threePhaseCommitPetriNet.getPlaces().stream().forEach(place -> place.getTokenList().clear());
-//        threePhaseCommitPetriNet.getCoordinatorHostAddress().getReceivedMessages().clear();
         cluster.clearPetriNet();
         return "Petri Net is clear!";
     }
@@ -140,6 +138,26 @@ public class ApplicationController {
     public void exec(@RequestBody DistributedTransactionCommand command) {
         initCluster();
         cluster.exec(command);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/script")
+    @ResponseBody
+    public ResultDto execScript(@RequestBody Script script) {
+        initCluster();
+        Session session = sessionPool.createSession();
+        session.setTransactionManager(transactionManager);
+        Transaction transaction = session.beginTransaction();
+        for (String command : script.getCommands()) {
+            Result result = cypherExecutor.execute(transactionalGraphService, transaction, command);
+            if (!result.isCompleted()) {
+                transactionalGraphService.context(transaction).rollback();
+                ResultDto rollbackedScript = createMessage(command, "Script has been rollbacked!");
+                return rollbackedScript;
+            }
+        }
+
+        transactionalGraphService.context(transaction).commit();
+        return createMessage("", "Script has been perfomed and committed!");
     }
 
 

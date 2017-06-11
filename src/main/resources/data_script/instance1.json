@@ -1,0 +1,15 @@
+{
+  "commands": [
+    "CREATE (p: Vampire {name: 'Selene'})",
+    "CREATE (p: Vampire {name: 'Victor'})",
+    "CREATE (p: Hibrid {name: 'Marcus'})",
+    "CREATE (p: Hibrid {name: 'Michael'})",
+    "CREATE (p: Vampire {name: 'Kraven'})",
+    "CREATE (p: Vampire {name: 'Tanis'})",
+    "CREATE (p: Lykan {name: 'William'})",
+    "MATCH (m {name: 'Marcus'}) MATCH (s {name: 'Selene'}) CREATE (m)-[p:KNOW]->(s)",
+    "MATCH (m {name: 'Selene'}) MATCH (s {name: 'Tanis'}) CREATE (m)-[p:KNOW]->(s)",
+    "MATCH (v {name: 'Victor'}) MATCH (s {name: 'Selene'}) CREATE (v)-[p:LIKES]->(s)",
+    "MATCH (v {name: 'Victor'}) MATCH (s {name: 'Kraven'}) CREATE (v)-[p:LIKES]->(s)"
+  ]
+}
