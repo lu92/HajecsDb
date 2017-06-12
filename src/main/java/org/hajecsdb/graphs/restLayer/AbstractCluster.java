@@ -5,18 +5,18 @@ import org.hajecsdb.graphs.distributedTransactions.HostAddress;
 import org.hajecsdb.graphs.distributedTransactions.Message;
 import org.hajecsdb.graphs.distributedTransactions.ThreePhaseCommitPetriNetBuilder;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
-import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
-import org.hajecsdb.graphs.restLayer.dto.ResultDto;
+import org.hajecsdb.graphs.restLayer.dto.*;
+import org.springframework.core.env.Environment;
 
 public abstract class AbstractCluster {
 
-    private HostAddress hostAddress;
-    private CommunicationProtocol communicationProtocol;
+    protected HostAddress hostAddress;
+    protected CommunicationProtocol communicationProtocol;
     protected PetriNet petriNet;
 
-    public AbstractCluster(HostAddress hostAddress, CommunicationProtocol communicationProtocol) {
-        this.hostAddress = hostAddress;
+    public AbstractCluster(CommunicationProtocol communicationProtocol, Environment environment) {
         this.communicationProtocol = communicationProtocol;
+        this.hostAddress = getHostAddress(environment);
     }
 
     public abstract void receiveMessage(Message message);
@@ -25,9 +25,7 @@ public abstract class AbstractCluster {
 
     public abstract void abortDistributedTransaction(long distributedTransactionId, boolean decision);
 
-    public HostAddress getHostAddress() {
-        return hostAddress;
-    }
+    public abstract HostAddress getHostAddress();
 
     public PetriNet getPetriNet() {
         return petriNet;
@@ -36,9 +34,21 @@ public abstract class AbstractCluster {
     protected PetriNet create3pcPetriNet() {
         return new ThreePhaseCommitPetriNetBuilder()
                 .communicationProtocol(communicationProtocol)
-                .sourceHostAddress(hostAddress)
+                .sourceHostAddress(getHostAddress())
                 .build();
     }
 
     public abstract void clearPetriNet();
+    public abstract ResultDto perform(Command command);
+
+    public abstract SessionDto createSession();
+
+    public abstract String closeSession(String sessionId);
+
+    public abstract ResultDto execScript(Script script);
+
+    protected HostAddress getHostAddress(Environment environment) {
+        int port = Integer.valueOf(environment.getProperty("server.port"));
+        return new HostAddress("127.0.0.1", port);
+    }
 }

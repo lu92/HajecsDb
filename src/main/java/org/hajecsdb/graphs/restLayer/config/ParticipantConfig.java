@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 @Profile("participant")
 @PropertySource(value = "classpath:participant.properties")
-class ParticipantConfig implements VoterConfig {
+public class ParticipantConfig implements VoterConfig {
 
     @Value("${coordinatorHostAddress.host}")
     private String coordinatorHost;

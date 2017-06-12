@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 
 @Component
-class RestCommunicationProtocol implements CommunicationProtocol {
+public class RestCommunicationProtocol implements CommunicationProtocol {
 
     private RestTemplate restTemplate = new RestTemplate();
 

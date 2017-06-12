@@ -1,28 +1,48 @@
 package org.hajecsdb.graphs.restLayer;
 
 import org.hajecsdb.graphs.cypher.CypherExecutor;
+import org.hajecsdb.graphs.cypher.Result;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.distributedTransactions.*;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
-import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
-import org.hajecsdb.graphs.restLayer.dto.ResultDto;
+import org.hajecsdb.graphs.restLayer.config.VoterConfig;
+import org.hajecsdb.graphs.restLayer.dto.*;
+import org.hajecsdb.graphs.transactions.Transaction;
+import org.hajecsdb.graphs.transactions.TransactionManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+@Component
+@Profile("coordinator")
 public class CoordinatorCluster extends AbstractCluster {
     private Coordinator coordinator;
     private Participant participant;
-    private DistributedViewResolver distributedViewResolver;
+//    private DistributedViewResolver distributedViewResolver;
 
-    public CoordinatorCluster(HostAddress hostAddress, List<HostAddress> participantHostAddressList, CommunicationProtocol communicationProtocol, CypherExecutor cypherExecutor) {
-        super(hostAddress, communicationProtocol);
-        distributedViewResolver = new DistributedViewResolver();
+    private TransactionManager transactionManager;
+
+    private SessionPool sessionPool;
+    private CypherExecutor cypherExecutor;
+
+
+    @Autowired
+    public CoordinatorCluster(CommunicationProtocol communicationProtocol, CypherExecutor cypherExecutor, VoterConfig voterConfig, Environment environment) {
+        super(communicationProtocol, environment);
+        this.sessionPool = new SessionPool();
+        this.transactionManager = new TransactionManager();
         petriNet = create3pcPetriNet();
-        List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, participantHostAddressList);
+        List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, voterConfig.getHosts());
         int numberOfParticipantsOfDistributedTransaction = actualParticipantList.size();
 
         coordinator = new Coordinator(petriNet, communicationProtocol, hostAddress, numberOfParticipantsOfDistributedTransaction);
-        participant = new Participant(petriNet, communicationProtocol, hostAddress, hostAddress, cypherExecutor);
+        participant = new Participant(petriNet, communicationProtocol, hostAddress, hostAddress, cypherExecutor, sessionPool, transactionManager);
 
         petriNet.setCoordinatorHostAddress(coordinator.getHostAddress());
         petriNet.setParticipantList(actualParticipantList);
@@ -71,8 +91,57 @@ public class CoordinatorCluster extends AbstractCluster {
     }
 
     @Override
+    public HostAddress getHostAddress() {
+        return hostAddress;
+    }
+
+    @Override
     public void clearPetriNet() {
         petriNet.getPlaces().stream().forEach(place -> place.getTokenList().clear());
         this.coordinator.getReceivedMessages().clear();
+    }
+
+    @Override
+    public ResultDto perform(Command command) {
+        return participant.perform(command);
+    }
+
+    @Override
+    public SessionDto createSession() {
+        Session session = sessionPool.createSession();
+        return new SessionDto(session.getSessionId());
+    }
+
+    @Override
+    public String closeSession(String sessionId) {
+        return sessionPool.closeSession(sessionId);
+    }
+
+    @Override
+    public ResultDto execScript(Script script) {
+        Session session = sessionPool.createSession();
+        session.setTransactionManager(transactionManager);
+        Transaction transaction = session.beginTransaction();
+        for (String command : script.getCommands()) {
+            Result result = cypherExecutor.execute(transaction, command);
+            if (!result.isCompleted()) {
+                cypherExecutor.getTransactionalGraphService().context(transaction).rollback();
+                ResultDto rollbackedScript = createMessage(command, "Script has been rollbacked!");
+                return rollbackedScript;
+            }
+        }
+
+        cypherExecutor.getTransactionalGraphService().context(transaction).commit();
+        return createMessage("", "Script has been perfomed and committed!");
+    }
+
+    protected ResultDto createMessage(String command, String message) {
+        ResultRowDto answer = ResultRowDto.builder().contentType(ContentType.STRING).message(message).build();
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCommand(command);
+        Map<Integer, ResultRowDto> content = new HashMap<>();
+        content.put(0, answer);
+        resultDto.setContent(content);
+        return resultDto;
     }
 }
