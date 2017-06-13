@@ -1,5 +1,7 @@
 package HajecsDb.unitTests.distributedTransactions;
 
+import org.hajecsdb.graphs.cypher.CypherExecutor;
+import org.hajecsdb.graphs.cypher.Result;
 import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
 import org.hajecsdb.graphs.distributedTransactions.HostAddress;
 import org.hajecsdb.graphs.distributedTransactions.Message;
@@ -9,6 +11,8 @@ import org.hajecsdb.graphs.restLayer.ParticipantCluster;
 import org.hajecsdb.graphs.restLayer.config.CoordinatorConfig;
 import org.hajecsdb.graphs.restLayer.config.ParticipantConfig;
 import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TGraph;
+import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +43,9 @@ public class ClustersCommunicationTest {
     @Mock
     private ParticipantConfig participantConfig;
 
+    @Mock
+    private CypherExecutor cypherExecutor;
+
     private int distributedTransactionId = 100;
     private String command = "Cyper Query";
 
@@ -60,8 +67,14 @@ public class ClustersCommunicationTest {
         Mockito.when(coordinatorConfig.getHosts()).thenReturn(Arrays.asList(participant1HostAddress, participant2HostAddress));
         Mockito.when(participantConfig.getHosts()).thenReturn(Arrays.asList(coordinatorHostAddress));
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(mockedCommunicationProtocol, null, coordinatorConfig, coordinatorEnvironmentMock);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(mockedCommunicationProtocol, null, participantConfig, participant2EnvironmentMock);
+        Result result = Mockito.mock(Result.class);
+        Mockito.when(result.isCompleted()).thenReturn(true);
+        Mockito.when(cypherExecutor.execute(Mockito.any(), Mockito.any())).thenReturn(result);
+
+        mockCypherExecutor();
+
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(mockedCommunicationProtocol, cypherExecutor, coordinatorConfig, coordinatorEnvironmentMock);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(mockedCommunicationProtocol, cypherExecutor, participantConfig, participant2EnvironmentMock);
 
         mockedCommunicationProtocol.addCluster(coordinatorCluster);
         mockedCommunicationProtocol.addCluster(participant2Cluster);
@@ -87,6 +100,14 @@ public class ClustersCommunicationTest {
         );
     }
 
+    private void mockCypherExecutor() {
+        TGraph tGraphMock = Mockito.mock(TGraph.class);
+        TransactionalGraphService transactionalGraphServiceMock = Mockito.mock(TransactionalGraphService.class);
+        Mockito.when(transactionalGraphServiceMock.context(Mockito.any())).thenReturn(tGraphMock);
+
+        Mockito.when(cypherExecutor.getTransactionalGraphService()).thenReturn(transactionalGraphServiceMock);
+    }
+
     @Test
     public void coordinatorAndTwoParticipantClusterEachCommitTest() {
 
@@ -100,15 +121,21 @@ public class ClustersCommunicationTest {
         Mockito.when(coordinatorConfig.getHosts()).thenReturn(Arrays.asList(participant1HostAddress, participant2HostAddress, participant3HostAddress));
         Mockito.when(participantConfig.getHosts()).thenReturn(Arrays.asList(coordinatorHostAddress));
 
-        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(mockedCommunicationProtocol, null, coordinatorConfig, coordinatorEnvironmentMock);
-        ParticipantCluster participant2Cluster = new ParticipantCluster(mockedCommunicationProtocol, null, participantConfig, participant2EnvironmentMock);
-        ParticipantCluster participant3Cluster = new ParticipantCluster(mockedCommunicationProtocol, null, participantConfig, participant3EnvironmentMock);
+        CoordinatorCluster coordinatorCluster = new CoordinatorCluster(mockedCommunicationProtocol, cypherExecutor, coordinatorConfig, coordinatorEnvironmentMock);
+        ParticipantCluster participant2Cluster = new ParticipantCluster(mockedCommunicationProtocol, cypherExecutor, participantConfig, participant2EnvironmentMock);
+        ParticipantCluster participant3Cluster = new ParticipantCluster(mockedCommunicationProtocol, cypherExecutor, participantConfig, participant3EnvironmentMock);
 
         mockedCommunicationProtocol.addCluster(coordinatorCluster);
         mockedCommunicationProtocol.addCluster(participant2Cluster);
         mockedCommunicationProtocol.addCluster(participant3Cluster);
 
         DistributedTransactionCommand distributedTransactionCommand = new DistributedTransactionCommand(distributedTransactionId, command);
+
+        Result result = Mockito.mock(Result.class);
+        Mockito.when(result.isCompleted()).thenReturn(true);
+        Mockito.when(cypherExecutor.execute(Mockito.any(), Mockito.any())).thenReturn(result);
+
+        mockCypherExecutor();
 
         coordinatorCluster.exec(distributedTransactionCommand);
 

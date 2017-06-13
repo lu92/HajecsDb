@@ -26,10 +26,10 @@ public class CoordinatorCluster extends AbstractCluster {
     private Participant participant;
 //    private DistributedViewResolver distributedViewResolver;
 
-    private TransactionManager transactionManager;
 
     private SessionPool sessionPool;
     private CypherExecutor cypherExecutor;
+    private TransactionManager transactionManager;
 
 
     @Autowired
@@ -37,6 +37,7 @@ public class CoordinatorCluster extends AbstractCluster {
         super(communicationProtocol, environment);
         this.sessionPool = new SessionPool();
         this.transactionManager = new TransactionManager();
+        this.cypherExecutor = cypherExecutor;
         petriNet = create3pcPetriNet();
         List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, voterConfig.getHosts());
         int numberOfParticipantsOfDistributedTransaction = actualParticipantList.size();

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = { "org.hajecsdb.graphs.restLayer", "org.hajecsdb.graphs.distributedTransactions" })
+@ComponentScan(basePackages = { "org.hajecsdb.graphs.restLayer" })
 public class CypherContext
 {
     @Bean

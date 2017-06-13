@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Stack;
 
 @Component
-public final class CypherExecutor {
+public class CypherExecutor {
     private CypherDfaBuilder cypherDfaBuilder;
     private ClausesSeparator clausesSeparator;
     private TransactionalGraphService transactionalGraphService;

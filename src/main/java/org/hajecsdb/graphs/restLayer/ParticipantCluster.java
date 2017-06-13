@@ -9,6 +9,7 @@ import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
 import org.hajecsdb.graphs.restLayer.config.VoterConfig;
 import org.hajecsdb.graphs.restLayer.dto.*;
+import org.hajecsdb.graphs.transactions.TransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
@@ -21,12 +22,19 @@ public class ParticipantCluster extends AbstractCluster {
     private PetriNet petriNet;
     private Participant participant;
 
+    private SessionPool sessionPool;
+    private CypherExecutor cypherExecutor;
+    private TransactionManager transactionManager;
+
 
     @Autowired
     public ParticipantCluster(CommunicationProtocol communicationProtocol, CypherExecutor cypherExecutor, VoterConfig voterConfig, Environment environment) {
         super(communicationProtocol, environment);
+        this.sessionPool = new SessionPool();
+        this.transactionManager = new TransactionManager();
+        this.cypherExecutor = cypherExecutor;
         petriNet = create3pcPetriNet();
-        participant = new Participant(petriNet, communicationProtocol, hostAddress, voterConfig.getHosts().get(0), cypherExecutor, null, null);
+        participant = new Participant(petriNet, communicationProtocol, hostAddress, voterConfig.getHosts().get(0), cypherExecutor, sessionPool, transactionManager);
         petriNet.setCoordinatorHostAddress(voterConfig.getHosts().get(0));
         petriNet.setSourceHostAddress(hostAddress);
     }

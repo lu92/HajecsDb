@@ -69,10 +69,12 @@ public class Participant extends Voter {
                 Place P8_pre_commit = petriNet.getPlace("P8-PRE-COMMIT").get();
                 P8_pre_commit.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommand()));
 
-//                Session session = sessionPool.createSession();
-//                session.setTransactionManager(transactionManager);
-//                Transaction transaction = session.beginTransaction();
-//                cypherExecutor.getTransactionalGraphService().context(transaction).commit();
+                Session session = sessionPool.createSession();
+                session.setTransactionManager(transactionManager);
+                Transaction transaction = session.beginTransaction();
+                Result result = cypherExecutor.execute(transaction, message.getCommand());
+                System.out.println("CYPHER OPERATION STATUS [" + message.getCommand() + "]: " + result.isCompleted());
+                cypherExecutor.getTransactionalGraphService().context(transaction).commit();
                 System.out.println("RECEIVED GLOBAL_COMMIT");
                 break;
         }
