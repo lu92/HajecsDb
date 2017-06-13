@@ -47,7 +47,7 @@ public class ClustersCommunicationTest {
     private CypherExecutor cypherExecutor;
 
     private int distributedTransactionId = 100;
-    private String command = "Cyper Query";
+    private String command = "MATCH (n: Person)";
 
     @Before
     public void setup() {

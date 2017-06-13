@@ -2,6 +2,9 @@ package org.hajecsdb.graphs.restLayer;
 
 import org.hajecsdb.graphs.cypher.CypherExecutor;
 import org.hajecsdb.graphs.cypher.Result;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClauseInvocation;
+import org.hajecsdb.graphs.cypher.clauses.DFA.ClausesSeparator;
+import org.hajecsdb.graphs.cypher.clauses.helpers.ClauseEnum;
 import org.hajecsdb.graphs.cypher.clauses.helpers.ContentType;
 import org.hajecsdb.graphs.distributedTransactions.*;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
@@ -14,10 +17,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Profile("coordinator")
@@ -30,6 +30,7 @@ public class CoordinatorCluster extends AbstractCluster {
     private SessionPool sessionPool;
     private CypherExecutor cypherExecutor;
     private TransactionManager transactionManager;
+    private ClausesSeparator clausesSeparator;
 
 
     @Autowired
@@ -38,6 +39,7 @@ public class CoordinatorCluster extends AbstractCluster {
         this.sessionPool = new SessionPool();
         this.transactionManager = new TransactionManager();
         this.cypherExecutor = cypherExecutor;
+        this.clausesSeparator = new ClausesSeparator();
         petriNet = create3pcPetriNet();
         List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, voterConfig.getHosts());
         int numberOfParticipantsOfDistributedTransaction = actualParticipantList.size();
@@ -76,6 +78,13 @@ public class CoordinatorCluster extends AbstractCluster {
 
     @Override
     public ResultDto exec(DistributedTransactionCommand distributedTransactionCommand) {
+        Stack<ClauseInvocation> clauseInvocations = clausesSeparator.splitByClauses(distributedTransactionCommand.getCommand());
+        if (clauseInvocations.peek().getClause() == ClauseEnum.CREATE_NODE
+                || clauseInvocations.peek().getClause() == ClauseEnum.CREATE_RELATIONSHIP) {
+            return createMessage(distributedTransactionCommand.getCommand(), "CREATE clauses are not supported!");
+        }
+
+
         Token token = new Token(distributedTransactionCommand.getDistributedTransactionId(), distributedTransactionCommand.getCommand());
         petriNet.pushInCoordinatorFlow(token);
         petriNet.fireTransitionsInCoordinatorFlow(token);
