@@ -3,6 +3,7 @@ package org.hajecsdb.graphs.distributedTransactions.petriNet;
 import lombok.Data;
 import org.hajecsdb.graphs.distributedTransactions.CommunicationProtocol;
 import org.hajecsdb.graphs.distributedTransactions.HostAddress;
+import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +23,9 @@ public class PetriNet {
 
     private Map<Long, Set<HostAddress>> participantsWhichAbortTransaction = new HashMap<>();
     private HostAddress sourceHostAddress;
+
+    private Map<Long, ResultDto> resultOfLocalPartOfDistributedTransaction = new HashMap<>();
+
 
     public void pushInCoordinatorFlow(Token token) {
         beginPlace.getTokenList().add(token);

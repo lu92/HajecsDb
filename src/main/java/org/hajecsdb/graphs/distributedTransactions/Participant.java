@@ -27,6 +27,7 @@ public class Participant extends Voter {
     private HostAddress coordinatorHostAddress;
     private Map<Long, Boolean> transactionsToAbort = new HashMap<>();
     private Map<Long, Transaction> openedTransactions = new HashMap<>();
+//    private Map<Long, ResultDto> resultOfLocalPartOfDistributedTransaction = new HashMap<>();
     private CypherExecutor cypherExecutor;
     private EntityConverter entityConverter;
     private SessionPool sessionPool;
@@ -75,6 +76,9 @@ public class Participant extends Voter {
                 Result result = cypherExecutor.execute(transaction, message.getCommand());
                 System.out.println("CYPHER OPERATION STATUS [" + message.getCommand() + "]: " + result.isCompleted());
                 cypherExecutor.getTransactionalGraphService().context(transaction).commit();
+                EntityConverter entityConverter = new EntityConverter();
+                ResultDto executedResultDto = entityConverter.toResult(result);
+                petriNet.getResultOfLocalPartOfDistributedTransaction().put(message.getDistributedTransactionId(), executedResultDto);
                 System.out.println("RECEIVED GLOBAL_COMMIT");
                 break;
         }

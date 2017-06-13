@@ -1,6 +1,7 @@
 package org.hajecsdb.graphs.distributedTransactions;
 
 import org.hajecsdb.graphs.distributedTransactions.petriNet.*;
+import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 
 import java.util.HashSet;
 import java.util.List;
@@ -148,7 +149,9 @@ public class ThreePhaseCommitPetriNetBuilder {
             System.out.println("T8 1) write to log (commit)");
             System.out.println("T8 2) potwierdzenie do Coordinator");
 
-            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), null, ACK);
+            ResultDto resultDto = petriNet.getResultOfLocalPartOfDistributedTransaction().get(token.getDistributedTransactionId());
+
+            Message ack = new Message(token.getDistributedTransactionId(), sourceHostAddress, petriNet.getCoordinatorHostAddress(), token.getCommand(), resultDto, ACK);
             communicationProtocol.sendMessage(ack);
 
             petriNet.getPlaces().stream().forEach(place -> {

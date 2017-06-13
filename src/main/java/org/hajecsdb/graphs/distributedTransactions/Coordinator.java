@@ -3,6 +3,7 @@ package org.hajecsdb.graphs.distributedTransactions;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Place;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
+import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -13,6 +14,7 @@ import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
 public class Coordinator extends Voter {
 
     private Queue<Message> receivedMessages = new LinkedList<>();
+    private Map<Long, Set<ResultDto>> resultsFromParticipants = new HashMap<>();
     private int numberOfParticipantsOfDistributedTransaction;
 
     public Coordinator(PetriNet petriNet, CommunicationProtocol communicationProtocol, HostAddress hostAddress, int numberOfParticipantsOfDistributedTransaction) {
@@ -105,9 +107,18 @@ public class Coordinator extends Voter {
                 break;
 
             case ACK:
+                if (!resultsFromParticipants.containsKey(message.getDistributedTransactionId())) {
+                    resultsFromParticipants.put(message.getDistributedTransactionId(), new HashSet<>());
+                }
+
+                Set<ResultDto> results = resultsFromParticipants.get(message.getDistributedTransactionId());
+                results.add(message.getResultDto());
+                resultsFromParticipants.put(message.getDistributedTransactionId(), results);
+
                 if (allParticipantsCommittedTransaction(distributedTransactionId)) {
                     Place P4_commit = petriNet.getPlace("P4-COMMIT").get();
                     P4_commit.getTokenList().add(new Token(distributedTransactionId, message.getCommand()));
+
                     System.out.println("DISTRIBUTED TRANSACTION [" + distributedTransactionId + "] HAS BEEN COMMITTED!");
                     deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 }
