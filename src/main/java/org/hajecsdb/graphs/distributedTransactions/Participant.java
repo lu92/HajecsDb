@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
 public class Participant extends Voter {
     private HostAddress coordinatorHostAddress;
     private Map<Long, Boolean> transactionsToAbort = new HashMap<>();
-    private Map<Long, Transaction> openedTransactions = new HashMap<>();
-//    private Map<Long, ResultDto> resultOfLocalPartOfDistributedTransaction = new HashMap<>();
+//    private Map<Long, Transaction> openedTransactions = new HashMap<>();
     private CypherExecutor cypherExecutor;
     private EntityConverter entityConverter;
     private SessionPool sessionPool;
