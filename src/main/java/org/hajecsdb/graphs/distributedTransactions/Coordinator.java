@@ -15,7 +15,7 @@ import static org.hajecsdb.graphs.distributedTransactions.Signal.*;
 public class Coordinator extends Voter {
 
     private Queue<Message> receivedMessages = new LinkedList<>();
-    private Map<Long, Set<ResultDto>> resultsFromParticipants = new HashMap<>();
+    private Map<Long, List<ResultDto>> resultsFromParticipants = new HashMap<>();
     private Map<Long, ResultDto> resultOfDistributedTransaction = new HashMap<>();
     private int numberOfParticipantsOfDistributedTransaction;
     private DistributedViewResolver distributedViewResolver;
@@ -115,10 +115,10 @@ public class Coordinator extends Voter {
 
             case ACK:
                 if (!resultsFromParticipants.containsKey(message.getDistributedTransactionId())) {
-                    resultsFromParticipants.put(message.getDistributedTransactionId(), new HashSet<>());
+                    resultsFromParticipants.put(message.getDistributedTransactionId(), new ArrayList<>());
                 }
 
-                Set<ResultDto> results = resultsFromParticipants.get(message.getDistributedTransactionId());
+                List<ResultDto> results = resultsFromParticipants.get(message.getDistributedTransactionId());
                 results.add(message.getResultDto());
                 resultsFromParticipants.put(message.getDistributedTransactionId(), results);
 
