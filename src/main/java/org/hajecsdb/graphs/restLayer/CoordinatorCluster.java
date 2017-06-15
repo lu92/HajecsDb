@@ -16,9 +16,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 @Component
 @Profile("coordinator")
@@ -26,7 +24,7 @@ public class CoordinatorCluster extends AbstractCluster {
     private Coordinator coordinator;
     private Participant participant;
     private ClausesSeparator clausesSeparator;
-
+    private Set<Long> executedDistributedTransactions = new HashSet<>();
 
     @Autowired
     public CoordinatorCluster(CommunicationProtocol communicationProtocol, CypherExecutor cypherExecutor, VoterConfig voterConfig, Environment environment) {
@@ -70,6 +68,9 @@ public class CoordinatorCluster extends AbstractCluster {
 
     @Override
     public ResultDto exec(DistributedTransactionCommand distributedTransactionCommand) {
+        if (executedDistributedTransactions.contains(distributedTransactionCommand.getDistributedTransactionId())) {
+            return new ResultDto("DISTRIBUTED TRANSACTION [" + distributedTransactionCommand.getDistributedTransactionId() + "] WAS ALREADY EXECUTED!", null);
+        }
         Stack<ClauseInvocation> clauseInvocations = clausesSeparator.splitByClauses(distributedTransactionCommand.getCommand());
         if (clauseInvocations.peek().getClause() == ClauseEnum.CREATE_NODE
                 || clauseInvocations.peek().getClause() == ClauseEnum.CREATE_RELATIONSHIP) {
@@ -80,7 +81,10 @@ public class CoordinatorCluster extends AbstractCluster {
         Token token = new Token(distributedTransactionCommand.getDistributedTransactionId(), distributedTransactionCommand.getCommand());
         petriNet.pushInCoordinatorFlow(token);
         petriNet.fireTransitionsInCoordinatorFlow(token);
-        return coordinator.getResultOfDistributedTransaction(distributedTransactionCommand.getDistributedTransactionId());
+        ResultDto resultOfDistributedTransaction = coordinator.getResultOfDistributedTransaction(distributedTransactionCommand.getDistributedTransactionId());
+        coordinator.clearResultsOfDistributedTransaction();
+        executedDistributedTransactions.add(distributedTransactionCommand.getDistributedTransactionId());
+        return resultOfDistributedTransaction;
     }
 
     private VoterType getTargetVoterOfSignal(Signal signal) {

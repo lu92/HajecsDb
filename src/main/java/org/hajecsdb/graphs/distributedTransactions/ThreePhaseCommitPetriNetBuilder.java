@@ -90,6 +90,7 @@ public class ThreePhaseCommitPetriNetBuilder {
             });
 
             petriNet.getPlace("P1-WAIT").get().enableAllTransitions();
+            petriNet.getResultOfLocalPartOfDistributedTransaction().clear();
 
         });
 

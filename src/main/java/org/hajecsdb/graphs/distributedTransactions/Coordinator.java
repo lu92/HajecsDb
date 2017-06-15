@@ -88,6 +88,8 @@ public class Coordinator extends Voter {
                             System.out.println("NOT ALL PARTICIPANT ARE READY TO COMMIT!");
                             // disable T3 transition
                             P1_wait.disableTransition(distributedTransactionId, "T3");
+
+//                            resultOfDistributedTransaction.put(distributedTransactionId, result);
                         }
 
                         // remove from receivedMessage all messages which has received transaction id
@@ -195,6 +197,14 @@ public class Coordinator extends Voter {
     }
 
     public ResultDto getResultOfDistributedTransaction(long distributedTransactionId) {
+        if (!resultOfDistributedTransaction.containsKey(distributedTransactionId)) {
+            ResultDto resultDto = new ResultDto("DISTRIBUTED TRANSACTION WAS ABORTED BY PARTICIPANT'S SIDE!", null);
+            resultOfDistributedTransaction.put(distributedTransactionId, resultDto);
+        }
         return resultOfDistributedTransaction.get(distributedTransactionId);
+    }
+
+    public void clearResultsOfDistributedTransaction() {
+        resultOfDistributedTransaction.clear();
     }
 }
