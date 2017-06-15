@@ -11,6 +11,7 @@ import org.hajecsdb.graphs.restLayer.ParticipantCluster;
 import org.hajecsdb.graphs.restLayer.config.CoordinatorConfig;
 import org.hajecsdb.graphs.restLayer.config.ParticipantConfig;
 import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
+import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TGraph;
 import org.hajecsdb.graphs.transactions.transactionalGraph.TransactionalGraphService;
 import org.junit.Before;
@@ -22,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -48,6 +50,8 @@ public class ClustersCommunicationTest {
 
     private int distributedTransactionId = 100;
     private String command = "MATCH (n: Person)";
+    ResultDto resultDto = new ResultDto(command, new HashMap<>());
+
 
     @Before
     public void setup() {
@@ -95,8 +99,8 @@ public class ClustersCommunicationTest {
                 new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.READY_TO_COMMIT),
                 new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.GLOBAL_COMMIT),
                 new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.ACK),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.ACK)
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, resultDto, Signal.ACK),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, resultDto, Signal.ACK)
         );
     }
 
@@ -156,9 +160,9 @@ public class ClustersCommunicationTest {
                 new Message(distributedTransactionId, coordinatorHostAddress, participant1HostAddress, command, null, Signal.GLOBAL_COMMIT),
                 new Message(distributedTransactionId, coordinatorHostAddress, participant2HostAddress, command, null, Signal.GLOBAL_COMMIT),
                 new Message(distributedTransactionId, coordinatorHostAddress, participant3HostAddress, command, null, Signal.GLOBAL_COMMIT),
-                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, null, Signal.ACK),
-                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, null, Signal.ACK),
-                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, command, null, Signal.ACK)
+                new Message(distributedTransactionId, participant1HostAddress, coordinatorHostAddress, command, resultDto, Signal.ACK),
+                new Message(distributedTransactionId, participant2HostAddress, coordinatorHostAddress, command, resultDto, Signal.ACK),
+                new Message(distributedTransactionId, participant3HostAddress, coordinatorHostAddress, command, resultDto, Signal.ACK)
         );
     }
 
