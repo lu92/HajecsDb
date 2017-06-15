@@ -24,8 +24,6 @@ import java.util.*;
 public class CoordinatorCluster extends AbstractCluster {
     private Coordinator coordinator;
     private Participant participant;
-    private DistributedViewResolver distributedViewResolver;
-
 
     private SessionPool sessionPool;
     private CypherExecutor cypherExecutor;
@@ -40,7 +38,6 @@ public class CoordinatorCluster extends AbstractCluster {
         this.transactionManager = new TransactionManager();
         this.cypherExecutor = cypherExecutor;
         this.clausesSeparator = new ClausesSeparator();
-        this.distributedViewResolver = new DistributedViewResolver();
         petriNet = create3pcPetriNet();
         List<HostAddress> actualParticipantList = getParticipantHostAddresses(hostAddress, voterConfig.getHosts());
         int numberOfParticipantsOfDistributedTransaction = actualParticipantList.size();
@@ -89,7 +86,7 @@ public class CoordinatorCluster extends AbstractCluster {
         Token token = new Token(distributedTransactionCommand.getDistributedTransactionId(), distributedTransactionCommand.getCommand());
         petriNet.pushInCoordinatorFlow(token);
         petriNet.fireTransitionsInCoordinatorFlow(token);
-        return null;
+        return coordinator.getResultOfDistributedTransaction(distributedTransactionCommand.getDistributedTransactionId());
     }
 
     private VoterType getTargetVoterOfSignal(Signal signal) {

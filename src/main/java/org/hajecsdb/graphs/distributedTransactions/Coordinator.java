@@ -3,6 +3,7 @@ package org.hajecsdb.graphs.distributedTransactions;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.PetriNet;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Place;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
+import org.hajecsdb.graphs.restLayer.DistributedViewResolver;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 
 import java.time.LocalDateTime;
@@ -15,11 +16,15 @@ public class Coordinator extends Voter {
 
     private Queue<Message> receivedMessages = new LinkedList<>();
     private Map<Long, Set<ResultDto>> resultsFromParticipants = new HashMap<>();
+    private Map<Long, ResultDto> resultOfDistributedTransaction = new HashMap<>();
     private int numberOfParticipantsOfDistributedTransaction;
+    private DistributedViewResolver distributedViewResolver;
+
 
     public Coordinator(PetriNet petriNet, CommunicationProtocol communicationProtocol, HostAddress hostAddress, int numberOfParticipantsOfDistributedTransaction) {
         super(petriNet, communicationProtocol, hostAddress);
         this.numberOfParticipantsOfDistributedTransaction = numberOfParticipantsOfDistributedTransaction;
+        this.distributedViewResolver = new DistributedViewResolver();
     }
 
     public Queue<Message> getReceivedMessages() {
@@ -120,10 +125,10 @@ public class Coordinator extends Voter {
                     P4_commit.getTokenList().add(new Token(distributedTransactionId, message.getCommand()));
 
                     System.out.println("DISTRIBUTED TRANSACTION [" + distributedTransactionId + "] HAS BEEN COMMITTED!");
+                    ResultDto result = distributedViewResolver.concanate(resultsFromParticipants.get(message.getDistributedTransactionId()));
+                    resultOfDistributedTransaction.put(distributedTransactionId, result);
                     deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 }
-//                message.get
-//                deleteMessagesRelatedWithTransaction(distributedTransactionId);
                 break;
         }
     }
@@ -187,5 +192,9 @@ public class Coordinator extends Voter {
         return petriNet.getCoordinatorFlowPlaces().stream()
                 .filter(place -> place.getTokenList().stream().anyMatch(token -> token.getDistributedTransactionId() == distributedTransactionId))
                 .collect(Collectors.toList());
+    }
+
+    public ResultDto getResultOfDistributedTransaction(long distributedTransactionId) {
+        return resultOfDistributedTransaction.get(distributedTransactionId);
     }
 }
