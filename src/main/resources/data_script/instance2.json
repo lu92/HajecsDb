@@ -1,15 +1,15 @@
 {
   "commands": [
-    "CREATE (p: Vampire {name: 'Selene2'})",
-    "CREATE (p: Vampire {name: 'Victor2'})",
-    "CREATE (p: Hibrid {name: 'Marcus2'})",
-    "CREATE (p: Hibrid {name: 'Michael2'})",
-    "CREATE (p: Vampire {name: 'Kraven2'})",
-    "CREATE (p: Vampire {name: 'Tanis2'})",
-    "CREATE (p: Lykan {name: 'William2'})",
-    "MATCH (m {name: 'Marcus2'}) MATCH (s {name: 'Selene2'}) CREATE (m)-[p:KNOW]->(s)",
-    "MATCH (m {name: 'Selene2'}) MATCH (s {name: 'Tanis2'}) CREATE (m)-[p:KNOW]->(s)",
-    "MATCH (v {name: 'Victor2'}) MATCH (s {name: 'Selene2'}) CREATE (v)-[p:LIKES]->(s)",
-    "MATCH (v {name: 'Victor2'}) MATCH (s {name: 'Kraven2'}) CREATE (v)-[p:LIKES]->(s)"
+    "CREATE (p: Vampire {name: 'SeleneB'})",
+    "CREATE (p: Vampire {name: 'VictorB'})",
+    "CREATE (p: Hibrid {name: 'MarcusB'})",
+    "CREATE (p: Hibrid {name: 'MichaelB'})",
+    "CREATE (p: Vampire {name: 'KravenB'})",
+    "CREATE (p: Vampire {name: 'TanisB'})",
+    "CREATE (p: Lykan {name: 'WilliamB'})",
+    "MATCH (m {name: 'MarcusB'}) MATCH (s {name: 'SeleneB'}) CREATE (m)-[p:KNOW]->(s)",
+    "MATCH (m {name: 'SeleneB'}) MATCH (s {name: 'TanisB'}) CREATE (m)-[p:KNOW]->(s)",
+    "MATCH (v {name: 'VictorB'}) MATCH (s {name: 'SeleneB'}) CREATE (v)-[p:LIKES]->(s)",
+    "MATCH (v {name: 'VictorB'}) MATCH (s {name: 'KravenB'}) CREATE (v)-[p:LIKES]->(s)"
   ]
 }
