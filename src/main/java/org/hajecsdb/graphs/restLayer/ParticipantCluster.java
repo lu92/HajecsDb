@@ -8,7 +8,7 @@ import org.hajecsdb.graphs.distributedTransactions.Participant;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
 import org.hajecsdb.graphs.restLayer.config.VoterConfig;
 import org.hajecsdb.graphs.restLayer.dto.Command;
-import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
+import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionBatchScript;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import org.hajecsdb.graphs.restLayer.dto.SessionDto;
 import org.hajecsdb.graphs.transactions.TransactionManager;
@@ -37,12 +37,12 @@ public class ParticipantCluster extends AbstractCluster {
     @Override
     public void receiveMessage(Message message) {
         participant.receiveMessage(message);
-        Token token = new Token(message.getDistributedTransactionId(), message.getCommand());
+        Token token = new Token(message.getDistributedTransactionId(), message.getCommands());
         petriNet.fireTransitionsInParticipantFlow(token);
     }
 
     @Override
-    public ResultDto exec(DistributedTransactionCommand distributedTransactionCommand) {
+    public ResultDto exec(DistributedTransactionBatchScript distributedTransactionBatchScript) {
         throw new IllegalStateException("Participant cannot coordinate distributed transaction!");
     }
 

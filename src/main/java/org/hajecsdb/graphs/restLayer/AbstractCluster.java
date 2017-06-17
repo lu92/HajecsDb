@@ -36,7 +36,7 @@ public abstract class AbstractCluster {
 
     public abstract void receiveMessage(Message message);
 
-    public abstract ResultDto exec(DistributedTransactionCommand distributedTransactionCommand);
+    public abstract ResultDto exec(DistributedTransactionBatchScript distributedTransactionBatchScript);
 
     public abstract void abortDistributedTransaction(long distributedTransactionId, boolean decision);
 

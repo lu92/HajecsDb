@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class Participant extends Voter {
     private HostAddress coordinatorHostAddress;
     private Map<Long, Boolean> transactionsToAbort = new HashMap<>();
-//    private Map<Long, Transaction> openedTransactions = new HashMap<>();
+    //    private Map<Long, Transaction> openedTransactions = new HashMap<>();
     private CypherExecutor cypherExecutor;
     private EntityConverter entityConverter;
     private SessionPool sessionPool;
@@ -52,13 +52,13 @@ public class Participant extends Voter {
         System.out.println(LocalDateTime.now() + "\t" + hostAddress + " received: " + message);
         switch (message.getSignal()) {
             case PREPARE:
-                Token token = new Token(message.getDistributedTransactionId(), message.getCommand());
+                Token token = new Token(message.getDistributedTransactionId(), message.getCommands());
                 petriNet.pushInParticipantFlow(token);
                 break;
 
             case PREPARE_TO_COMMIT:
                 Place P7_ready = petriNet.getPlace("P7-READY").get();
-                P7_ready.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommand()));
+                P7_ready.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommands()));
                 System.out.println("RECEIVED PREPARE_TO_COMMIT");
 
 //                cypherExecutor.execute(null, message.getCommand());
@@ -67,16 +67,19 @@ public class Participant extends Voter {
 
             case GLOBAL_COMMIT:
                 Place P8_pre_commit = petriNet.getPlace("P8-PRE-COMMIT").get();
-                P8_pre_commit.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommand()));
+                P8_pre_commit.getTokenList().add(new Token(message.getDistributedTransactionId(), message.getCommands()));
 
                 Session session = sessionPool.createSession();
                 session.setTransactionManager(transactionManager);
                 Transaction transaction = session.beginTransaction();
-                Result result = cypherExecutor.execute(transaction, message.getCommand());
-                System.out.println("CYPHER OPERATION STATUS [" + message.getCommand() + "]: " + result.isCompleted());
+                ResultDto executedResultDto = null;
+                for (String command : message.getCommands()) {
+                    Result result = cypherExecutor.execute(transaction, command);
+                    System.out.println("CYPHER OPERATION STATUS [" + message.getCommands() + "]: " + result.isCompleted());
+                    executedResultDto = entityConverter.toResult(result);
+                }
                 cypherExecutor.getTransactionalGraphService().context(transaction).commit();
-                EntityConverter entityConverter = new EntityConverter();
-                ResultDto executedResultDto = entityConverter.toResult(result);
+
                 petriNet.getResultOfLocalPartOfDistributedTransaction().put(message.getDistributedTransactionId(), executedResultDto);
                 System.out.println("RECEIVED GLOBAL_COMMIT");
                 break;

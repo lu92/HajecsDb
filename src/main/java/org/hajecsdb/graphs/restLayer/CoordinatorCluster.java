@@ -8,7 +8,7 @@ import org.hajecsdb.graphs.distributedTransactions.*;
 import org.hajecsdb.graphs.distributedTransactions.petriNet.Token;
 import org.hajecsdb.graphs.restLayer.config.VoterConfig;
 import org.hajecsdb.graphs.restLayer.dto.Command;
-import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionCommand;
+import org.hajecsdb.graphs.restLayer.dto.DistributedTransactionBatchScript;
 import org.hajecsdb.graphs.restLayer.dto.ResultDto;
 import org.hajecsdb.graphs.restLayer.dto.SessionDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class CoordinatorCluster extends AbstractCluster {
 
     @Override
     public void receiveMessage(Message message) {
-        Token token = new Token(message.getDistributedTransactionId(), message.getCommand());
+        Token token = new Token(message.getDistributedTransactionId(), message.getCommands());
         switch (getTargetVoterOfSignal(message.getSignal())) {
             case COORDINATOR:
                 coordinator.receiveMessage(message);
@@ -67,23 +67,28 @@ public class CoordinatorCluster extends AbstractCluster {
     }
 
     @Override
-    public ResultDto exec(DistributedTransactionCommand distributedTransactionCommand) {
-        if (executedDistributedTransactions.contains(distributedTransactionCommand.getDistributedTransactionId())) {
-            return new ResultDto("DISTRIBUTED TRANSACTION [" + distributedTransactionCommand.getDistributedTransactionId() + "] WAS ALREADY EXECUTED!", null);
+    public ResultDto exec(DistributedTransactionBatchScript distributedTransactionBatchScript) {
+        if (distributedTransactionBatchScript.getCommands().isEmpty()) {
+            return new ResultDto("SCRIPT OF DISTRIBUTED TRANSACTION [" + distributedTransactionBatchScript.getDistributedTransactionId() + "] IS EMPTY", null);
         }
-        Stack<ClauseInvocation> clauseInvocations = clausesSeparator.splitByClauses(distributedTransactionCommand.getCommand());
-        if (clauseInvocations.peek().getClause() == ClauseEnum.CREATE_NODE
-                || clauseInvocations.peek().getClause() == ClauseEnum.CREATE_RELATIONSHIP) {
-            return createMessage(distributedTransactionCommand.getCommand(), "CREATE clauses are not supported!");
+        if (executedDistributedTransactions.contains(distributedTransactionBatchScript.getDistributedTransactionId())) {
+            return new ResultDto("DISTRIBUTED TRANSACTION [" + distributedTransactionBatchScript.getDistributedTransactionId() + "] WAS ALREADY EXECUTED!", null);
         }
 
+        for (String command : distributedTransactionBatchScript.getCommands()) {
+            Stack<ClauseInvocation> clauseInvocations = clausesSeparator.splitByClauses(command);
+            if (clauseInvocations.peek().getClause() == ClauseEnum.CREATE_NODE
+                    || clauseInvocations.peek().getClause() == ClauseEnum.CREATE_RELATIONSHIP) {
+                return createMessage(command, "CREATE clauses are not supported!");
+            }
+        }
 
-        Token token = new Token(distributedTransactionCommand.getDistributedTransactionId(), distributedTransactionCommand.getCommand());
+        Token token = new Token(distributedTransactionBatchScript.getDistributedTransactionId(), distributedTransactionBatchScript.getCommands());
         petriNet.pushInCoordinatorFlow(token);
         petriNet.fireTransitionsInCoordinatorFlow(token);
-        ResultDto resultOfDistributedTransaction = coordinator.getResultOfDistributedTransaction(distributedTransactionCommand.getDistributedTransactionId());
+        ResultDto resultOfDistributedTransaction = coordinator.getResultOfDistributedTransaction(distributedTransactionBatchScript.getDistributedTransactionId());
         coordinator.clearResultsOfDistributedTransaction();
-        executedDistributedTransactions.add(distributedTransactionCommand.getDistributedTransactionId());
+        executedDistributedTransactions.add(distributedTransactionBatchScript.getDistributedTransactionId());
         return resultOfDistributedTransaction;
     }
 

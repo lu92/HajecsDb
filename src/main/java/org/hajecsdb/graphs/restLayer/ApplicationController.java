@@ -52,8 +52,8 @@ public class ApplicationController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/distributedTransaction")
     @ResponseBody
-    public ResultDto exec(@RequestBody DistributedTransactionCommand command) {
-        return cluster.exec(command);
+    public ResultDto exec(@RequestBody DistributedTransactionBatchScript distributedTransactionBatchScript) {
+        return cluster.exec(distributedTransactionBatchScript);
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/script")
