@@ -70,7 +70,9 @@ public class NodeImpl implements Node {
 
     @Override
     public void setLabel(Label label) {
-        properties.add(new Property(LABEL, STRING, label.getName()));
+        if (label != null) {
+            properties.add(new Property(LABEL, STRING, label.getName()));
+        }
     }
 
     @Override

@@ -35,21 +35,22 @@ public class RemoveClauseBuilder extends ClauseBuilder {
                     String propertyName = matcher.group(3);
                     if (operator.equals(":")) {
                         Property property = new Property("label", STRING, propertyName);
-                        removeLabel(result, property);
+                        removeLabel(graph, transaction, result, property);
                     } else {
-                        removeProperty(result, propertyName);
+                        removeProperty(graph, transaction, result, propertyName);
                     }
                 }
                 return result;
             }
 
-            void removeLabel(Result result, Property property) {
+            void removeLabel(TransactionalGraphService graph, Transaction transaction, Result result, Property property) {
                 int index = 0;
                 for (Map.Entry<Integer, ResultRow> entry : result.getResults().entrySet()) {
                     ResultRow resultRow = entry.getValue();
                     if (resultRow.getContentType() == ContentType.NODE &&
                             resultRow.getNode().getLabel().getName().equals((String) property.getValue())) {
-                        resultRow.getNode().getAllProperties().delete("label");
+                        graph.context(transaction).deletePropertyFromNode(resultRow.getNode().getId(), "label");
+//                        resultRow.getNode().getAllProperties().delete("label");
                         index++;
                     }
                 }
@@ -62,12 +63,13 @@ public class RemoveClauseBuilder extends ClauseBuilder {
                 result.getResults().put(0, resultRow);
             }
 
-            void removeProperty(Result result, String property) {
+            void removeProperty(TransactionalGraphService graph, Transaction transaction, Result result, String property) {
                 int index = 0;
                 for (Map.Entry<Integer, ResultRow> entry : result.getResults().entrySet()) {
                     ResultRow resultRow = entry.getValue();
                     if (resultRow.getContentType() == ContentType.NODE && resultRow.getNode().hasProperty(property)) {
-                        resultRow.getNode().getAllProperties().delete(property);
+                        graph.context(transaction).deletePropertyFromNode(resultRow.getNode().getId(), property);
+//                        resultRow.getNode().getAllProperties().delete(property);
                         index++;
                     }
                 }

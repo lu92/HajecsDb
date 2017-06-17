@@ -53,7 +53,7 @@ public class MatchNodeClauseBuilder extends ClauseBuilder {
                     filteredNodes = graph.context(transaction).getAllNodes().stream().collect(Collectors.toList());
                 } else {
                     filteredNodes = graph.context(transaction).getAllNodes().stream()
-                            .filter(node -> node.getLabel().equals(label))
+                            .filter(node -> node.getLabel() != null && node.getLabel().equals(label))
                             .collect(Collectors.toList());
                 }
 
